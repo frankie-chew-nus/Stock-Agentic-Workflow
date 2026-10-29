@@ -20,7 +20,7 @@ class DBSFutureDataLeakageTest(unittest.TestCase):
     def test_future_fundamental_is_excluded_from_historical_briefing(self):
         with tempfile.TemporaryDirectory(prefix="dbs_leak_") as temp:
             project = Path(temp)
-            for script in ("build_briefing.py", "run_logger.py", "build_sweep_prompt.py"):
+            for script in ("build_briefing.py", "run_logger.py", "build_sweep_prompt.py", "trade_scoring.py"):
                 shutil.copy2(ROOT / script, project / script)
             shutil.copytree(ROOT / "config", project / "config")
             shutil.copytree(ROOT / "prompts" / "templates", project / "prompts" / "templates")
