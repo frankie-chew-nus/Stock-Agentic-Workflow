@@ -1,0 +1,48 @@
+# C38U - CapitaLand Integrated Commercial Trust. Drafted by Claude 2026-10-22; verified: false.
+ticker: C38U.SI
+code: C38U
+company: CapitaLand Integrated Commercial Trust
+short_name: CICT
+name_note: formerly CapitaLand Mall Trust
+description: >
+  CICT is Singapore's largest REIT, formed in 2020 when CapitaLand Mall Trust merged with
+  CapitaLand Commercial Trust. It owns Singapore malls (Plaza Singapura, Bugis Junction, Funan,
+  ION Orchard stake), offices (CapitaGreen, CapitaSpring, Asia Square Tower 2, Six Battery Road)
+  and integrated developments (Raffles City Singapore), plus assets in Germany and Australia.
+  Its manager and sponsor is CapitaLand Investment.
+company_domains: [cict.com.sg]
+search_aliases:
+  - CapitaLand Integrated Commercial Trust
+  - C38U
+  - CapitaLand Integrated Commercial Trust Management
+aliases:
+  strong:
+    - CapitaLand Integrated Commercial Trust
+    - CapitaLand Integrated Commercial Trust Management
+    - "SGX:C38U"
+    - "SGX: C38U"
+    - C38U.SI
+  context: [CICT]
+  match_only: [Raffles City Singapore, Plaza Singapura, Funan, CapitaSpring, CapitaGreen, ION Orchard]   # matching only; not searched
+  search_context_words: [REIT, Singapore, DPU, CapitaLand]
+  context_terms: [REIT, S-REIT, DPU, distribution, unitholders, CapitaLand, Singapore, SGX, occupancy, Straits Times Index]
+  exclude: [China Information and Communication Technology]
+people:
+  - {name: Tan Choon Siang, role: CEO, from: 2025-05-01}
+  - {name: Tony Tan, role: CEO, to: 2025-04-30}
+former_names:
+  - {name: CapitaLand Mall Trust, until: 2020-11-02}
+  - {name: CapitaLand Commercial Trust, until: 2020-11-02}
+collisions:
+  - "other organisations abbreviated CICT (e.g. China Information and Communication Technology Group)"
+  - "mall and office names used only as a location for an event, store opening or incident"
+related_not_aliases:
+  CapitaLand Investment: "sponsor and owner of the manager; separately listed (SGX: 9CI)"
+  CapitaLand Ascendas REIT: "sister REIT, separately listed"
+competitors_not_aliases: [Mapletree Pan Asia Commercial Trust, Frasers Centrepoint Trust, Keppel REIT, Suntec REIT]
+not_relevant_patterns: []
+relevant_examples: []
+as_of: 2026-10-22
+verified: false
+sources:
+  - https://www.edgeprop.sg/amp/property-news/capitaland-integrated-commercial-trust-appoints-new-ceo-may-1

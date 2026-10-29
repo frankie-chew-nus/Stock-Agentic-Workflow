@@ -1,0 +1,67 @@
+# universe.yaml - every ticker the pipeline covers, and its sector(s).
+# A company file must exist at config/companies/<code>.yaml for each entry
+# (code = SGX code without ".SI"; the index uses STI).
+# Keep in sync with ALL_TICKERS in stock_raw_price_collector.py.
+#
+# sectors: the first sector is the primary one; extra sectors are merged in order.
+
+tickers:
+  # --- Market ---
+  "^STI":    {code: STI,  sectors: [market]}
+  # --- Banks ---
+  D05.SI:    {code: D05,  sectors: [banks]}
+  O39.SI:    {code: O39,  sectors: [banks]}
+  U11.SI:    {code: U11,  sectors: [banks]}
+  # --- Commercial & retail REITs ---
+  C38U.SI:   {code: C38U, sectors: [reits_commercial]}
+  N2IU.SI:   {code: N2IU, sectors: [reits_commercial]}
+  K71U.SI:   {code: K71U, sectors: [reits_commercial]}
+  J69U.SI:   {code: J69U, sectors: [reits_commercial]}
+  TS0U.SI:   {code: TS0U, sectors: [reits_commercial]}
+  T82U.SI:   {code: T82U, sectors: [reits_commercial]}
+  JYEU.SI:   {code: JYEU, sectors: [reits_commercial]}
+  # --- Industrial, logistics & data-centre REITs ---
+  A17U.SI:   {code: A17U, sectors: [reits_industrial]}
+  M44U.SI:   {code: M44U, sectors: [reits_industrial]}
+  ME8U.SI:   {code: ME8U, sectors: [reits_industrial]}
+  BUOU.SI:   {code: BUOU, sectors: [reits_industrial]}
+  AJBU.SI:   {code: AJBU, sectors: [reits_industrial]}
+  # --- Healthcare ---
+  C2PU.SI:   {code: C2PU, sectors: [healthcare]}
+  BSL.SI:    {code: BSL,  sectors: [healthcare]}
+  # --- Aviation & transport services ---
+  C6L.SI:    {code: C6L,  sectors: [aviation_services]}
+  S58.SI:    {code: S58,  sectors: [aviation_services]}
+  S59.SI:    {code: S59,  sectors: [aviation_services]}
+  F83.SI:    {code: F83,  sectors: [aviation_services]}
+  # --- Telecoms & infrastructure ---
+  Z74.SI:    {code: Z74,  sectors: [telecom_infra]}
+  CC3.SI:    {code: CC3,  sectors: [telecom_infra]}
+  CJLU.SI:   {code: CJLU, sectors: [telecom_infra]}
+  A7RU.SI:   {code: A7RU, sectors: [telecom_infra]}
+  # --- Industrials & engineering ---
+  S63.SI:    {code: S63,  sectors: [industrials]}
+  5E2.SI:    {code: 5E2,  sectors: [industrials]}
+  BS6.SI:    {code: BS6,  sectors: [industrials]}
+  U96.SI:    {code: U96,  sectors: [industrials]}
+  E28.SI:    {code: E28,  sectors: [industrials]}
+  V03.SI:    {code: V03,  sectors: [industrials]}
+  # --- Property developers & real-estate managers ---
+  U14.SI:    {code: U14,  sectors: [property]}
+  C09.SI:    {code: C09,  sectors: [property]}
+  9CI.SI:    {code: 9CI,  sectors: [property]}
+  H78.SI:    {code: H78,  sectors: [property]}
+  # --- Conglomerates ---
+  J36.SI:    {code: J36,  sectors: [conglomerates]}
+  C07.SI:    {code: C07,  sectors: [conglomerates]}
+  BN4.SI:    {code: BN4,  sectors: [conglomerates]}
+  # --- Consumer ---
+  Y92.SI:    {code: Y92,  sectors: [consumer]}
+  F34.SI:    {code: F34,  sectors: [consumer]}
+  OV8.SI:    {code: OV8,  sectors: [consumer]}
+  D01.SI:    {code: D01,  sectors: [consumer]}
+  G13.SI:    {code: G13,  sectors: [consumer]}
+  # --- Non-bank financials ---
+  S68.SI:    {code: S68,  sectors: [financials]}
+  AIY.SI:    {code: AIY,  sectors: [financials]}
+  YF8.SI:    {code: YF8,  sectors: [financials]}

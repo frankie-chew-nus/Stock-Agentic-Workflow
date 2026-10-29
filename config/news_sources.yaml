@@ -1,0 +1,1579 @@
+# news_sources.yaml - candidate news sources and RSS feeds for the news collector.
+# Compiled 2026-10-22 by Claude from feed directories (Feedspot, Feeder), publisher RSS pages and
+# direct reads of live feeds. Run a feed check from YOUR computer before relying on any entry:
+# several outlets refuse Claude's cloud tools but work fine from a normal connection.
+#
+# feed status:
+#   verified        - Claude read the live feed on 2026-10-22 and it had items dated 20-22 Oct 2026
+#   listed          - published by the outlet or listed in a feed directory; not read by Claude
+#   listed_broken   - a directory reports it not responding / stopped posting
+#   stale           - readable, but the newest item was months old when checked
+#   pattern         - likely URL by the site's platform convention (e.g. WordPress /feed/); untested
+#   none_found      - no public RSS found; use the fallback (sitemap / newsroom page / email alerts)
+#   robots_disallowed - the site's robots.txt refuses automated fetching of this feed (not polled)
+# discover_sitemaps: true = rss_news_collector.py also polls the Google News sitemaps listed in
+#   the site's robots.txt (recent articles with titles).
+# blocked_here: true = Claude's cloud tools could not read the site (blocked, robots or error);
+#   this says nothing about access from your own machine.
+#
+# trust (how the tagging step should treat it, independent of RSS):
+#   A - primary source or major news organisation (most are already in sweep_base trusted_domains)
+#   B - reputable trade or regional press
+#   C - commentary, blogs, aggregators: discovery only, not evidence
+# paywall: none | metered | hard
+# sectors: sector names from config/sectors/*.yaml, or [all]
+# in_sweep_trusted: domain is already in sweep_base.yaml or a sector trusted_domains list
+#
+# Use for personal research: respect each site's robots.txt and terms, poll at most a few times a
+# day, cache results, and keep full text local.
+
+checked: 2026-10-22
+
+sources:
+
+  # =============================================================================================
+  # SINGAPORE - major news
+  # =============================================================================================
+  - id: cna
+    name: CNA (Channel NewsAsia)
+    domain: channelnewsasia.com
+    country: SG
+    type: news
+    trust: A
+    paywall: none
+    sectors: [all]
+    in_sweep_trusted: true
+    blocked_here: true
+    discover_sitemaps: true   # also poll the news sitemaps named in robots.txt
+    feeds:
+      - {section: Latest, url: "https://www.channelnewsasia.com/api/v1/rss-outbound-feed?_format=xml", status: listed}
+      - {section: Business, url: "https://www.channelnewsasia.com/api/v1/rss-outbound-feed?_format=xml&category=6936", status: listed}
+      - {section: Singapore, url: "https://www.channelnewsasia.com/api/v1/rss-outbound-feed?_format=xml&category=10416", status: listed}
+      - {section: Asia, url: "https://www.channelnewsasia.com/api/v1/rss-outbound-feed?_format=xml&category=6511", status: listed}
+      - {section: World, url: "https://www.channelnewsasia.com/api/v1/rss-outbound-feed?_format=xml&category=6311", status: listed}
+      - {section: TODAY, url: "https://www.channelnewsasia.com/api/v1/rss-outbound-feed?_format=xml&category=679471", status: listed}
+      - {section: Latest (legacy URL), url: "https://www.channelnewsasia.com/rssfeeds/8395884", status: listed, note: "older feed address; may redirect"}
+    fallback: "sitemap (check robots.txt for the sitemap index); article URLs carry descriptive slugs, e.g. /singapore/bank-shares-decline-ocbc-uob-dbs-citi-report-6441941"
+    notes: "TODAY (todayonline.com) content now runs under CNA's TODAY section."
+
+  - id: straits_times
+    name: The Straits Times
+    domain: straitstimes.com
+    country: SG
+    type: news
+    trust: A
+    paywall: metered
+    sectors: [all]
+    in_sweep_trusted: true
+    blocked_here: true
+    discover_sitemaps: true   # also poll the news sitemaps named in robots.txt
+    feeds:
+      - {section: Business, url: "https://www.straitstimes.com/news/business/rss.xml", status: listed, note: "Feeder reports working"}
+      - {section: Singapore, url: "https://www.straitstimes.com/news/singapore/rss.xml", status: listed, note: "Feeder reports working"}
+      - {section: Asia, url: "https://www.straitstimes.com/news/asia/rss.xml", status: listed, note: "Feeder reports working"}
+      - {section: World, url: "https://www.straitstimes.com/news/world/rss.xml", status: listed, note: "Feeder reports working"}
+      - {section: Tech, url: "https://www.straitstimes.com/news/tech/rss.xml", status: listed_broken, note: "stopped posting"}
+      - {section: Politics, url: "https://www.straitstimes.com/news/politics/rss.xml", status: listed_broken, note: "not responding"}
+    fallback: sitemap
+    notes: "Premium (ST+) stories may show only a teaser; record full_text false for those."
+
+  - id: business_times
+    name: The Business Times
+    domain: businesstimes.com.sg
+    country: SG
+    type: news
+    trust: A
+    paywall: metered
+    sectors: [all]
+    in_sweep_trusted: true
+    blocked_here: true
+    discover_sitemaps: true   # also poll the news sitemaps named in robots.txt
+    feeds:
+      - {section: Top stories, url: "https://www.businesstimes.com.sg/rss/top-stories", status: listed_broken, note: "Feeder: not responding since 4 Jun 2026"}
+      - {section: Enterprise 50, url: "https://www.businesstimes.com.sg/rss/enterprise-50", status: stale, note: "run 2026-10-22: 100 items from 2021 to 2026-10-15; an archive of one section, not a news feed; earlier: shows the /rss/<section> pattern; other sections may exist"}
+      - {section: Companies & Markets, url: "https://www.businesstimes.com.sg/rss/companies-markets", status: pattern, note: "guessed from the /rss/<section> pattern"}
+      - {section: Singapore, url: "https://www.businesstimes.com.sg/rss/singapore", status: pattern, note: "guessed from the /rss/<section> pattern"}
+    fallback: "sitemap; RSS may have been withdrawn in mid-2026 - check the site footer for an RSS page"
+    notes: "Most important SG business source. If RSS is gone, the sitemap is the main route."
+
+  - id: edge_singapore
+    name: The Edge Singapore
+    domain: theedgesingapore.com
+    country: SG
+    type: news
+    trust: A
+    paywall: metered
+    sectors: [all]
+    in_sweep_trusted: true
+    blocked_here: true
+    feeds: []
+    fallback: "sitemap; ignore alfi.dev. and testing.dev. subdomains (staging mirrors)"
+    notes: "No public RSS found."
+
+  - id: edgeprop_sg
+    name: EdgeProp Singapore
+    domain: edgeprop.sg
+    country: SG
+    type: trade
+    trust: B
+    paywall: none
+    sectors: [reits_commercial, reits_industrial, property]
+    in_sweep_trusted: true
+    blocked_here: false
+    feeds: []
+    fallback: "sitemap or /property-news listing page"
+    notes: "No public RSS found."
+
+  - id: zaobao
+    name: Lianhe Zaobao (Chinese)
+    domain: zaobao.com.sg
+    country: SG
+    type: news
+    trust: A
+    paywall: metered
+    sectors: [all]
+    in_sweep_trusted: false
+    blocked_here: null
+    feeds: []
+    fallback: "check site for RSS; otherwise sitemap"
+    notes: "Chinese-language; needs Chinese aliases in company files before use."
+
+  - id: mothership
+    name: Mothership
+    domain: mothership.sg
+    country: SG
+    type: news
+    trust: C
+    paywall: none
+    sectors: [consumer, banks, telecom_infra]
+    in_sweep_trusted: false
+    blocked_here: null
+    feeds:
+      - {section: All, url: "https://mothership.sg/feed/", status: listed}
+    notes: "General news; useful early signal for consumer-facing incidents (outages, scams, recalls)."
+
+  - id: independent_sg
+    name: The Independent Singapore
+    domain: theindependent.sg
+    country: SG
+    type: news
+    trust: C
+    paywall: none
+    sectors: [all]
+    in_sweep_trusted: false
+    blocked_here: null
+    feeds:
+      - {section: All, url: "https://theindependent.sg/feed/", status: listed}
+    notes: "Discovery only."
+
+  - id: sbr
+    name: Singapore Business Review
+    domain: sbr.com.sg
+    country: SG
+    type: trade
+    trust: B
+    paywall: none
+    sectors: [all]
+    in_sweep_trusted: false
+    blocked_here: null
+    feeds: []
+    fallback: "news listing page or sitemap"
+    notes: "No public RSS found."
+
+  - id: fintechnews_sg
+    name: Fintech News Singapore
+    domain: fintechnews.sg
+    country: SG
+    type: trade
+    trust: B
+    paywall: none
+    sectors: [banks, financials]
+    in_sweep_trusted: false
+    blocked_here: false
+    feeds:
+      - {section: All, url: "https://fintechnews.sg/feed/", status: verified}
+
+  - id: sfa_fintech
+    name: Singapore FinTech Association (news)
+    domain: singaporefintech.org
+    country: SG
+    type: trade
+    trust: B
+    paywall: none
+    sectors: [banks, financials]
+    in_sweep_trusted: false
+    blocked_here: null
+    feeds:
+      - {section: News, url: "https://singaporefintech.org/news/feed/", status: listed}
+
+  - id: smart_investor
+    name: The Smart Investor
+    domain: thesmartinvestor.com.sg
+    country: SG
+    type: commentary
+    trust: C
+    paywall: none
+    sectors: [all]
+    in_sweep_trusted: false
+    blocked_here: false
+    feeds:
+      - {section: All, url: "https://thesmartinvestor.com.sg/feed/", status: verified}
+    notes: "Retail investor commentary on SGX stocks. Discovery only; label as non-independent commentary."
+
+  - id: dollarsandsense
+    name: DollarsAndSense
+    domain: dollarsandsense.sg
+    country: SG
+    type: commentary
+    trust: C
+    paywall: none
+    sectors: [all]
+    in_sweep_trusted: false
+    blocked_here: null
+    feeds:
+      - {section: All, url: "https://dollarsandsense.sg/feed/", status: pattern}
+
+  - id: vulcan_post
+    name: Vulcan Post
+    domain: vulcanpost.com
+    country: SG
+    type: news
+    trust: C
+    paywall: none
+    sectors: [consumer, telecom_infra]
+    in_sweep_trusted: false
+    blocked_here: null
+    feeds:
+      - {section: All, url: "https://vulcanpost.com/feed/", status: pattern}
+
+  - id: tech_in_asia
+    name: Tech in Asia
+    domain: techinasia.com
+    country: SG
+    type: trade
+    trust: B
+    paywall: metered
+    sectors: [telecom_infra, financials, banks]
+    in_sweep_trusted: false
+    blocked_here: true
+    feeds:
+      - {section: All, url: "https://www.techinasia.com/feed", status: robots_disallowed, note: "run 2026-10-22: robots.txt answered 403"}
+
+  - id: dealstreetasia
+    name: DealStreetAsia
+    domain: dealstreetasia.com
+    country: SG
+    type: trade
+    trust: B
+    paywall: hard
+    sectors: [financials, property, banks]
+    in_sweep_trusted: false
+    blocked_here: null
+    feeds: []
+    fallback: "headlines only; paywalled"
+    notes: "Private equity / M&A deal news in SE Asia."
+
+  - id: yahoo_finance_ticker
+    name: Yahoo Finance per-ticker headlines
+    domain: feeds.finance.yahoo.com
+    country: GLOBAL
+    type: aggregator
+    trust: C
+    paywall: none
+    sectors: [all]
+    in_sweep_trusted: false
+    blocked_here: true
+    feeds:
+      - {section: "Per ticker (template)", url: "https://feeds.finance.yahoo.com/rss/2.0/headline?s={ticker}&region=SG&lang=en-SG", status: robots_disallowed, note: "run 2026-10-22: robots.txt disallows this feed; earlier: {ticker} = D05.SI etc.; comma-separate several tickers. Yahoo's general Finance top-stories feeds return 404 since 6 Oct 2026 per Feeder; check whether per-ticker feeds still work"}
+    notes: "Links point to the original publishers (often Reuters, MT Newswires); treat as discovery, then fetch the original."
+
+  # =============================================================================================
+  # SINGAPORE - exchange, regulators, government (primary sources)
+  # =============================================================================================
+  - id: sgx_announcements
+    name: SGX company announcements
+    domain: sgx.com
+    country: SG
+    type: exchange
+    trust: A
+    paywall: none
+    sectors: [all]
+    in_sweep_trusted: true
+    blocked_here: false
+    feeds: []
+    fallback: "SGX announcements web page per company (links.sgx.com documents); the site's own JSON endpoint is undocumented - check SGX terms before automating. Company IR pages usually mirror filings."
+    notes: "Most authoritative source for results, dividends, board changes, bond issues."
+
+  - id: mas
+    name: Monetary Authority of Singapore
+    domain: mas.gov.sg
+    country: SG
+    type: regulator
+    trust: A
+    paywall: none
+    sectors: [banks, financials, reits_commercial, reits_industrial, market]
+    in_sweep_trusted: true
+    blocked_here: null
+    feeds: []
+    fallback: "poll /news/media-releases listing; MAS also offers email subscriptions"
+    notes: "No public RSS found. Enforcement actions and policy statements."
+
+  - id: gebiz
+    name: GeBIZ (Singapore government procurement)
+    domain: gebiz.gov.sg
+    country: SG
+    type: regulator
+    trust: A
+    paywall: none
+    sectors: [industrials, telecom_infra, aviation_services]
+    in_sweep_trusted: false
+    blocked_here: null
+    feeds:
+      - {section: "Awards - IT & Telecommunication (others)", url: "https://www.gebiz.gov.sg/rss/OthersIT&Telecommunication-CREATE_AWD_FEED.xml", status: listed}
+      - {section: "Awards - Construction: Civil Engineering", url: "https://www.gebiz.gov.sg/rss/Civil_Engineering-CREATE_AWD_FEED.xml", status: listed}
+      - {section: "Awards - Transportation (others)", url: "https://www.gebiz.gov.sg/rss/OthersTransportation-CREATE_AWD_FEED.xml", status: listed}
+      - {section: "Awards - Professional Services", url: "https://www.gebiz.gov.sg/rss/Professional_Services-CREATE_AWD_FEED.xml", status: listed}
+      - {section: "Awards - Software & Licences", url: "https://www.gebiz.gov.sg/rss/Softwares_&_Licences-CREATE_AWD_FEED.xml", status: listed}
+    notes: "Government contract awards: useful for ST Engineering, NCS (Singtel), SATS, Sembcorp. Many more category feeds exist."
+
+  - id: sfa
+    name: Singapore Food Agency (food alerts)
+    domain: sfa.gov.sg
+    country: SG
+    type: regulator
+    trust: A
+    paywall: none
+    sectors: [consumer]
+    in_sweep_trusted: false
+    blocked_here: null
+    feeds:
+      - {section: Food alerts, url: "https://www.sfa.gov.sg/rss/annual-listing-food-alerts", status: listed}
+    notes: "Product recalls (Sheng Siong, DFI, ThaiBev/F&N brands)."
+
+  - id: sg_gov_newsrooms
+    name: Other Singapore agencies (URA, HDB, CAAS, IMDA, EMA, MOH, MTI, SingStat, JTC)
+    domain: gov.sg
+    country: SG
+    type: regulator
+    trust: A
+    paywall: none
+    sectors: [all]
+    in_sweep_trusted: true
+    blocked_here: null
+    feeds: []
+    fallback: "poll each agency's press-release listing; check each for RSS"
+    notes: "ura.gov.sg, caas.gov.sg, imda.gov.sg, ema.gov.sg, moh.gov.sg, mti.gov.sg, singstat.gov.sg and jtc.gov.sg are in sector trusted lists."
+
+  - id: elitigation
+    name: eLitigation (Singapore court judgments)
+    domain: elitigation.sg
+    country: SG
+    type: regulator
+    trust: A
+    paywall: none
+    sectors: [all]
+    in_sweep_trusted: false
+    blocked_here: null
+    feeds: []
+    fallback: "judgment listing pages; check for RSS"
+    notes: "Court judgments are published here, not on judiciary.gov.sg. Add to trusted domains."
+
+  - id: company_newsrooms
+    name: Company newsrooms and IR pages (all 47 tickers)
+    domain: "(from config/companies/*.yaml company_domains)"
+    country: SG
+    type: company
+    trust: A
+    paywall: none
+    sectors: [all]
+    in_sweep_trusted: true
+    blocked_here: false
+    feeds: []
+    fallback: "poll each newsroom listing page (most have no RSS); e.g. UOB's newsroom index lists the latest 12 releases with dates and links"
+    notes: "Highest-volume primary source; filter out CSR/sponsorship items with the not-relevant patterns."
+
+  # =============================================================================================
+  # REGIONAL - Malaysia, Indonesia, Thailand, Vietnam, Philippines
+  # =============================================================================================
+  - id: bernama
+    name: Bernama
+    domain: bernama.com
+    country: MY
+    type: wire
+    trust: A
+    paywall: none
+    sectors: [banks, telecom_infra, consumer, property, industrials]
+    in_sweep_trusted: false
+    blocked_here: null
+    feeds:
+      - {section: English, url: "https://www.bernama.com/en/rssfeed.php", status: listed, note: "URL taken from a directory link parameter"}
+    notes: "Malaysian national news agency: UOB Malaysia, OCBC Malaysia, Genting, YTL, Wilmar."
+
+  - id: malay_mail
+    name: Malay Mail
+    domain: malaymail.com
+    country: MY
+    type: news
+    trust: B
+    paywall: none
+    sectors: [banks, consumer, telecom_infra]
+    in_sweep_trusted: false
+    blocked_here: false
+    feeds:
+      - {section: Malaysia, url: "https://www.malaymail.com/feed/rss/malaysia", status: verified}
+      - {section: Money, url: "https://www.malaymail.com/feed/rss/money", status: pattern}
+      - {section: Singapore, url: "https://www.malaymail.com/feed/rss/singapore", status: pattern, note: "Malay Mail carries Singapore wire stories"}
+
+  - id: fmt
+    name: Free Malaysia Today
+    domain: freemalaysiatoday.com
+    country: MY
+    type: news
+    trust: B
+    paywall: none
+    sectors: [banks, consumer]
+    in_sweep_trusted: false
+    blocked_here: null
+    feeds:
+      - {section: All, url: "https://www.freemalaysiatoday.com/feed", status: listed, note: "from a directory link parameter"}
+
+  - id: malaysiakini
+    name: Malaysiakini
+    domain: malaysiakini.com
+    country: MY
+    type: news
+    trust: B
+    paywall: hard
+    sectors: [banks, consumer]
+    in_sweep_trusted: false
+    blocked_here: null
+    feeds:
+      - {section: English news, url: "https://www.malaysiakini.com/rss/en/news.rss", status: listed}
+
+  - id: the_star_my
+    name: The Star (Malaysia)
+    domain: thestar.com.my
+    country: MY
+    type: news
+    trust: B
+    paywall: metered
+    sectors: [banks, consumer, property, telecom_infra, industrials]
+    in_sweep_trusted: false
+    blocked_here: null
+    feeds: []
+    fallback: "check site for RSS page; otherwise sitemap"
+    notes: "Strong Malaysian business desk; carries Reuters/Bernama copy on SG companies."
+
+  - id: edge_malaysia
+    name: The Edge Malaysia
+    domain: theedgemalaysia.com
+    country: MY
+    type: news
+    trust: B
+    paywall: metered
+    sectors: [banks, consumer, property, industrials]
+    in_sweep_trusted: false
+    blocked_here: null
+    feeds: []
+    fallback: sitemap
+    notes: "Not the same as The Edge Singapore. Page headers show the current date, not the article date - always read the article's own date."
+
+  - id: nst
+    name: New Straits Times
+    domain: nst.com.my
+    country: MY
+    type: news
+    trust: B
+    paywall: none
+    sectors: [banks, consumer]
+    in_sweep_trusted: false
+    blocked_here: null
+    feeds: []
+    fallback: "check site for RSS; otherwise sitemap"
+
+  - id: jakarta_post
+    name: The Jakarta Post
+    domain: thejakartapost.com
+    country: ID
+    type: news
+    trust: B
+    paywall: metered
+    sectors: [banks, consumer, conglomerates]
+    in_sweep_trusted: false
+    blocked_here: null
+    feeds: []
+    fallback: "check site for RSS; otherwise sitemap"
+    notes: "UOB Indonesia, OCBC NISP, Astra (JC&C), Wilmar."
+
+  - id: jakarta_globe
+    name: Jakarta Globe
+    domain: jakartaglobe.id
+    country: ID
+    type: news
+    trust: B
+    paywall: none
+    sectors: [banks, consumer, conglomerates]
+    in_sweep_trusted: false
+    blocked_here: null
+    feeds: []
+    fallback: "check site for RSS"
+
+  - id: antara
+    name: ANTARA (English)
+    domain: en.antaranews.com
+    country: ID
+    type: wire
+    trust: B
+    paywall: none
+    sectors: [banks, consumer, conglomerates]
+    in_sweep_trusted: false
+    blocked_here: null
+    feeds: []
+    fallback: "Feedspot lists ~40 ANTARA feeds (rss.feedspot.com/antaranews_rss_feeds/) - pick Business & Investment"
+
+  - id: indonesia_business_post
+    name: Indonesia Business Post
+    domain: indonesiabusinesspost.com
+    country: ID
+    type: news
+    trust: B
+    paywall: none
+    sectors: [banks, conglomerates]
+    in_sweep_trusted: false
+    blocked_here: null
+    feeds:
+      - {section: All, url: "https://indonesiabusinesspost.com/feed/", status: listed_broken, note: "run 2026-10-22: HTTP 404; earlier: from a directory link parameter"}
+
+  - id: bangkok_post
+    name: Bangkok Post
+    domain: bangkokpost.com
+    country: TH
+    type: news
+    trust: B
+    paywall: none
+    sectors: [banks, consumer, telecom_infra]
+    in_sweep_trusted: false
+    blocked_here: true
+    feeds:
+      - {section: Business, url: "https://www.bangkokpost.com/rss/data/business.xml", status: listed}
+      - {section: Top stories, url: "https://www.bangkokpost.com/rss/data/topstories.xml", status: listed}
+      - {section: Most recent, url: "https://www.bangkokpost.com/rss/data/most-recent.xml", status: listed}
+    notes: "UOB Thailand, ThaiBev, Singtel's AIS stake, Frasers Property Thailand."
+
+  - id: thailand_business_news
+    name: Thailand Business News
+    domain: thailand-business-news.com
+    country: TH
+    type: news
+    trust: C
+    paywall: none
+    sectors: [banks, consumer]
+    in_sweep_trusted: false
+    blocked_here: null
+    feeds:
+      - {section: Business, url: "https://www.thailand-business-news.com/top-news/business/feed", status: listed, note: "from a directory link parameter; reposts many press releases"}
+
+  - id: thaiger
+    name: The Thaiger (Business)
+    domain: thethaiger.com
+    country: TH
+    type: news
+    trust: C
+    paywall: none
+    sectors: [consumer]
+    in_sweep_trusted: false
+    blocked_here: null
+    feeds:
+      - {section: Business, url: "https://thethaiger.com/news/business/feed", status: listed, note: "from a directory link parameter"}
+
+  - id: nation_thailand
+    name: The Nation Thailand
+    domain: nationthailand.com
+    country: TH
+    type: news
+    trust: B
+    paywall: none
+    sectors: [banks, consumer]
+    in_sweep_trusted: false
+    blocked_here: null
+    feeds: []
+    fallback: "check site for RSS"
+
+  - id: vnexpress
+    name: VnExpress International
+    domain: e.vnexpress.net
+    country: VN
+    type: news
+    trust: B
+    paywall: none
+    sectors: [banks, property, consumer, industrials, conglomerates]
+    in_sweep_trusted: false
+    blocked_here: false
+    feeds:
+      - {section: Business, url: "https://e.vnexpress.net/rss/business.rss", status: verified}
+    notes: "UOB Vietnam, CapitaLand/Keppel Vietnam projects, Sembcorp Vietnam parks, JC&C (THACO, Vinamilk), Sabeco (ThaiBev)."
+
+  - id: vietnamnet
+    name: VietnamNet (English)
+    domain: vietnamnet.vn
+    country: VN
+    type: news
+    trust: B
+    paywall: none
+    sectors: [property, consumer, conglomerates]
+    in_sweep_trusted: false
+    blocked_here: null
+    feeds:
+      - {section: English news, url: "https://vietnamnet.vn/en/news.rss", status: listed, note: "from a directory link parameter"}
+
+  - id: bworld
+    name: BusinessWorld (Philippines)
+    domain: bworldonline.com
+    country: PH
+    type: news
+    trust: B
+    paywall: none
+    sectors: [telecom_infra, conglomerates, property]
+    in_sweep_trusted: false
+    blocked_here: null
+    feeds:
+      - {section: All, url: "https://www.bworldonline.com/feed/", status: pattern}
+    notes: "Singtel's Globe Telecom stake; Jardine/Hongkong Land Philippine interests."
+
+  - id: inquirer_business
+    name: Inquirer Business (Philippines)
+    domain: business.inquirer.net
+    country: PH
+    type: news
+    trust: B
+    paywall: none
+    sectors: [telecom_infra, conglomerates]
+    in_sweep_trusted: false
+    blocked_here: null
+    feeds:
+      - {section: Business, url: "https://business.inquirer.net/feed", status: pattern}
+
+  # =============================================================================================
+  # REGIONAL - Greater China, India, Australia, Japan, Korea
+  # =============================================================================================
+  - id: scmp
+    name: South China Morning Post
+    domain: scmp.com
+    country: HK
+    type: news
+    trust: A
+    paywall: metered
+    sectors: [banks, property, conglomerates, consumer, industrials, financials]
+    in_sweep_trusted: false
+    blocked_here: false
+    feeds:
+      - {section: Business, url: "https://www.scmp.com/rss/92/feed", status: stale, note: "readable but newest item was 16 Apr 2026 when checked - re-test"}
+      - {section: Economy, url: "https://www.scmp.com/rss/328461/feed", status: listed}
+      - {section: Property, url: "https://www.scmp.com/rss/96/feed/", status: listed}
+      - {section: Hong Kong, url: "https://www.scmp.com/rss/2/feed/", status: listed}
+      - {section: China, url: "https://www.scmp.com/rss/4/feed/", status: listed}
+      - {section: Asia, url: "https://www.scmp.com/rss/3/feed", status: listed}
+      - {section: Southeast Asia, url: "https://www.scmp.com/rss/318215/feed/", status: listed}
+      - {section: Tech, url: "https://www.scmp.com/rss/36/feed/", status: listed}
+    notes: "Hongkong Land, Jardine Matheson, DFI, UOB/OCBC/DBS Hong Kong, MPACT Festival Walk."
+
+  - id: rthk
+    name: RTHK (Hong Kong public broadcaster)
+    domain: rthk.hk
+    country: HK
+    type: news
+    trust: A
+    paywall: none
+    sectors: [banks, property, conglomerates, consumer]
+    in_sweep_trusted: false
+    blocked_here: false
+    feeds:
+      - {section: Finance, url: "https://rthk.hk/rthk/news/rss/e_expressnews_efinance.xml", status: listed, note: "from RTHK's own RSS page"}
+      - {section: Local, url: "https://rthk.hk/rthk/news/rss/e_expressnews_elocal.xml", status: listed}
+      - {section: Greater China, url: "https://rthk.hk/rthk/news/rss/e_expressnews_egreaterchina.xml", status: listed}
+
+  - id: hkma
+    name: Hong Kong Monetary Authority
+    domain: hkma.gov.hk
+    country: HK
+    type: regulator
+    trust: A
+    paywall: none
+    sectors: [banks]
+    in_sweep_trusted: false
+    blocked_here: false
+    feeds:
+      - {section: Press releases, url: "https://www.hkma.gov.hk/eng/other-information/rss/rss_press-release.xml", status: listed, note: "from HKMA's own RSS page"}
+      - {section: Circulars, url: "https://www.hkma.gov.hk/eng/other-information/rss/rss_circulars.xml", status: listed}
+      - {section: Scam alerts, url: "https://www.hkma.gov.hk/eng/other-information/rss/rss_scam-alert.xml", status: listed}
+    notes: "Hong Kong branches of DBS, OCBC and UOB."
+
+  - id: china_daily
+    name: China Daily (Business)
+    domain: chinadaily.com.cn
+    country: CN
+    type: news
+    trust: B
+    paywall: none
+    sectors: [industrials, financials, property]
+    in_sweep_trusted: false
+    blocked_here: null
+    feeds:
+      - {section: Business, url: "http://www.chinadaily.com.cn/rss/bizchina_rss.xml", status: pattern}
+    notes: "State media; Yangzijiang, China Aviation Oil, CapitaLand China."
+
+  - id: economic_times
+    name: The Economic Times (India)
+    domain: economictimes.indiatimes.com
+    country: IN
+    type: news
+    trust: B
+    paywall: metered
+    sectors: [banks, telecom_infra, industrials, property]
+    in_sweep_trusted: false
+    blocked_here: null
+    feeds:
+      - {section: Markets, url: "https://economictimes.indiatimes.com/markets/rssfeeds/1977021501.cms", status: listed}
+      - {section: Company, url: "https://economictimes.indiatimes.com/news/company/rssfeeds/2143429.cms", status: listed}
+      - {section: Banking/Finance, url: "https://economictimes.indiatimes.com/rssfeeds/13358259.cms", status: listed}
+      - {section: Energy, url: "https://economictimes.indiatimes.com/industry/energy/rssfeeds/13358350.cms", status: listed}
+    notes: "DBS Bank India, Singtel-Bharti Airtel, Sembcorp India renewables, CapitaLand India Trust, Air India (SIA stake)."
+
+  - id: livemint
+    name: Mint (India)
+    domain: livemint.com
+    country: IN
+    type: news
+    trust: B
+    paywall: metered
+    sectors: [banks, telecom_infra, aviation_services]
+    in_sweep_trusted: false
+    blocked_here: null
+    feeds:
+      - {section: Companies, url: "https://www.livemint.com/rss/companies", status: pattern}
+
+  - id: business_news_au
+    name: Business News (Australia)
+    domain: businessnews.com.au
+    country: AU
+    type: news
+    trust: B
+    paywall: metered
+    sectors: [telecom_infra, reits_industrial, reits_commercial]
+    in_sweep_trusted: false
+    blocked_here: null
+    feeds:
+      - {section: Latest, url: "https://www.businessnews.com.au/rssfeed/latest.rss", status: listed}
+    notes: "Perth-based; FLCT Central Park Perth."
+
+  - id: news_com_au
+    name: news.com.au (Business)
+    domain: news.com.au
+    country: AU
+    type: news
+    trust: C
+    paywall: none
+    sectors: [telecom_infra]
+    in_sweep_trusted: false
+    blocked_here: null
+    feeds:
+      - {section: Business, url: "https://www.news.com.au/finance/business/feed", status: listed}
+    notes: "Optus (Singtel) outage and regulatory stories."
+
+  - id: sky_news_au
+    name: Sky News Australia (Business)
+    domain: skynews.com.au
+    country: AU
+    type: news
+    trust: C
+    paywall: none
+    sectors: [telecom_infra]
+    in_sweep_trusted: false
+    blocked_here: null
+    feeds:
+      - {section: Business, url: "https://www.skynews.com.au/business/feed", status: listed}
+
+  - id: smh_afr
+    name: Sydney Morning Herald / Australian Financial Review
+    domain: smh.com.au
+    country: AU
+    type: news
+    trust: A
+    paywall: metered
+    sectors: [telecom_infra, reits_industrial, reits_commercial, property]
+    in_sweep_trusted: false
+    blocked_here: null
+    feeds: []
+    fallback: "check smh.com.au for RSS; AFR (afr.com) is hard-paywalled"
+    notes: "Best Australian coverage of Optus, Lendlease, Australian property held by S-REITs."
+
+  - id: nikkei_asia
+    name: Nikkei Asia
+    domain: asia.nikkei.com
+    country: JP
+    type: news
+    trust: A
+    paywall: metered
+    sectors: [all]
+    in_sweep_trusted: true
+    blocked_here: true
+    feeds:
+      - {section: All, url: "https://asia.nikkei.com/rss/feed/nar", status: listed}
+
+  - id: japan_times
+    name: The Japan Times (Business)
+    domain: japantimes.co.jp
+    country: JP
+    type: news
+    trust: B
+    paywall: metered
+    sectors: [reits_industrial, reits_commercial, healthcare]
+    in_sweep_trusted: false
+    blocked_here: null
+    feeds:
+      - {section: Business, url: "https://www.japantimes.co.jp/feed/", status: pattern}
+    notes: "Japan assets of MPACT, MLT, Parkway Life REIT (nursing homes)."
+
+  - id: korea_herald
+    name: The Korea Herald (Business)
+    domain: koreaherald.com
+    country: KR
+    type: news
+    trust: B
+    paywall: none
+    sectors: [industrials, reits_commercial, telecom_infra]
+    in_sweep_trusted: false
+    blocked_here: null
+    feeds: []
+    fallback: "check site for RSS"
+    notes: "Korean shipbuilders (Seatrium/YZJ peers), MPACT/MLT Korea assets, KIT's Korean waste business."
+
+  # =============================================================================================
+  # GLOBAL news and wires
+  # =============================================================================================
+  - id: reuters
+    name: Reuters
+    domain: reuters.com
+    country: GLOBAL
+    type: wire
+    trust: A
+    paywall: none
+    sectors: [all]
+    in_sweep_trusted: true
+    blocked_here: null
+    feeds: []
+    fallback: "Reuters ended public RSS in 2020; discover Reuters stories via syndication (Yahoo Finance, Investing.com, Malay Mail, The Star) and record the original wire in source_notes"
+
+  - id: bloomberg
+    name: Bloomberg
+    domain: bloomberg.com
+    country: GLOBAL
+    type: news
+    trust: A
+    paywall: hard
+    sectors: [all]
+    in_sweep_trusted: true
+    blocked_here: null
+    feeds:
+      - {section: "Per author (template)", url: "https://www.bloomberg.com/authors/{author_id}/{author-slug}.rss", status: listed, note: "author feeds exist, e.g. Singapore banking reporters; no general section RSS"}
+    notes: "Headlines and standfirsts only without a subscription."
+
+  - id: ft
+    name: Financial Times
+    domain: ft.com
+    country: GLOBAL
+    type: news
+    trust: A
+    paywall: hard
+    sectors: [all]
+    in_sweep_trusted: true
+    blocked_here: true
+    feeds:
+      - {section: Asia-Pacific, url: "https://www.ft.com/world/asia-pacific?format=rss", status: pattern, note: "FT section pages accept ?format=rss"}
+      - {section: Companies, url: "https://www.ft.com/companies?format=rss", status: pattern}
+
+  - id: wsj
+    name: The Wall Street Journal
+    domain: wsj.com
+    country: GLOBAL
+    type: news
+    trust: A
+    paywall: hard
+    sectors: [all]
+    in_sweep_trusted: true
+    blocked_here: true
+    feeds:
+      - {section: Markets, url: "https://feeds.a.dj.com/rss/RSSMarketsMain.xml", status: robots_disallowed, note: "run 2026-10-22: robots.txt answered 403"}
+      - {section: World, url: "https://feeds.a.dj.com/rss/RSSWorldNews.xml", status: robots_disallowed, note: "run 2026-10-22: robots.txt answered 403"}
+
+  - id: cnbc
+    name: CNBC
+    domain: cnbc.com
+    country: GLOBAL
+    type: news
+    trust: A
+    paywall: none
+    sectors: [all]
+    in_sweep_trusted: true
+    blocked_here: true
+    feeds:
+      - {section: Asia-Pacific, url: "https://www.cnbc.com/id/19832390/device/rss/rss.html", status: listed, note: "Feeder reports working"}
+      - {section: Finance, url: "https://search.cnbc.com/rs/search/combinedcms/view.xml?partnerId=wrss01&id=10000664", status: robots_disallowed, note: "run 2026-10-22: robots.txt disallows search.cnbc.com; earlier: Feeder reports working"}
+      - {section: Earnings, url: "https://www.cnbc.com/id/15839135/device/rss/rss.html", status: listed}
+      - {section: Economy, url: "https://www.cnbc.com/id/20910258/device/rss/rss.html", status: listed}
+      - {section: Real Estate, url: "https://www.cnbc.com/id/10000115/device/rss/rss.html", status: listed}
+      - {section: Energy, url: "https://www.cnbc.com/id/19836768/device/rss/rss.html", status: listed}
+      - {section: Technology, url: "https://www.cnbc.com/id/19854910/device/rss/rss.html", status: listed}
+      - {section: Squawk Box Asia, url: "https://search.cnbc.com/rs/search/combinedcms/view.xml?partnerId=wrss01&id=15838831", status: robots_disallowed, note: "run 2026-10-22: robots.txt disallows search.cnbc.com"}
+
+  - id: bbc_business
+    name: BBC News (Business)
+    domain: bbc.co.uk
+    country: GLOBAL
+    type: news
+    trust: A
+    paywall: none
+    sectors: [market]
+    in_sweep_trusted: false
+    blocked_here: true
+    feeds:
+      - {section: Business, url: "https://feeds.bbci.co.uk/news/business/rss.xml", status: listed}
+
+  - id: guardian_business
+    name: The Guardian (Business)
+    domain: theguardian.com
+    country: GLOBAL
+    type: news
+    trust: A
+    paywall: none
+    sectors: [market]
+    in_sweep_trusted: false
+    blocked_here: true
+    feeds:
+      - {section: Business, url: "https://www.theguardian.com/business/rss", status: listed}
+
+  - id: marketwatch
+    name: MarketWatch
+    domain: marketwatch.com
+    country: GLOBAL
+    type: news
+    trust: B
+    paywall: metered
+    sectors: [market]
+    in_sweep_trusted: false
+    blocked_here: null
+    feeds:
+      - {section: Top stories, url: "https://feeds.content.dowjones.io/public/rss/mw_topstories", status: pattern}
+
+  - id: aljazeera
+    name: Al Jazeera (Economy)
+    domain: aljazeera.com
+    country: GLOBAL
+    type: news
+    trust: B
+    paywall: none
+    sectors: [market]
+    in_sweep_trusted: false
+    blocked_here: null
+    feeds:
+      - {section: All, url: "https://www.aljazeera.com/xml/rss/all.xml", status: pattern}
+
+  - id: sp_global_mi
+    name: S&P Global Market Intelligence
+    domain: spglobal.com
+    country: GLOBAL
+    type: trade
+    trust: A
+    paywall: metered
+    sectors: [banks, reits_commercial, reits_industrial, financials]
+    in_sweep_trusted: true
+    blocked_here: false
+    feeds: []
+    fallback: "news-insights listing pages; article bodies often not readable, only descriptions"
+
+  # =============================================================================================
+  # PRESS-RELEASE WIRES (company-issued; overlap with newsrooms)
+  # =============================================================================================
+  - id: prnewswire
+    name: PR Newswire (incl. APAC / PR Newswire Asia)
+    domain: prnewswire.com
+    country: GLOBAL
+    type: wire
+    trust: B
+    paywall: none
+    sectors: [all]
+    in_sweep_trusted: false
+    blocked_here: false
+    feeds: []
+    fallback: "copy feed URLs from the RSS buttons on https://www.prnewswire.com/rss/ (All releases, Financial Services); APAC: prnewswire.com/apac/ and prnasia.com"
+
+  - id: globenewswire
+    name: GlobeNewswire
+    domain: globenewswire.com
+    country: GLOBAL
+    type: wire
+    trust: B
+    paywall: none
+    sectors: [banks, financials]
+    in_sweep_trusted: false
+    blocked_here: false
+    feeds:
+      - {section: Banks, url: "https://www.globenewswire.com/RssFeed/industry/8355-Banks/feedTitle/GlobeNewswire - Industry News on Banks", status: robots_disallowed, note: "run 2026-10-22: robots.txt answered 403; earlier: URL contains spaces; URL-encode before use"}
+      - {section: Financials, url: "https://www.globenewswire.com/RssFeed/industry/8000-Financials/feedTitle/GlobeNewswire - Industry News on Financials", status: robots_disallowed, note: "run 2026-10-22: robots.txt answered 403"}
+    notes: "Mostly US/EU issuers; also has by-country feeds on its RSS list page."
+
+  - id: businesswire
+    name: Business Wire
+    domain: businesswire.com
+    country: GLOBAL
+    type: wire
+    trust: B
+    paywall: none
+    sectors: [all]
+    in_sweep_trusted: false
+    blocked_here: true
+    feeds: []
+    fallback: "Business Wire offers region/industry RSS from its news subscription page; copy URLs from there"
+
+  - id: media_outreach
+    name: Media OutReach Newswire
+    domain: media-outreach.com
+    country: SG
+    type: wire
+    trust: B
+    paywall: none
+    sectors: [all]
+    in_sweep_trusted: false
+    blocked_here: null
+    feeds: []
+    fallback: "check site for RSS; widely used by Singapore/Asian companies and syndicated to CNA (paid releases) and AsiaOne"
+    notes: "Releases appear on news sites labelled as paid media releases - tag as primary/company-issued, not journalism."
+
+  - id: acn_newswire
+    name: ACN Newswire
+    domain: acnnewswire.com
+    country: GLOBAL
+    type: wire
+    trust: C
+    paywall: none
+    sectors: [all]
+    in_sweep_trusted: false
+    blocked_here: null
+    feeds: []
+    fallback: "check site for RSS"
+
+  # =============================================================================================
+  # SECTOR TRADE PRESS
+  # =============================================================================================
+  # --- banking & finance ---
+  - id: financeasia
+    name: FinanceAsia
+    domain: financeasia.com
+    country: HK
+    type: trade
+    trust: B
+    paywall: metered
+    sectors: [banks, financials]
+    in_sweep_trusted: false
+    blocked_here: null
+    feeds: []
+    fallback: "check site for RSS"
+
+  - id: asian_banking_finance
+    name: Asian Banking & Finance
+    domain: asianbankingandfinance.net
+    country: SG
+    type: trade
+    trust: B
+    paywall: none
+    sectors: [banks]
+    in_sweep_trusted: false
+    blocked_here: null
+    feeds: []
+    fallback: "check site for RSS"
+
+  - id: finews_asia
+    name: finews.asia
+    domain: finews.asia
+    country: SG
+    type: trade
+    trust: B
+    paywall: none
+    sectors: [banks, financials]
+    in_sweep_trusted: false
+    blocked_here: false
+    feeds: []
+    fallback: "homepage listing (no RSS at ?format=feed)"
+    notes: "Private banking and wealth news: UOB Private Bank, Bank of Singapore, DBS wealth, iFAST."
+
+  - id: wealthbriefing_asia
+    name: WealthBriefingAsia
+    domain: wealthbriefingasia.com
+    country: SG
+    type: trade
+    trust: B
+    paywall: metered
+    sectors: [banks, financials]
+    in_sweep_trusted: false
+    blocked_here: null
+    feeds: []
+    fallback: "check site for RSS"
+
+  - id: fintech_futures
+    name: FinTech Futures (Singapore)
+    domain: fintechfutures.com
+    country: GLOBAL
+    type: trade
+    trust: B
+    paywall: none
+    sectors: [banks, financials]
+    in_sweep_trusted: false
+    blocked_here: null
+    feeds:
+      - {section: Singapore, url: "https://www.fintechfutures.com/region/singapore/feed/", status: listed_broken, note: "run 2026-10-22: HTTP 403; earlier: from a directory link parameter"}
+
+  # --- property & REITs ---
+  - id: mingtiandi
+    name: Mingtiandi
+    domain: mingtiandi.com
+    country: HK
+    type: trade
+    trust: B
+    paywall: none
+    sectors: [reits_commercial, reits_industrial, property, healthcare]
+    in_sweep_trusted: false
+    blocked_here: false
+    feeds:
+      - {section: All, url: "https://www.mingtiandi.com/feed/", status: pattern, note: "redirects https -> http in a loop for Claude's tool; test locally"}
+    notes: "Best source for Asia real-estate people moves (REIT CEO changes) and deals."
+
+  - id: irei
+    name: IREI (Institutional Real Estate)
+    domain: irei.com
+    country: GLOBAL
+    type: trade
+    trust: B
+    paywall: none
+    sectors: [reits_commercial, reits_industrial, property]
+    in_sweep_trusted: false
+    blocked_here: null
+    feeds: []
+    fallback: "check site for RSS"
+
+  # --- data centres ---
+  - id: dcd
+    name: DatacenterDynamics (DCD)
+    domain: datacenterdynamics.com
+    country: GLOBAL
+    type: trade
+    trust: B
+    paywall: none
+    sectors: [reits_industrial, telecom_infra, conglomerates]
+    in_sweep_trusted: true
+    blocked_here: false
+    feeds:
+      - {section: All, url: "https://www.datacenterdynamics.com/en/rss/", status: verified}
+    notes: "Keppel DC REIT, Mapletree Industrial Trust, Singtel Nxera, Keppel data centres, DayOne-type financings."
+
+  - id: wmedia
+    name: W.Media (APAC data centres)
+    domain: w.media
+    country: SG
+    type: trade
+    trust: B
+    paywall: none
+    sectors: [reits_industrial, telecom_infra]
+    in_sweep_trusted: false
+    blocked_here: false
+    feeds:
+      - {section: All, url: "https://w.media/feed/", status: verified}
+
+  # --- aviation & logistics ---
+  - id: loadstar
+    name: The Loadstar
+    domain: theloadstar.com
+    country: GLOBAL
+    type: trade
+    trust: B
+    paywall: none
+    sectors: [aviation_services, reits_industrial]
+    in_sweep_trusted: true
+    blocked_here: false
+    feeds:
+      - {section: All, url: "https://theloadstar.com/feed/", status: verified}
+    notes: "SATS/WFS air cargo, logistics demand (MLT, CLAR)."
+
+  - id: air_cargo_news
+    name: Air Cargo News
+    domain: aircargonews.net
+    country: GLOBAL
+    type: trade
+    trust: B
+    paywall: none
+    sectors: [aviation_services]
+    in_sweep_trusted: true
+    blocked_here: false
+    feeds:
+      - {section: All, url: "https://www.aircargonews.net/feed/", status: verified}
+
+  - id: simple_flying
+    name: Simple Flying
+    domain: simpleflying.com
+    country: GLOBAL
+    type: trade
+    trust: C
+    paywall: none
+    sectors: [aviation_services]
+    in_sweep_trusted: false
+    blocked_here: true
+    feeds:
+      - {section: All, url: "https://simpleflying.com/feed/", status: pattern, note: "robots-disallowed for Claude's tool"}
+
+  - id: flightglobal
+    name: FlightGlobal
+    domain: flightglobal.com
+    country: GLOBAL
+    type: trade
+    trust: B
+    paywall: metered
+    sectors: [aviation_services]
+    in_sweep_trusted: true
+    blocked_here: null
+    feeds: []
+    fallback: "check site for RSS"
+
+  # --- maritime, shipbuilding, offshore ---
+  - id: splash247
+    name: Splash247
+    domain: splash247.com
+    country: SG
+    type: trade
+    trust: B
+    paywall: none
+    sectors: [industrials]
+    in_sweep_trusted: true
+    blocked_here: false
+    feeds:
+      - {section: All, url: "https://splash247.com/feed/", status: verified}
+    notes: "Seatrium, Yangzijiang Shipbuilding, Keppel, PSA-type port news."
+
+  - id: seatrade
+    name: Seatrade Maritime News
+    domain: seatrade-maritime.com
+    country: GLOBAL
+    type: trade
+    trust: B
+    paywall: none
+    sectors: [industrials]
+    in_sweep_trusted: false
+    blocked_here: false
+    feeds:
+      - {section: All, url: "https://www.seatrade-maritime.com/rss.xml", status: verified}
+
+  - id: gcaptain
+    name: gCaptain
+    domain: gcaptain.com
+    country: GLOBAL
+    type: trade
+    trust: B
+    paywall: none
+    sectors: [industrials]
+    in_sweep_trusted: false
+    blocked_here: false
+    feeds:
+      - {section: All, url: "https://gcaptain.com/feed/", status: verified}
+
+  - id: offshore_energy
+    name: Offshore Energy
+    domain: offshore-energy.biz
+    country: GLOBAL
+    type: trade
+    trust: B
+    paywall: none
+    sectors: [industrials, telecom_infra]
+    in_sweep_trusted: false
+    blocked_here: false
+    feeds:
+      - {section: All, url: "https://www.offshore-energy.biz/feed/", status: verified}
+    notes: "Seatrium FPSO/offshore wind orders; KIT offshore wind stake."
+
+  - id: tradewinds
+    name: TradeWinds
+    domain: tradewindsnews.com
+    country: GLOBAL
+    type: trade
+    trust: B
+    paywall: hard
+    sectors: [industrials]
+    in_sweep_trusted: true
+    blocked_here: null
+    feeds: []
+    fallback: "headlines only; check site for RSS"
+
+  # --- telecoms ---
+  - id: light_reading
+    name: Light Reading
+    domain: lightreading.com
+    country: GLOBAL
+    type: trade
+    trust: B
+    paywall: none
+    sectors: [telecom_infra]
+    in_sweep_trusted: false
+    blocked_here: false
+    feeds:
+      - {section: All, url: "https://www.lightreading.com/rss.xml", status: verified}
+
+  - id: mobile_world_live
+    name: Mobile World Live
+    domain: mobileworldlive.com
+    country: GLOBAL
+    type: trade
+    trust: B
+    paywall: none
+    sectors: [telecom_infra]
+    in_sweep_trusted: false
+    blocked_here: null
+    feeds:
+      - {section: All, url: "https://www.mobileworldlive.com/feed/", status: pattern}
+
+  - id: telegeography
+    name: TeleGeography CommsUpdate
+    domain: commsupdate.com
+    country: GLOBAL
+    type: trade
+    trust: B
+    paywall: none
+    sectors: [telecom_infra]
+    in_sweep_trusted: false
+    blocked_here: null
+    feeds: []
+    fallback: "check site for RSS"
+    notes: "Concise daily telecom regulatory and operator news, including Singapore/Australia."
+
+  # --- energy & utilities ---
+  - id: renewables_now
+    name: Renewables Now
+    domain: renewablesnow.com
+    country: GLOBAL
+    type: trade
+    trust: B
+    paywall: metered
+    sectors: [industrials, telecom_infra]
+    in_sweep_trusted: false
+    blocked_here: null
+    feeds: []
+    fallback: "check site for RSS"
+    notes: "Sembcorp renewables deals, Keppel infrastructure."
+
+  # --- defence & engineering ---
+  - id: defense_news
+    name: Defense News
+    domain: defensenews.com
+    country: GLOBAL
+    type: trade
+    trust: B
+    paywall: none
+    sectors: [industrials]
+    in_sweep_trusted: false
+    blocked_here: null
+    feeds:
+      - {section: All, url: "https://www.defensenews.com/arc/outboundfeeds/rss/", status: pattern}
+    notes: "ST Engineering defence contracts."
+
+  - id: naval_news
+    name: Naval News
+    domain: navalnews.com
+    country: GLOBAL
+    type: trade
+    trust: B
+    paywall: none
+    sectors: [industrials]
+    in_sweep_trusted: false
+    blocked_here: null
+    feeds:
+      - {section: All, url: "https://www.navalnews.com/feed/", status: pattern}
+
+  # --- semiconductors & electronics ---
+  - id: semi_engineering
+    name: Semiconductor Engineering
+    domain: semiengineering.com
+    country: GLOBAL
+    type: trade
+    trust: B
+    paywall: none
+    sectors: [industrials]
+    in_sweep_trusted: false
+    blocked_here: null
+    feeds:
+      - {section: All, url: "https://semiengineering.com/feed/", status: pattern}
+    notes: "Semiconductor equipment cycle (Frencken, Venture, UMS/AEM peers)."
+
+  - id: digitimes_asia
+    name: DigiTimes Asia
+    domain: digitimes.com
+    country: TW
+    type: trade
+    trust: B
+    paywall: hard
+    sectors: [industrials]
+    in_sweep_trusted: false
+    blocked_here: null
+    feeds: []
+    fallback: "headlines only"
+
+  # --- consumer, retail, drinks, gaming, healthcare ---
+  - id: inside_retail_asia
+    name: Inside Retail Asia
+    domain: insideretail.asia
+    country: GLOBAL
+    type: trade
+    trust: B
+    paywall: metered
+    sectors: [consumer]
+    in_sweep_trusted: false
+    blocked_here: null
+    feeds:
+      - {section: All, url: "https://insideretail.asia/feed/", status: pattern}
+    notes: "DFI Retail, Sheng Siong, retail-tenant news for mall REITs."
+
+  - id: just_drinks
+    name: Just Drinks
+    domain: just-drinks.com
+    country: GLOBAL
+    type: trade
+    trust: B
+    paywall: metered
+    sectors: [consumer]
+    in_sweep_trusted: false
+    blocked_here: null
+    feeds:
+      - {section: All, url: "https://www.just-drinks.com/feed/", status: pattern}
+    notes: "ThaiBev, Sabeco, F&N."
+
+  - id: ggrasia
+    name: GGRAsia
+    domain: ggrasia.com
+    country: MO
+    type: trade
+    trust: B
+    paywall: none
+    sectors: [consumer]
+    in_sweep_trusted: false
+    blocked_here: false
+    feeds:
+      - {section: All, url: "https://www.ggrasia.com/feed/", status: verified}
+    notes: "Genting Singapore / Resorts World Sentosa, Marina Bay Sands."
+
+  - id: inside_asian_gaming
+    name: Inside Asian Gaming
+    domain: asgam.com
+    country: MO
+    type: trade
+    trust: B
+    paywall: none
+    sectors: [consumer]
+    in_sweep_trusted: false
+    blocked_here: false
+    feeds:
+      - {section: All, url: "https://www.asgam.com/feed/", status: verified}
+
+  - id: agb
+    name: Asia Gaming Brief
+    domain: agbrief.com
+    country: MO
+    type: trade
+    trust: B
+    paywall: none
+    sectors: [consumer]
+    in_sweep_trusted: false
+    blocked_here: null
+    feeds:
+      - {section: All, url: "https://agbrief.com/feed/", status: pattern}
+
+  - id: healthcare_asia
+    name: Healthcare Asia Magazine
+    domain: healthcareasiamagazine.com
+    country: SG
+    type: trade
+    trust: B
+    paywall: none
+    sectors: [healthcare]
+    in_sweep_trusted: false
+    blocked_here: null
+    feeds: []
+    fallback: "check site for RSS"
+    notes: "Raffles Medical, Parkway/IHH."
+
+  # =============================================================================================
+  # CENTRAL BANKS / REGULATORS ABROAD
+  # =============================================================================================
+  - id: fed
+    name: US Federal Reserve
+    domain: federalreserve.gov
+    country: US
+    type: regulator
+    trust: A
+    paywall: none
+    sectors: [market, banks]
+    in_sweep_trusted: false
+    blocked_here: false
+    feeds:
+      - {section: Monetary policy, url: "https://www.federalreserve.gov/feeds/press_monetary.xml", status: listed, note: "from the Fed's own feeds page"}
+      - {section: All press releases, url: "https://www.federalreserve.gov/feeds/press_all.xml", status: listed}
+
+  - id: bnm
+    name: Bank Negara Malaysia
+    domain: bnm.gov.my
+    country: MY
+    type: regulator
+    trust: A
+    paywall: none
+    sectors: [banks]
+    in_sweep_trusted: false
+    blocked_here: null
+    feeds: []
+    fallback: "check site for RSS; press releases page"
+
+  # =============================================================================================
+  # DISCOVERY TOOLS (find articles; then fetch the original publisher page)
+  # =============================================================================================
+  - id: gdelt_doc
+    name: GDELT DOC 2.0 API
+    domain: api.gdeltproject.org
+    country: GLOBAL
+    type: aggregator
+    trust: C
+    paywall: none
+    sectors: [all]
+    in_sweep_trusted: false
+    blocked_here: true
+    feeds:
+      - {section: "Article list (template)", url: "https://api.gdeltproject.org/api/v2/doc/doc?query={query}%20domain:{domain}&mode=artlist&format=json&maxrecords=250&timespan=7d", status: pattern, note: "free; article-list mode only covers the last 3 months, so use it for the daily run, not a Jan-Oct backfill"}
+
+  - id: google_news_rss
+    name: Google News RSS search
+    domain: news.google.com
+    country: GLOBAL
+    type: aggregator
+    trust: C
+    paywall: none
+    sectors: [all]
+    in_sweep_trusted: false
+    blocked_here: true
+    feeds:
+      - {section: "Search (template)", url: "https://news.google.com/rss/search?q={query}+when:7d&hl=en-SG&gl=SG&ceid=SG:en", status: robots_disallowed, note: "run 2026-10-22: robots.txt disallows /rss/search; earlier: robots.txt disallows automated fetching; fine in a personal feed reader, but check Google's terms before scripting it"}
+    notes: "Supports site: and when: operators; links are Google redirect URLs that resolve to the publisher."
+
+  - id: feed_directories
+    name: Feed directories (Feedspot, Feeder)
+    domain: rss.feedspot.com
+    country: GLOBAL
+    type: aggregator
+    trust: C
+    paywall: none
+    sectors: [all]
+    in_sweep_trusted: false
+    blocked_here: false
+    feeds: []
+    notes: "Used to compile this list; useful to re-check feed status (Feeder shows working / not responding / stopped)."

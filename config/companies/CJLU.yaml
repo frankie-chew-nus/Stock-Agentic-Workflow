@@ -1,0 +1,43 @@
+# CJLU - NetLink NBN Trust. Drafted by Claude 2026-10-22; verified: false.
+ticker: CJLU.SI
+code: CJLU
+company: NetLink NBN Trust
+short_name: NetLink
+mention_name: NetLink NBN Trust
+description: >
+  NetLink NBN Trust owns and operates the passive fibre network (ducts, manholes, fibre and central
+  offices) of Singapore's Next Generation Nationwide Broadband Network, earning regulated returns
+  set by IMDA. Singtel is a major unitholder.
+company_domains: [netlinknbn.com]
+search_aliases:
+  - NetLink NBN Trust
+  - NetLink Trust
+  - NetLink NBN Management
+  - CJLU
+aliases:
+  strong:
+    - NetLink NBN Trust
+    - NetLink Trust
+    - NetLink NBN Management
+    - "SGX:CJLU"
+    - "SGX: CJLU"
+    - CJLU.SI
+  context: [NetLink]
+  search_context_words: [fibre, Singapore, broadband]
+  context_terms: [fibre, fiber, broadband, Singapore, IMDA, SGX, NBN, regulated asset base]
+  exclude: []
+people:
+  - {name: Tong Yew Heng, role: CEO}
+former_names: []
+collisions:
+  - "other companies named Netlink in India and elsewhere"
+related_not_aliases:
+  Singtel: "major unitholder; Singtel stories count only if NetLink is discussed"
+competitors_not_aliases: []
+not_relevant_patterns: []
+relevant_examples:
+  - "IMDA regulatory reviews of NetLink's returns"
+as_of: 2026-10-22
+verified: false
+sources:
+  - https://growbeansprout.com/netlink_nbn_trust_ceo

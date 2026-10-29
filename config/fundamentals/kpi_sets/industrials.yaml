@@ -1,0 +1,28 @@
+# KPI set: industrials, conglomerates, offshore & marine. DRAFT - not yet test-run.
+# See banks.yaml for the field meanings.
+kpi_set: industrials
+label: Industrials / conglomerates / offshore & marine
+draft: true
+
+columns:
+  - {name: "revenue_{ccy}_m", unit: ccy_m, kind: flow, range: [1, 100000], def: "Revenue for the period."}
+  - {name: "gross_margin_pct", unit: pct, kind: ratio, range: [-50, 100], def: "Gross profit / revenue x 100, as reported or computed from reported gross profit (say which)."}
+  - {name: "ebitda_{ccy}_m", unit: ccy_m, kind: flow, range: [-10000, 50000], def: "EBITDA as the company defines it."}
+  - {name: "operating_profit_{ccy}_m", unit: ccy_m, kind: flow, range: [-10000, 50000], def: "Operating profit (EBIT) as reported."}
+  - {name: "net_profit_{ccy}_m", unit: ccy_m, kind: flow, range: [-10000, 50000], def: "Net profit attributable to shareholders (PATMI)."}
+  - {name: "core_profit_{ccy}_m", unit: ccy_m, kind: flow, range: [-10000, 50000], def: "Core / underlying / adjusted profit if the company reports one (use its label in source); blank otherwise."}
+  - {name: "order_book_{ccy}_m", unit: ccy_m, kind: stock, range: [0, 500000], def: "Order book (net orderbook) at period end, if reported."}
+  - {name: "net_debt_{ccy}_m", unit: ccy_m, kind: stock, range: [-100000, 200000], def: "Net debt at period end (negative = net cash)."}
+  - {name: "net_gearing_x", unit: x, kind: ratio, range: [-5, 10], def: "Net gearing (net debt / total equity) as a multiple, e.g. 0.45 (negative = net cash)."}
+  - {name: "operating_cash_flow_{ccy}_m", unit: ccy_m, kind: flow, range: [-50000, 50000], def: "Net cash from operating activities for the period."}
+  - {name: "capex_{ccy}_m", unit: ccy_m, kind: flow, range: [0, 50000], def: "Capital expenditure for the period, as a positive number."}
+  - {name: "dps_{ccy}", unit: ccy, kind: per_share, range: [0, 10], def: "Ordinary dividend per share declared for this period. 0 if none."}
+  - {name: "special_dps_{ccy}", unit: ccy, kind: per_share, range: [0, 10], def: "Special dividend per share declared for this period. 0 if none."}
+
+checks:
+  - name: operating_le_ebitda
+    expr: "ebitda_{ccy}_m - operating_profit_{ccy}_m"
+    min: -1
+
+notes:
+  - "Many SGX industrials report half-yearly with 1Q/3Q business updates: use 1HYY / 2HYY labels."

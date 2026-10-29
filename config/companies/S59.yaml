@@ -1,0 +1,48 @@
+# S59 - SIA Engineering Company. Drafted by Claude 2026-10-22; verified: false.
+ticker: S59.SI
+code: S59
+company: SIA Engineering Company Limited
+short_name: SIAEC
+mention_name: SIA Engineering (SIAEC)
+description: >
+  SIA Engineering provides aircraft maintenance, repair and overhaul (MRO): line maintenance at
+  Changi and other airports, base and component maintenance, and engine services through joint
+  ventures with OEMs such as Rolls-Royce, Pratt & Whitney and GE. It is majority-owned by
+  Singapore Airlines.
+company_domains: [siaec.com.sg]
+search_aliases:
+  - SIA Engineering
+  - SIA Engineering Company
+  - SIAEC
+  - S59
+aliases:
+  strong:
+    - SIA Engineering
+    - SIA Engineering Company
+    - SIAEC
+    - "SGX:S59"
+    - "SGX: S59"
+    - S59.SI
+  context: []
+  context_terms: [Singapore, Changi, MRO, maintenance, aircraft, engine, aviation, SGX]
+  exclude: []
+people:
+  - {name: Chin Yau Seng, role: CEO, from: 2023-10-01}
+  - {name: Tang Kin Fei, role: chairman}
+  - {name: Lim Sim Seng, role: deputy chairman}
+former_names: []
+collisions: []
+related_not_aliases:
+  Singapore Airlines: "parent and main customer; SIA stories count only if SIAEC is discussed"
+competitors_not_aliases: [ST Engineering Aerospace, Lufthansa Technik, HAECO]
+bucket_overrides:
+  f: "Operations and technology: line, base and component maintenance, engine-services joint ventures, hangar capacity, automation"
+not_relevant_patterns:
+  - "SIAEC is named only as the maintenance provider in a story about a particular flight or airline, with nothing about SIAEC's business."
+relevant_examples:
+  - "MRO contract wins or losses"
+  - "joint-venture results and new joint ventures"
+as_of: 2026-10-22
+verified: false
+sources:
+  - https://simplywall.st/stocks/us/transportation/otc-segs.f/sia-engineering/management

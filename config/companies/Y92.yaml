@@ -1,0 +1,49 @@
+# Y92 - Thai Beverage. Drafted by Claude 2026-10-22; verified: false.
+ticker: Y92.SI
+code: Y92
+company: Thai Beverage Public Company Limited
+short_name: ThaiBev
+description: >
+  ThaiBev is Thailand's largest beverage company (Chang beer, SangSom and Mekhong spirits, Oishi
+  green tea, soft drinks) and owns food businesses including KFC Thailand franchises. It controls
+  Vietnam's Sabeco and holds a majority of Singapore-listed Fraser and Neave. It is SGX-listed and
+  controlled by the Sirivadhanabhakdi family.
+company_domains: [thaibev.com]
+search_aliases:
+  - Thai Beverage
+  - ThaiBev
+  - Y92
+  - Chang Beer
+aliases:
+  strong:
+    - Thai Beverage
+    - ThaiBev
+    - "SGX:Y92"
+    - "SGX: Y92"
+    - Y92.SI
+    - Chang Beer
+    - SangSom
+    - Oishi Group
+  context: [Chang]
+  case_sensitive: [Chang]
+  search_context_words: [beer, Thailand, ThaiBev]
+  context_terms: [beer, spirits, beverage, Thailand, Thai, SGX, Sirivadhanabhakdi]
+  exclude: []
+people:
+  - {name: Charoen Sirivadhanabhakdi, role: chairman}
+  - {name: Thapana Sirivadhanabhakdi, role: Group CEO}
+former_names: []
+collisions:
+  - "\"Chang\" as a surname or in unrelated names; only Chang beer and ThaiBev's brands count"
+related_not_aliases:
+  Fraser and Neave: "majority-owned, separately listed (SGX: F99)"
+  Frasers Property: "Sirivadhanabhakdi-family company, separately listed"
+  Sabeco: "controlled by ThaiBev, listed in Vietnam; Sabeco stories count only if ThaiBev's stake or results are discussed"
+competitors_not_aliases: [Boon Rawd Brewery, Carlsberg, Heineken]
+not_relevant_patterns:
+  - "A ThaiBev brand sponsors a sports team, stadium or event, and the story is about the sport or event."
+relevant_examples: []
+as_of: 2026-10-22
+verified: false
+sources:
+  - https://www.inside.beer/news/detail/thailand-son-of-thaibevs-founder-named-new-group-ceo-as-part-of-top-management-reshuffle

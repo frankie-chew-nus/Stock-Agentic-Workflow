@@ -1,0 +1,16 @@
+# Sector: banks (D05, O39, U11). Layer 2 of 3 - overrides sweep_base.yaml bucket text.
+sector: banks
+label: Singapore banks
+trusted_domains: [mas.gov.sg]
+buckets:
+  a: "Results and guidance: earnings, net interest margin, fee income, credit costs, dividends, guidance"
+  b: "Legal and regulatory: MAS, penalties, lawsuits, court cases, compliance, outages"
+  c: "Leadership and governance: appointments, succession, executive comments on the bank's business"
+  d: "Strategy and deals: acquisitions, divestments, partnerships, expansion, buybacks"
+  e: "Credit and capital: rating actions, bond issues, capital ratios"
+  f: "Products and technology: digital banking, wealth management, payments, AI"
+  g: "Sector stories: Singapore banks, interest rates, deposit rates, where {short_name} is discussed with peers"
+  h: "Primary sources: SGX announcements, {short_name} newsroom, MAS statements, rating agency releases"
+not_relevant_patterns:
+  - "A {short_name} economist or research analyst is quoted only for a house view on the economy or markets, with nothing about the bank's own business."
+relevant_examples: []

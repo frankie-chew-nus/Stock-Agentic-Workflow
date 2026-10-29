@@ -1,0 +1,40 @@
+# KPI set: REITs and business trusts. DRAFT - written from the KPI table, not yet test-run on a REIT.
+# See banks.yaml for the field meanings.
+kpi_set: reits
+label: REITs / business trusts
+draft: true
+
+columns:
+  - {name: "gross_revenue_{ccy}_m", unit: ccy_m, kind: flow, range: [1, 5000],
+     def: "Gross revenue for the period."}
+  - {name: "npi_{ccy}_m", unit: ccy_m, kind: flow, range: [1, 4000],
+     def: "Net property income for the period."}
+  - {name: "distributable_income_{ccy}_m", unit: ccy_m, kind: flow, range: [1, 3000],
+     def: "Distributable income (amount available for distribution to unitholders) for the period."}
+  - {name: "dpu_{ccy}", unit: ccy, kind: per_share, range: [0, 1],
+     def: "Distribution per unit for the period, in currency units (e.g. 0.0571 for 5.71 cents). Convert cents to currency units."}
+  - {name: "nav_per_unit_{ccy}", unit: ccy, kind: per_share, range: [0.1, 10],
+     def: "NAV per unit at period end (excluding distributable income if the REIT shows both; say which in source)."}
+  - {name: "gearing_pct", unit: pct, kind: ratio, range: [0, 50],
+     def: "Aggregate leverage (gearing) at period end, as reported."}
+  - {name: "icr_x", unit: x, kind: ratio, range: [0.5, 20],
+     def: "Interest coverage ratio, as reported (trailing 12 months if that is the REIT's measure)."}
+  - {name: "cost_of_debt_pct", unit: pct, kind: ratio, range: [0, 10],
+     def: "Average all-in cost of debt, as reported."}
+  - {name: "fixed_rate_debt_pct", unit: pct, kind: ratio, range: [0, 100],
+     def: "Share of borrowings on fixed rates or hedged, as reported."}
+  - {name: "occupancy_pct", unit: pct, kind: ratio, range: [50, 100],
+     def: "Portfolio committed occupancy at period end, as reported."}
+  - {name: "rental_reversion_pct", unit: pct, kind: ratio, range: [-50, 100],
+     def: "Portfolio rental reversion for the period, as reported (state the basis - average vs incoming - in source if given)."}
+  - {name: "wale_years", unit: x, kind: ratio, range: [0, 30],
+     def: "Weighted average lease expiry by gross rental income, in years."}
+
+checks:
+  - name: npi_le_revenue
+    expr: "gross_revenue_{ccy}_m - npi_{ccy}_m"
+    min: -1
+
+notes:
+  - "Most S-REITs report half-yearly with 1Q/3Q business updates: use 1HYY / 2HYY labels and leave figures that a business update does not give blank."
+  - "Check that DPU x units in issue is roughly the distributable income (or the amount distributed) and say in the verification note whether it passed."

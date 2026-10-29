@@ -1,0 +1,137 @@
+{#- fundamentals_extract.md.j2 - rendered by build_fundamentals_prompt.py. Variables come from
+    config/fundamentals/ (base -> kpi set -> company) plus config/companies/<code>.yaml. -#}
+# Fundamentals extraction: {{ company }} ({{ ticker }}), {{ period_labels | join(", ") }}
+
+**INPUTS**
+- Company: {{ company }} ({{ short_name }})
+- Ticker: {{ ticker }} (SGX code {{ code }})
+- KPI set: {{ kpi_label }}
+- Reporting: {{ cadence_text }}; financial year ends in {{ fye_month_name }}; reporting currency {{ currency }}
+- Today's date: {{ today }}
+- Periods to extract ({{ periods | length }}), one CSV row each:
+
+| period | period end | fiscal year |
+|---|---|---|
+{% for p in periods -%}
+| {{ p.label }} | {{ p.period_end }} | FY{{ p.fy_short }} |
+{% endfor %}
+---
+
+You are extracting reported financial KPIs for the company above, to build a point-in-time table used by an equity-research model. Accuracy matters more than completeness: **a blank cell is acceptable, a guessed or remembered number is not.** Do not rely on what you remember about this company's results; every number must come from a document you have read in this task.
+
+{% if mode == "web" -%}
+## Step 1 - Find the documents
+You have two tools: `web_search` and `web_fetch`. Search is limited to these domains: {{ source_domains | join(", ") }}. Fetch only URLs on these domains.
+
+1. **Start with the candidate URLs below and fetch them directly.** They follow the company's usual file naming; ones marked "checked" were seen on the company's site, the others are the same pattern and may not exist (a 404 is normal, move on).
+{% for p in periods %}
+   **{{ p.label }}** ({{ p.long_label }})
+{%- if p.candidates %}
+{%- for c in p.candidates %}
+   - {{ c.doc }}{% if c.verified %} (checked){% endif %}: {{ c.url }}
+{%- endfor %}
+{%- else %}
+   - no candidate URLs configured - use the investor relations page below
+{%- endif %}
+{% endfor %}
+2. **If a candidate fails, open the investor relations page(s)** and follow the links listed there for that period:
+{%- for ir in ir_pages %}
+   - {{ ir.url }}{% if ir.note %} ({{ ir.note }}){% endif %}
+{%- endfor %}
+{%- if not ir_pages %}
+   - none configured: search for "{{ short_name }} investor relations financial results" on {{ source_domains[0] }} first
+{%- endif %}
+3. **If the page shows no links** (some pages load them with scripts), search instead. Suggested queries:
+{%- for q in fallback_queries %}
+   - `{{ q }}`
+{%- endfor %}
+   SGXNet announcements at links.sgx.com carry the company's own filings and are an acceptable source.
+4. **Read numbers only from documents you have fetched.** Search-result titles and snippets are for finding documents, never a source for a number.
+5. **Fetch budget: at most {{ max_fetches }} fetches in total - fewer is better.** Every document you open stays in the conversation and makes each later step more expensive. Prefer the one document per period that holds most of the KPIs, then add one more only for KPIs or guidance still missing. **Open call or media-briefing transcripts only if the press release, trading update and presentation contain no forward-looking statement for that period.** Order of preference:
+{%- for d in preferred_documents %}
+   - {{ d }}
+{%- endfor %}
+6. A later period's report shows earlier quarters as comparatives. {% if restatement_policy == "as_first_reported" -%}
+Use those only to fill a period whose own documents you could not open, and say "from <later period> comparative" in `source` (the figure may have been restated).
+{%- else -%}
+You may use them; when they differ from the period's own report, use the later (restated) figure and say "restated" in `source`.
+{%- endif %}
+{%- else %}
+## Step 1 - Use the attached documents
+The company's results documents for these periods are attached to this message (listed at the end). **Do not search the web and do not use any other source.** If a KPI is not in the attached documents, leave it blank. If a period has no attached document, leave its row blank except `period` and say "no document attached" in `source`.
+{%- for d in preferred_documents %}
+- {{ d }}
+{%- endfor %}
+{%- endif %}
+
+Work out the reporting cadence before extracting:
+- Quarterly reporters (e.g. the banks) publish results every quarter, though 1Q and 3Q may be a shorter trading or business update with fewer figures.
+- Half-yearly reporters (many SGX companies) publish full results for 1H and FY, often with a 1Q/3Q business update that has only a few numbers.
+- Use exactly the period labels in the table above. If the company has not yet released a period, leave that row blank except `period` and write "not yet released" in `source`.
+
+## Step 2 - The columns
+The CSV has a fixed set of columns, so tables from different quarters can be stacked. **Use exactly these columns, in this order. Do not add, drop or rename any.** All money columns are in millions of {{ currency }}.
+
+| column | unit | definition |
+|---|---|---|
+{% for c in columns -%}
+| `{{ c.name }}` | {{ c.unit_text }} | {{ c.def }} |
+{% endfor %}
+{%- if kpi_notes or company_notes %}
+Notes for this company:
+{%- for n in kpi_notes + company_notes %}
+- {{ n }}
+{%- endfor %}
+{%- endif %}
+
+## Step 3 - Extraction rules
+1. **Source.** Take every number from the company's own documents for that period: results announcement, financial statements, press release, performance summary, data supplement or presentation. Don't use news articles, data aggregators, broker notes, or your own memory of the figures.
+2. **Release date** is the date the results were published to SGX or on the company site, not the period end. If results came out after the 17:00 SGT market close, still use that date; the downstream script handles timing.
+3. **Restatements.** {% if restatement_policy == "as_first_reported" -%}
+Report each figure **as first published** in that period's own results. If a later report restated it, keep the original figure and add "restated later: <new value> in <period> report" to `source` if you happened to see it. Don't go looking for restatements.
+{%- else -%}
+When a later report restates a prior period, use the latest figure and say so in `source`.
+{%- endif %}
+4. **Quarter, not year-to-date.** Use the figures for the quarter (or half) itself, not the 6-month, 9-month or full-year column.
+5. **Derived figures.** If a quarter isn't reported directly, derive it only by exact subtraction (2Q = 1H − 1Q, 4Q = FY − 9M, or 4Q = 2H − 3Q), and write "derived: <formula>" in `source`. Never derive ratios this way, never interpolate or estimate.
+6. **Definitions.** Use group figures unless a column says otherwise. Note any definition change, e.g. a figure reported in two parts that you summed, or a switch from reported to underlying profit. Use the company's own label for "underlying", "core" or "adjusted" figures.
+7. **Units.**
+   - Money in millions of the reporting currency, as plain numbers without thousands separators (3483.2, not 3,483.2 and not 3.48 billion).
+   - Ratios as plain percentages in `_pct` columns (2.08, not 0.0208), basis points in `_bp` columns, multiples in `_x` columns.
+   - Per-share amounts in currency units in the per-share columns (0.60 for 60 cents).
+   - Negative numbers with a minus sign (-12.5), never in brackets.
+8. **PDF text artefacts.** Text pulled from PDFs often splits digits ("3, 4 83" means 3483; "202 6" means 2026). Read numbers in the context of their table row and check them against the % change column where one is printed.
+9. **Guidance** (1–3 sentences per period):
+   - Give management's forward-looking statements as stated: direction or range for income, margins, costs, credit costs, dividends, growth and so on. Quote numbers exactly.
+   - Look in the press release or announcement first, then the presentation. Use a call or media-briefing transcript only when neither has any forward-looking statement.
+   - Say whether guidance was raised, cut or maintained against the prior period.
+   - Leave the cell blank if nothing forward-looking was said.
+
+## Step 4 - Self-check before answering
+- Recompute at least two ratios from the extracted components and compare them with the reported ratios{% if check_hints %} ({{ check_hints | join("; ") }}){% endif %}.
+- Check that derived quarters add up to the reported half-year or full-year totals.
+- Check that each period's release date falls after its period end and in date order.
+- Check money columns are in millions (not billions or thousands) by comparing periods with each other.
+- Fix anything that fails, or blank the cell and explain why in `source`.
+
+## Output format
+Give exactly three things, in this order, and nothing after the verification note.
+
+**1. The CSV** in one ```csv code block:
+- This exact header line:
+`{{ header }}`
+- One row per period in the table above, oldest first, using those period labels.
+- `release_date` as YYYY-MM-DD.
+- Put any text cell that contains a comma in double quotes. Leave blanks empty, never "n/a", "-" or 0 (0 only where a column's definition says so).
+- `source`: the document(s) used for that row (short title + URL), plus any "derived:" or "restated" notes.
+
+**2. The documents** in one ```json code block: a list with one object per document you used, e.g.
+`[{"period": "{{ periods[0].label }}", "title": "...", "url": "https://...", "published": "YYYY-MM-DD", "used_for": "income statement KPIs, guidance"}]`
+
+**3. A short verification note** under the heading `Verification note`, at most 10 lines:
+- The ratio checks you ran and whether they passed.
+- Which cells are blank and why.
+- Which values are derived.
+- Any definition changes between periods.
+- Document URLs you could not open.
+<!-- ATTACHMENTS -->

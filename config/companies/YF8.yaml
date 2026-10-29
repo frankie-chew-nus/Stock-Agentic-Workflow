@@ -1,0 +1,52 @@
+# YF8 - Yangzijiang Financial Holding. Drafted by Claude 2026-10-22; verified: false.
+# CHECK: leadership changed on 31 Oct 2025 with the YZJ Maritime spin-off; the new CEO and
+# chairman were not confirmed by research, so they are not listed below.
+ticker: YF8.SI
+code: YF8
+company: Yangzijiang Financial Holding Ltd
+short_name: Yangzijiang Financial
+mention_name: Yangzijiang Financial Holding (YZJFH)
+description: >
+  Yangzijiang Financial Holding was spun off from Yangzijiang Shipbuilding in 2022. It invests in
+  debt, equity and funds, and offers wealth and fund management. In October 2025 it distributed its
+  maritime fund and investment business to shareholders as Yangzijiang Maritime Development
+  (SGX: 8YZ); its share price fell about 51% on the distribution.
+company_domains: [yzjfin.com]
+search_aliases:
+  - Yangzijiang Financial Holding
+  - Yangzijiang Financial
+  - YZJ Financial
+  - YF8
+aliases:
+  strong:
+    - Yangzijiang Financial Holding
+    - Yangzijiang Financial
+    - YZJ Financial
+    - YZJFH
+    - "SGX:YF8"
+    - "SGX: YF8"
+    - YF8.SI
+  context: [Yangzijiang]
+  search_context_words: [financial, investment, SGX]
+  context_terms: [financial, investment, fund management, wealth, SGX, debt investments]
+  exclude: []
+people:
+  - {name: Ren Yuanlin, role: executive chairman and CEO, from: 2024-04-24, to: 2025-10-31}
+  - {name: Toe Teow Heng, role: CEO, to: 2024-04-23}
+  - {name: Liu Hua, role: deputy CEO and CFO}
+former_names: []
+collisions:
+  - "Yangzijiang Shipbuilding (SGX: BS6) and Yangzijiang Maritime Development (SGX: 8YZ), which are separate companies"
+related_not_aliases:
+  Yangzijiang Shipbuilding: "former parent, separately listed (SGX: BS6)"
+  Yangzijiang Maritime Development: "spun off in Oct 2025, separately listed (SGX: 8YZ)"
+competitors_not_aliases: []
+not_relevant_patterns: []
+relevant_examples:
+  - "spin-offs, distributions and share buybacks"
+as_of: 2026-10-22
+verified: false
+sources:
+  - https://simplywall.st/stocks/sg/diversified-financials/sgx-yf8/yangzijiang-financial-holding-shares/news/yangzijiang-financial-sgxyf8-plunges-514-after-maritime-spin
+  - https://www.tipranks.com/news/company-announcements/leadership-shuffle-at-yangzijiang-financial-holding
+  - https://www.worldports.org/?p=655398

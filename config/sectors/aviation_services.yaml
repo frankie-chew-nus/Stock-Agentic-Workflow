@@ -1,0 +1,16 @@
+# Sector: aviation & transport services (C6L airline, S58 handling/catering, S59 MRO, F83 jet fuel).
+sector: aviation_services
+label: Singapore aviation and aviation services
+trusted_domains: [caas.gov.sg, theloadstar.com, aircargonews.net, flightglobal.com]
+buckets:
+  a: "Results and guidance: revenue, operating profit, passenger and cargo volumes, load factors, yields, fuel costs, dividends, outlook"
+  b: "Legal and regulatory: CAAS and other aviation regulators, safety or security incidents, competition reviews, licences and concessions, lawsuits, labour disputes"
+  d: "Strategy and deals: acquisitions, divestments, joint ventures, airline and airport contracts, alliances, fleet and capacity decisions, buybacks"
+  f: "Operations and technology: capacity, network and hubs, maintenance and handling operations, sustainable aviation fuel, automation and AI"
+  g: "Sector stories: air travel and air-cargo demand, Changi traffic, oil and jet-fuel prices, tariffs and trade flows, where {short_name} is discussed in its own right"
+  h: "Primary sources: SGX announcements, the {short_name} newsroom, CAAS statements, rating agency releases"
+not_relevant_patterns: []
+relevant_examples:
+  - "traffic and volume updates"
+  - "contract wins or losses"
+  - "safety or regulatory action involving {short_name}"

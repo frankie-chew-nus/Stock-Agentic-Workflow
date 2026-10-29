@@ -1,0 +1,27 @@
+# KPI set: operating companies - telecoms, consumer, healthcare, aviation services, tech and
+# non-bank financials. DRAFT - not yet test-run. Company files add the sector's operating metrics
+# (subscribers, ARPU, cargo tonnage ...) with `extra_columns`.
+kpi_set: operating
+label: Telecoms / consumer / healthcare / aviation services / tech
+draft: true
+
+columns:
+  - {name: "revenue_{ccy}_m", unit: ccy_m, kind: flow, range: [1, 100000], def: "Revenue for the period."}
+  - {name: "ebitda_{ccy}_m", unit: ccy_m, kind: flow, range: [-10000, 50000], def: "EBITDA as the company defines it."}
+  - {name: "ebitda_margin_pct", unit: pct, kind: ratio, range: [-100, 100], def: "EBITDA / revenue x 100 as reported (or computed from the two reported figures - say which)."}
+  - {name: "net_profit_{ccy}_m", unit: ccy_m, kind: flow, range: [-10000, 50000], def: "Net profit attributable to shareholders (PATMI)."}
+  - {name: "underlying_profit_{ccy}_m", unit: ccy_m, kind: flow, range: [-10000, 50000], def: "Underlying / core / adjusted net profit as the company reports it (its label in source); blank if none."}
+  - {name: "free_cash_flow_{ccy}_m", unit: ccy_m, kind: flow, range: [-50000, 50000], def: "Free cash flow as the company reports it; blank if not reported (do not compute it yourself)."}
+  - {name: "net_debt_{ccy}_m", unit: ccy_m, kind: stock, range: [-100000, 200000], def: "Net debt at period end (negative = net cash)."}
+  - {name: "net_debt_ebitda_x", unit: x, kind: ratio, range: [-10, 20], def: "Net debt / EBITDA as reported (blank if not reported)."}
+  - {name: "dps_{ccy}", unit: ccy, kind: per_share, range: [0, 10], def: "Ordinary dividend per share declared for this period. 0 if none."}
+  - {name: "special_dps_{ccy}", unit: ccy, kind: per_share, range: [0, 10], def: "Special dividend per share declared for this period. 0 if none."}
+
+checks:
+  - name: ebitda_margin
+    expr: "ebitda_{ccy}_m / revenue_{ccy}_m * 100"
+    target: ebitda_margin_pct
+    tol_abs: 0.6
+
+notes:
+  - "Many of these companies report half-yearly with 1Q/3Q business updates: use 1HYY / 2HYY labels and leave figures a business update does not give blank."

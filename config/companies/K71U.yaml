@@ -1,0 +1,44 @@
+# K71U - Keppel REIT. Drafted by Claude 2026-10-22; verified: false.
+ticker: K71U.SI
+code: K71U
+company: Keppel REIT
+short_name: Keppel REIT
+description: >
+  Keppel REIT owns Grade A offices in Singapore (stakes in Marina Bay Financial Centre, One Raffles
+  Quay, Ocean Financial Centre, Keppel Bay Tower), Australia and South Korea. Its manager is Keppel
+  REIT Management, part of Keppel Ltd.
+company_domains: [keppelreit.com]
+search_aliases:
+  - Keppel REIT
+  - Keppel REIT Management
+  - K71U
+aliases:
+  strong:
+    - Keppel REIT
+    - Keppel REIT Management
+    - "SGX:K71U"
+    - "SGX: K71U"
+    - K71U.SI
+  context: []
+  match_only: [Ocean Financial Centre, Marina Bay Financial Centre, One Raffles Quay, Keppel Bay Tower]   # matching only; not searched
+  context_terms: [REIT, S-REIT, DPU, distribution, unitholders, Keppel, office, occupancy, Singapore, SGX]
+  exclude: []
+people:
+  - {name: Chua Hsien Yang, role: CEO, from: 2025-01-01}
+  - {name: Koh Wee Lih, role: CEO, to: 2024-12-31}
+  - {name: Tan Swee Yiow, role: chairman of the manager}
+former_names: []
+collisions:
+  - "other Keppel entities (Keppel Ltd, Keppel DC REIT, Keppel Infrastructure Trust, Keppel Pacific Oak US REIT) where Keppel REIT itself is not discussed"
+related_not_aliases:
+  Keppel Ltd: "sponsor; separately listed (SGX: BN4)"
+  Keppel DC REIT: "sister REIT, separately listed"
+  Keppel Infrastructure Trust: "separately listed business trust"
+  Hongkong Land: "co-owner of MBFC and One Raffles Quay; separately listed"
+competitors_not_aliases: [CapitaLand Integrated Commercial Trust, Suntec REIT, OUE REIT]
+not_relevant_patterns: []
+relevant_examples: []
+as_of: 2026-10-22
+verified: false
+sources:
+  - https://www.mingtiandi.com/real-estate/people/chua-hsien-yang-to-take-over-as-keppel-reit-ceo-from-koh

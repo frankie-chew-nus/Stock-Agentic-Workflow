@@ -1,0 +1,55 @@
+# S68 - Singapore Exchange (SGX Group). Drafted by Claude 2026-10-22; verified: false.
+ticker: S68.SI
+code: S68
+company: Singapore Exchange Limited
+short_name: SGX Group
+mention_name: SGX Group (Singapore Exchange)
+description: >
+  Singapore Exchange (SGX Group) runs Singapore's securities and derivatives markets, clearing
+  and depository, plus FX (SGX FX), indices (Scientific Beta) and the Baltic Exchange. Its
+  regulatory subsidiary SGX RegCo supervises listed companies. Its business depends on trading
+  volumes, especially in derivatives such as FTSE China A50, iron ore and FX futures.
+company_domains: [sgxgroup.com]
+search_aliases:
+  - Singapore Exchange
+  - SGX Group
+  - S68
+  - SGX RegCo
+  - Baltic Exchange
+  - SGX FX
+aliases:
+  strong:
+    - Singapore Exchange
+    - Singapore Exchange Limited
+    - SGX Group
+    - "SGX:S68"
+    - "SGX: S68"
+    - S68.SI
+    - SGX RegCo
+    - SGX FX
+    - Scientific Beta
+    - Baltic Exchange
+  context: [SGX]
+  search_context_words: [exchange operator, results, trading volumes]
+  context_terms: [exchange operator, bourse, trading volumes, derivatives, listings, Loh Boon Chye, results, dividend]
+  exclude: []
+people:
+  - {name: Loh Boon Chye, role: CEO}
+  - {name: Daniel Koh, role: CFO, from: 2024-12-01}
+  - {name: Koh Boon Hwee, role: chairman}
+former_names: []
+collisions:
+  - "\"SGX\" used only as the exchange where another company is listed or files announcements (e.g. \"SGX-listed\", \"in a filing to SGX\"); that is not about SGX Group's business"
+  - "Baltic Dry Index and other Baltic Exchange indices quoted in shipping-market stories"
+related_not_aliases: {}
+competitors_not_aliases: [HKEX, Bursa Malaysia]
+not_relevant_patterns:
+  - "SGX is named only as the listing venue, the recipient of a filing, or the source of a company announcement."
+  - "A Baltic Exchange index (e.g. the Baltic Dry Index) is quoted as a shipping-market indicator."
+relevant_examples:
+  - "monthly trading-volume updates"
+  - "market reforms by MAS or SGX RegCo affecting SGX's business"
+as_of: 2026-10-22
+verified: false
+sources:
+  - https://www.caproasia.com/2024/09/24/singapore-exchange-appoints-daniel-koh-as-cfo-designate-succeeding-ng-yao-loong-who-is-appointed-head-of-equities/

@@ -1,0 +1,46 @@
+# AIY - iFAST Corporation. Drafted by Claude 2026-10-22; verified: false.
+ticker: AIY.SI
+code: AIY
+company: iFAST Corporation Ltd
+short_name: iFAST
+description: >
+  iFAST is a Singapore wealth-management platform (FSMOne, Fundsupermart) for retail investors
+  and advisers in Singapore, Hong Kong, Malaysia, China and the UK. It owns iFAST Global Bank in
+  the UK (formerly BFC Bank) and runs the ePension (eMPF) administration contract in Hong Kong.
+company_domains: [ifastcorp.com, fsmone.com]
+search_aliases:
+  - iFAST Corporation
+  - iFAST
+  - AIY
+  - FSMOne
+  - iFAST Global Bank
+aliases:
+  strong:
+    - iFAST Corporation
+    - iFAST Corp
+    - iFAST
+    - "SGX:AIY"
+    - "SGX: AIY"
+    - AIY.SI
+    - FSMOne
+    - Fundsupermart
+    - iFAST Global Bank
+  context: []
+  context_terms: [wealth, platform, fund, Singapore, SGX, Hong Kong, eMPF, ePension]
+  exclude: []
+people:
+  - {name: Lim Chung Chun, role: chairman and CEO}
+  - {name: Lin Weide, role: CFO}
+  - {name: Inayat Kashif, role: iFAST Global Bank CEO}
+former_names:
+  - {name: BFC Bank, until: 2022-04-01}
+collisions: []
+related_not_aliases: {}
+competitors_not_aliases: [Endowus, Syfe, Tiger Brokers, moomoo]
+not_relevant_patterns: []
+relevant_examples:
+  - "Hong Kong ePension (eMPF) contract milestones"
+as_of: 2026-10-22
+verified: false
+sources:
+  - https://simplywall.st/stocks/sg/diversified-financials/sgx-aiy/ifast-shares/management

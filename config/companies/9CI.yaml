@@ -1,0 +1,56 @@
+# 9CI - CapitaLand Investment. Drafted by Claude 2026-10-22; verified: false.
+ticker: 9CI.SI
+code: 9CI
+company: CapitaLand Investment Limited
+short_name: CLI
+mention_name: CapitaLand Investment (CLI)
+subsidiary_note: The Ascott Limited or another subsidiary
+description: >
+  CapitaLand Investment is a real-estate investment manager: it runs listed REITs and business
+  trusts (CICT, CLAR, CapitaLand China Trust, CapitaLand India Trust, CapitaLand Ascott Trust) and
+  private funds, and owns lodging operator The Ascott Limited. It was listed in 2021 when CapitaLand
+  Limited restructured; its parent CapitaLand Group is privately held by Temasek.
+company_domains: [capitaland.com]
+search_aliases:
+  - CapitaLand Investment
+  - 9CI
+  - The Ascott Limited
+aliases:
+  strong:
+    - CapitaLand Investment
+    - CapitaLand Investment Limited
+    - "SGX:9CI"
+    - "SGX: 9CI"
+    - 9CI.SI
+    - The Ascott Limited
+    - Ascott Limited
+  context: [CLI, CapitaLand, Ascott]
+  case_sensitive: [CLI]
+  search_context_words: [fund management, REIT, Singapore]
+  context_terms: [fund management, funds under management, real estate, REIT, private fund, Singapore, SGX, Temasek]
+  exclude: []
+people:
+  - {name: Lee Chee Koon, role: Group CEO}
+  - {name: Tham Wei Hsing, role: Group CFO}   # per Simply Wall St (Oct 2026); CHECK
+  - {name: Miguel Ko, role: chairman, from: 2025-01-01}
+former_names:
+  - {name: CapitaLand Limited, until: 2021-09-20}
+collisions:
+  - "CLI as an abbreviation (command-line interface, Composite Leading Indicator)"
+  - "CapitaLand Development and CapitaLand Group, which are private and not CLI"
+related_not_aliases:
+  CapitaLand Integrated Commercial Trust: "CLI-managed REIT, separately listed"
+  CapitaLand Ascendas REIT: "CLI-managed REIT, separately listed"
+  CapitaLand China Trust: "CLI-managed REIT, separately listed"
+  CapitaLand India Trust: "CLI-managed trust, separately listed"
+  CapitaLand Ascott Trust: "CLI-managed trust, separately listed"
+  CapitaLand Development: "private development arm of CapitaLand Group"
+competitors_not_aliases: [Mapletree Investments, ESR Group, Frasers Property]
+not_relevant_patterns:
+  - "A CLI-managed REIT is the subject and CLI's own fee income, stake or strategy is not discussed."
+relevant_examples:
+  - "fund launches and funds-under-management milestones"
+as_of: 2026-10-22
+verified: false
+sources:
+  - https://simplywall.st/stocks/sg/real-estate-management-and-development/sgx-9ci/capitaland-investment-shares/management

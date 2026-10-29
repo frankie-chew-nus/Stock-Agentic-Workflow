@@ -1,0 +1,47 @@
+# ME8U - Mapletree Industrial Trust. Drafted by Claude 2026-10-22; verified: false.
+# CHECK: Simply Wall St (Oct 2026) lists Anand Chandran as CEO from 21 Aug 2026; not confirmed
+# by an SGX announcement, so he is not added below yet.
+ticker: ME8U.SI
+code: ME8U
+company: Mapletree Industrial Trust
+short_name: MIT
+mention_name: Mapletree Industrial Trust (MIT)
+description: >
+  MIT owns data centres in North America, Singapore and Japan, plus Singapore industrial
+  properties (flatted factories, hi-tech buildings, business parks). Its sponsor is Mapletree
+  Investments.
+company_domains: [mapletreeindustrialtrust.com]
+search_aliases:
+  - Mapletree Industrial Trust
+  - Mapletree Industrial Trust Management
+  - ME8U
+aliases:
+  strong:
+    - Mapletree Industrial Trust
+    - Mapletree Industrial Trust Management
+    - "SGX:ME8U"
+    - "SGX: ME8U"
+    - ME8U.SI
+  context: [MIT]
+  case_sensitive: [MIT]
+  search_context_words: [REIT, Mapletree, data centre, industrial]
+  context_terms: [REIT, S-REIT, DPU, distribution, unitholders, Mapletree, data centre, data center, industrial, Singapore, SGX]
+  exclude: [Massachusetts Institute of Technology, MIT Technology Review, MIT Sloan]
+people:
+  - {name: Ler Lily, role: CEO, from: 2024-07-22}
+  - {name: Tham Kuo Wei, role: CEO, to: 2024-07-21}
+  - {name: Cheah Kim Teck, role: chairman}
+former_names: []
+collisions:
+  - "the Massachusetts Institute of Technology (MIT) and its publications"
+related_not_aliases:
+  Mapletree Investments: "sponsor; privately held by Temasek"
+  Mapletree Logistics Trust: "sister REIT, separately listed"
+competitors_not_aliases: [CapitaLand Ascendas REIT, Keppel DC REIT, Digital Core REIT]
+not_relevant_patterns: []
+relevant_examples: []
+as_of: 2026-10-22
+verified: false
+sources:
+  - https://www.tipranks.com/news/company-announcements/mapletree-industrial-announces-executive-reshuffle
+  - https://simplywall.st/stocks/us/real-estate/otc-mapi.f/mapletree-industrial-trust/management

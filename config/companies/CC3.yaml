@@ -1,0 +1,42 @@
+# CC3 - StarHub. Drafted by Claude 2026-10-22; verified: false.
+ticker: CC3.SI
+code: CC3
+company: StarHub Ltd
+short_name: StarHub
+description: >
+  StarHub is a Singapore telecom group offering mobile, broadband, pay-TV and enterprise services,
+  and holds a majority stake in cybersecurity firm Ensign InfoSecurity.
+company_domains: [starhub.com]
+search_aliases:
+  - StarHub
+  - CC3
+  - Ensign InfoSecurity
+aliases:
+  strong:
+    - StarHub
+    - StarHub Ltd
+    - Ensign InfoSecurity
+    - "SGX:CC3"
+    - "SGX: CC3"
+    - CC3.SI
+  context: []
+  match_only: [giga]   # matching only; not searched
+  case_sensitive: []
+  context_terms: [StarHub, Singapore, telco, mobile, broadband, SGX]
+  exclude: []
+people:
+  - {name: Nikhil Eapen, role: CEO, to: 2026-12-31}
+  - {name: Matthew Williams, role: CEO-designate, from: 2026-06-24, to: 2026-12-31}
+  - {name: Matthew Williams, role: CEO, from: 2027-01-01}
+  - {name: Olivier Lim, role: chairman}
+former_names: []
+collisions: []
+related_not_aliases: {}
+competitors_not_aliases: [Singtel, M1, SIMBA]
+not_relevant_patterns: []
+relevant_examples:
+  - "CEO succession and strategy updates"
+as_of: 2026-10-22
+verified: false
+sources:
+  - https://corporate.starhub.com/about-us/newsroom/2026/June/starhub-leadership-transition.html

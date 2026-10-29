@@ -1,0 +1,13 @@
+# Sector: consumer (Y92, F34, OV8, D01, G13).
+sector: consumer
+label: Consumer, food and leisure
+trusted_domains: []
+buckets:
+  a: "Results and guidance: revenue, earnings, same-store sales, volumes, margins, dividends, outlook"
+  b: "Legal and regulatory: regulators, competition reviews, food safety, gaming and licensing rules, lawsuits"
+  d: "Strategy and deals: acquisitions, divestments, store or capacity expansion, brand deals, partnerships, buybacks"
+  f: "Operations and products: brands, stores, resorts, plants, supply chain, commodity inputs, digital and e-commerce"
+  g: "Sector stories: consumer spending, inflation, retail sales, tourism, commodity prices, where {short_name} is discussed in its own right"
+not_relevant_patterns:
+  - "A {short_name} brand, store or venue is named only as the place something happened or a product someone used, with nothing about the company's business."
+relevant_examples: []

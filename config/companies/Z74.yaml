@@ -1,0 +1,58 @@
+# Z74 - Singtel. Drafted by Claude 2026-10-22; verified: false.
+ticker: Z74.SI
+code: Z74
+company: Singapore Telecommunications Limited
+short_name: Singtel
+subsidiary_note: Optus, NCS, Nxera or another subsidiary
+description: >
+  Singtel is Singapore's largest telecom group: Singtel Singapore, Optus in Australia, NCS (IT
+  services), and Digital InfraCo (Nxera data centres and subsea cables). It has regional associates
+  Bharti Airtel (India), Telkomsel (Indonesia), AIS (Thailand) and Globe Telecom (Philippines).
+  Temasek is the majority shareholder.
+company_domains: [singtel.com, optus.com.au, ncs.co]
+search_aliases:
+  - Singtel
+  - Singapore Telecommunications
+  - Optus
+  - NCS Group
+  - Nxera
+  - Singtel Digital InfraCo
+  - Z74
+aliases:
+  strong:
+    - Singtel
+    - SingTel
+    - Singapore Telecommunications
+    - Optus
+    - Nxera
+    - Singtel Digital InfraCo
+    - "SGX:Z74"
+    - "SGX: Z74"
+    - Z74.SI
+  context: [NCS]
+  case_sensitive: [NCS]
+  search_context_words: [Singtel, IT services, Singapore]
+  context_terms: [Singtel, Singapore, IT services, government, digital, technology, SGX]
+  exclude: []
+people:
+  - {name: Yuen Kuan Moon, role: Group CEO, from: 2021-01-01}
+  - {name: Arthur Lang, role: Group CFO}
+  - {name: Lee Theng Kiat, role: chairman}
+  - {name: Stephen Rue, role: Optus CEO, from: 2025-01-01}
+former_names: []
+collisions:
+  - "other \"NCS\" meanings (e.g. national cyber-security bodies, unrelated firms)"
+related_not_aliases:
+  Bharti Airtel: "associate; counts only if Singtel's stake or share of profit is discussed"
+  Telkomsel: "associate; counts only if Singtel's stake or share of profit is discussed"
+  AIS: "associate (Advanced Info Service); counts only if Singtel's stake is discussed"
+  Globe Telecom: "associate; counts only if Singtel's stake is discussed"
+competitors_not_aliases: [StarHub, M1, SIMBA, Telstra, TPG Telecom]
+not_relevant_patterns: []
+relevant_examples:
+  - "Optus outages and regulatory action"
+  - "stake sales in associates"
+as_of: 2026-10-22
+verified: false
+sources:
+  - https://simplywall.st/stocks/us/telecom/otc-sgap.y/singapore-telecommunications/management

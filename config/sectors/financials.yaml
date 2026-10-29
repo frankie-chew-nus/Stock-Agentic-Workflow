@@ -1,0 +1,12 @@
+# Sector: non-bank financials (S68 exchange, AIY wealth platform, YF8 investment holding).
+sector: financials
+label: Non-bank financials
+trusted_domains: [mas.gov.sg]
+buckets:
+  a: "Results and guidance: revenue, earnings, trading volumes, assets under administration or management, investment income, dividends, outlook"
+  b: "Legal and regulatory: MAS and other financial regulators, licences, penalties, lawsuits, market-structure reviews"
+  d: "Strategy and deals: acquisitions, divestments, partnerships, new markets and products, spin-offs, buybacks"
+  f: "Products and technology: trading platforms, new products, digital banking, technology and AI"
+  g: "Sector stories: Singapore capital markets, wealth management, interest rates, China exposure, where {short_name} is discussed in its own right"
+not_relevant_patterns: []
+relevant_examples: []

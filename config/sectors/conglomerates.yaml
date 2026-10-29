@@ -1,0 +1,13 @@
+# Sector: conglomerates (J36, C07, BN4).
+sector: conglomerates
+label: Conglomerates and holding companies
+trusted_domains: []
+buckets:
+  a: "Results and guidance: group and segment earnings, contributions from key subsidiaries and associates, dividends, outlook"
+  d: "Strategy and deals: acquisitions, divestments, asset monetisation, restructuring of subsidiaries, privatisations, buybacks"
+  f: "Businesses: news about major subsidiaries and associates where the group's own stake, exposure or results are discussed"
+  g: "Sector stories: the Asian economies and markets the group depends on, where {short_name} is discussed in its own right"
+not_relevant_patterns:
+  - "A separately listed subsidiary or associate is the subject, and {short_name}'s own stake, exposure or results are not discussed."
+relevant_examples:
+  - "changes to stakes in subsidiaries and associates"

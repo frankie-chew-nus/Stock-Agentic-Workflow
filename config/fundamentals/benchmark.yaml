@@ -1,0 +1,65 @@
+# benchmark.yaml - settings for benchmark_fundamentals.py: which models to compare, on which answer key.
+#
+# Every model gets the SAME docs-mode prompt and the SAME PDFs, converted to text by the SAME OpenRouter
+# file-parser engine, so the test compares reading and extraction, not web search. Results go to
+# data/fundamentals/benchmark/<run_id>/ and never touch fundamentals_banks.csv.
+
+# Answer key: rows of the merged table checked by hand against the banks' PDFs on 2026-10-23.
+answer_key:
+  table: data/fundamentals/fundamentals_banks.csv
+  codes: [D05, O39, U11]
+  periods: [1Q26, 2Q26]
+
+# Cells left out of the score (not confirmed against the source document).
+exclude_cells:
+  - {code: U11, period: 2Q26, column: sp_bp, why: "read from a CFO-slide chart; not confirmed"}
+
+# How the PDFs reach the models. Three of the four models have no native PDF input, so one OpenRouter
+# file-parser engine is used for every model (Claude included) to give all of them identical text:
+#   cloudflare-ai = free markdown conversion (default; weaker on complex tables)
+#   mistral-ocr   = US$2 per 1,000 pages, better tables; about US$2-3 for the whole default run
+pdf_engine: cloudflare-ai
+attach_all_candidates: true   # also attach documents marked attach: false (e.g. UOB financial statements,
+                              # where the key's 2Q net loans and deposits come from)
+
+# Output budget. Reasoning (thinking) tokens count against max_tokens, so the cap below leaves room for
+# the answer. A reply still cut off (finish_reason "length") is retried ONCE with length_retry_max_tokens.
+# (23 Oct run: 8 of 9 cheaper-model calls spent all 16,000 tokens thinking and returned no CSV.)
+max_tokens: 32000
+length_retry_max_tokens: 64000
+timeout_s: 900
+retries: 1
+max_cost_usd: 5               # stop before the next call once the run has spent this much
+
+# Scoring tolerance by column unit: a value is correct when |model - key| <= abs. The key holds figures as
+# printed, so a model should copy them exactly; the tolerances only absorb float rounding and trailing zeros.
+tolerances:
+  ccy_m: {abs: 0.5}     # S$ millions (3079 vs 3080 is wrong)
+  pct:   {abs: 0.005}   # 1.87 vs 1.88 is wrong; 16.6 vs 16.60 is right
+  bp:    {abs: 0.05}
+  ccy:   {abs: 0.0005}  # per-share amounts
+  x:     {abs: 0.005}
+  count: {abs: 0}
+
+# Default thinking limit for models that set no `reasoning` of their own (OpenRouter's unified parameter).
+default_reasoning: {max_tokens: 6000}
+
+# Provider: one per model, so every bank is run the same way (on 23 Oct OpenRouter spread DeepSeek over
+# Parasail, DigitalOcean and Relace, and MiMo thought on some providers and not others).
+#   provider: auto   -> at run time, pick the endpoint with the best recent uptime among those that list
+#                       `reasoning` and `max_tokens` support, pinned with allow_fallbacks: false and
+#                       require_parameters: true (the thinking limit must be honoured, not ignored)
+#   provider: {order: [<slug>], allow_fallbacks: false, require_parameters: true}  -> pin by hand
+#   provider: none   -> OpenRouter's default routing (not recommended for benchmarking)
+default_provider: auto
+
+# Models to compare (OpenRouter ids). Optional per model: provider, reasoning, max_tokens (override the defaults).
+models:
+  - id: deepseek/deepseek-v4.1-flash
+  - id: anthropic/claude-sonnet-5.5
+    reasoning: {effort: medium}
+  - id: z-ai/glm-5.3-flash
+  - id: xiaomi/mimo-v2.6-flash
+  # Baseline on the same text input (about US$1 a call):
+  # - id: anthropic/claude-opus-5.5
+  #   reasoning: {effort: high}

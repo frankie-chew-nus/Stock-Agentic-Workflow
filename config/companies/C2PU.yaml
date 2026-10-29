@@ -1,0 +1,52 @@
+# C2PU - Parkway Life REIT. Drafted by Claude 2026-10-22; verified: false.
+ticker: C2PU.SI
+code: C2PU
+company: Parkway Life Real Estate Investment Trust
+short_name: Parkway Life REIT
+description: >
+  Parkway Life REIT is a healthcare REIT owning the Singapore hospital properties of Mount
+  Elizabeth, Gleneagles and Parkway East (leased to Parkway Hospitals Singapore), nursing homes
+  in Japan and nursing homes in France. Its sponsor is IHH Healthcare.
+company_domains: [plifereit.com]
+search_aliases:
+  - Parkway Life REIT
+  - Parkway Life Real Estate Investment Trust
+  - PLife REIT
+  - C2PU
+aliases:
+  strong:
+    - Parkway Life REIT
+    - Parkway Life Real Estate Investment Trust
+    - PLife REIT
+    - Parkway Trust Management
+    - "SGX:C2PU"
+    - "SGX: C2PU"
+    - C2PU.SI
+  context: [PLife]
+  search_context_words: [REIT, healthcare, Singapore]
+  context_terms: [REIT, S-REIT, DPU, distribution, unitholders, healthcare, hospital, nursing home, Singapore, SGX, Japan]
+  exclude: []   # Parkway Parade not excluded: a legit article could mention it
+people:
+  - {name: Yong Yean Chau, role: CEO}
+  - {name: Robin Hu, role: chairman}
+former_names: []
+collisions:
+  - "Parkway Parade (a mall owned by Lendlease Global Commercial REIT) and other unrelated \"Parkway\" names"
+  - "stories about Parkway Pantai or IHH Healthcare hospitals' medical services, with nothing about the REIT"
+related_not_aliases:
+  IHH Healthcare: "sponsor; listed in Malaysia"
+  Parkway Pantai: "hospital operator and master lessee, part of IHH"
+competitors_not_aliases: [First REIT]
+bucket_overrides:
+  a: "Results and guidance: distribution per unit (DPU), revenue, net property income, valuations, master lease rent reviews, outlook"
+  e: "Credit and capital: aggregate leverage, interest coverage, refinancing, yen and euro hedging, bonds, equity fund raising, rating actions"
+  f: "Properties: Singapore hospitals (Mount Elizabeth, Gleneagles, Parkway East), Japan and France nursing homes, master lease renewals"
+not_relevant_patterns: []
+relevant_examples:
+  - "master lease renewals and rent reviews"
+  - "acquisitions of nursing homes or hospitals"
+as_of: 2026-10-22
+verified: false
+sources:
+  - https://in.marketscreener.com/quote/stock/PARKWAY-LIFE-REAL-ESTATE--6499818/
+  - https://alfi.dev.theedgesingapore.com/news/reit-watch/parkwaylife-reits-manager-announces-board-changes

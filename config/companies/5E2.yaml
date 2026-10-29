@@ -1,0 +1,49 @@
+# 5E2 - Seatrium. Drafted by Claude 2026-10-22; verified: false.
+ticker: 5E2.SI
+code: 5E2
+company: Seatrium Limited
+short_name: Seatrium
+name_note: formerly Sembcorp Marine
+description: >
+  Seatrium builds and repairs offshore and marine assets: FPSOs and FPSO conversions, offshore wind
+  substations and vessels, rigs, and ship repair, with yards in Singapore, Brazil, Indonesia and
+  elsewhere. It was formed in 2023 when Sembcorp Marine merged with Keppel Offshore & Marine.
+company_domains: [seatrium.com]
+search_aliases:
+  - Seatrium
+  - 5E2
+  - Sembcorp Marine
+  - Keppel Offshore & Marine
+aliases:
+  strong:
+    - Seatrium
+    - Seatrium Limited
+    - "SGX:5E2"
+    - "SGX: 5E2"
+    - 5E2.SI
+    - Jurong Shipyard
+    - Keppel FELS
+  context: []
+  context_terms: [shipyard, offshore, FPSO, rig, Singapore, SGX, marine]
+  exclude: []
+people:
+  - {name: Chris Ong, role: CEO, from: 2023-02-28}
+  - {name: Mark Gainsborough, role: chairman}
+former_names:
+  - {name: Sembcorp Marine, until: 2023-02-28}
+  - {name: Keppel Offshore & Marine, until: 2023-02-28}
+collisions:
+  - "Sembcorp Industries (a separate company that demerged Sembcorp Marine in 2020)"
+  - "Keppel Ltd stories about its former offshore business, where Seatrium is not discussed"
+related_not_aliases:
+  Sembcorp Industries: "former parent of Sembcorp Marine; separately listed (SGX: U96)"
+  Keppel Ltd: "former parent of Keppel Offshore & Marine; separately listed (SGX: BN4)"
+competitors_not_aliases: [Hanwha Ocean, Samsung Heavy Industries, HD Hyundai Heavy Industries]
+not_relevant_patterns: []
+relevant_examples:
+  - "contract wins and cancellations"
+  - "corruption and legacy legal cases (e.g. Brazil)"
+as_of: 2026-10-22
+verified: false
+sources:
+  - https://simplywall.st/stocks/us/capital-goods/otc-smbm.y/seatrium/management

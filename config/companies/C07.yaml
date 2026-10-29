@@ -1,0 +1,50 @@
+# C07 - Jardine Cycle & Carriage. Drafted by Claude 2026-10-22; verified: false.
+ticker: C07.SI
+code: C07
+company: Jardine Cycle & Carriage Limited
+short_name: JC&C
+mention_name: Jardine Cycle & Carriage (JC&C)
+description: >
+  Jardine Cycle & Carriage is the Southeast Asian investment arm of Jardine Matheson. Its main
+  holding is about half of Astra International (Indonesia); it also owns Cycle & Carriage car
+  dealerships in Singapore and Malaysia, and stakes in THACO and REE (Vietnam), Vinamilk and Siam
+  City Cement.
+company_domains: [jcclgroup.com]
+search_aliases:
+  - Jardine Cycle & Carriage
+  - JC&C
+  - C07
+  - Cycle & Carriage
+aliases:
+  strong:
+    - Jardine Cycle & Carriage
+    - Jardine Cycle and Carriage
+    - JC&C
+    - "SGX:C07"
+    - "SGX: C07"
+    - C07.SI
+    - Cycle & Carriage
+  context: []
+  context_terms: [Astra, Indonesia, Vietnam, Jardine, SGX, motor, car dealer]
+  exclude: []
+people:
+  - {name: Freddy Lee, role: CEO, from: 2026-05-01}
+  - {name: Ben Birks, role: Group Managing Director, to: 2026-04-30}
+  - {name: Ng Yang Yen, role: Finance Director, from: 2026-05-01}
+  - {name: Samuel Tsien, role: chairman}
+former_names: []
+collisions:
+  - "AstraZeneca and other unrelated \"Astra\" names, when the story is about them"
+related_not_aliases:
+  Jardine Matheson: "parent; separately listed (SGX: J36)"
+  Astra International: "about 50% owned; listed in Indonesia. Astra stories count only if JC&C's stake or earnings contribution is discussed"
+  THACO: "Vietnamese stake"
+  Vinamilk: "Vietnamese stake"
+competitors_not_aliases: []
+not_relevant_patterns: []
+relevant_examples:
+  - "Astra's results where JC&C's share is discussed"
+as_of: 2026-10-22
+verified: false
+sources:
+  - https://links.sgx.com/1.0.0/corporate-announcements/UI4W2OQ4YZLFR001/880727_Attachment%20-%20Appointments%20of%20CEO%20and%20FD.pdf

@@ -1,0 +1,48 @@
+# U96 - Sembcorp Industries. Drafted by Claude 2026-10-22; verified: false.
+ticker: U96.SI
+code: U96
+company: Sembcorp Industries Ltd
+short_name: Sembcorp
+mention_name: Sembcorp Industries (Sembcorp)
+description: >
+  Sembcorp Industries is an energy and urban-development group: gas and power in Singapore,
+  renewables (solar, wind, storage) in Singapore, India, China, Vietnam and the Middle East, and
+  integrated urban developments in Vietnam, Indonesia and China. Temasek is the largest
+  shareholder.
+company_domains: [sembcorp.com]
+search_aliases:
+  - Sembcorp Industries
+  - U96
+  - Sembcorp Green Infra
+  - Sembcorp Energy India
+aliases:
+  strong:
+    - Sembcorp Industries
+    - "SGX:U96"
+    - "SGX: U96"
+    - U96.SI
+    - Sembcorp Green Infra
+    - Sembcorp Energy India
+    - Sembcorp Solar
+    - Sembcorp Power
+  context: [Sembcorp]
+  search_context_words: [energy, renewables, Singapore]
+  context_terms: [energy, power, renewables, solar, wind, gas, Singapore, SGX, Temasek, India]
+  exclude: []
+people:
+  - {name: Wong Kim Yin, role: Group President and CEO, from: 2020-07-01}
+  - {name: Eugene Cheng, role: CFO}
+  - {name: Tow Heng Tan, role: chairman}
+former_names: []
+collisions:
+  - "Sembcorp Marine (now Seatrium), demerged in 2020: older articles saying \"Sembcorp\" may mean the marine business"
+related_not_aliases:
+  Seatrium: "formerly Sembcorp Marine; separately listed (SGX: 5E2)"
+competitors_not_aliases: [Keppel, YTL PowerSeraya, Tuas Power]
+not_relevant_patterns: []
+relevant_examples:
+  - "renewable-energy acquisitions and capacity milestones"
+as_of: 2026-10-22
+verified: false
+sources:
+  - https://globaldata.com/company-profile/sembcorp-industries-ltd/executives/

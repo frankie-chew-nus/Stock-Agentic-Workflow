@@ -1,0 +1,19 @@
+# Sector: market (the Straits Times Index itself). Used for macro / market-wide sweeps.
+sector: market
+label: Singapore equity market
+trusted_domains: [mas.gov.sg, lseg.com, mti.gov.sg, singstat.gov.sg]
+buckets:
+  a: "Market performance: STI moves, record highs and sell-offs, earnings season round-ups, valuations, market outlook from named houses"
+  b: "Legal and regulatory: MAS and SGX RegCo rule changes, the equities market review, listing rules, market-integrity actions"
+  c: "Index governance: STI quarterly reviews, constituent additions and deletions, weighting changes, FTSE Russell methodology"
+  d: "Flows and deals: fund flows into Singapore equities, IPOs, listings and delistings, privatisations, government market-development programmes"
+  e: "Macro and rates: MAS monetary policy, SORA and interest rates, inflation, GDP, the Singapore dollar, US Federal Reserve decisions affecting Singapore"
+  f: "Market structure: trading volumes, liquidity, retail participation, new products such as STI ETFs and derivatives"
+  g: "Regional and global markets: Asian and global market moves where Singapore stocks are discussed, tariffs and trade, geopolitical shocks"
+  h: "Primary sources: SGX market statistics and announcements, MAS statements, FTSE Russell index notices, MTI and SingStat releases"
+not_relevant_patterns:
+  - "A single company's news mentions the STI only as the index it belongs to, with nothing about the market as a whole."
+relevant_examples:
+  - "index reviews and constituent changes"
+  - "market-wide moves and fund flows"
+  - "policy and rate decisions affecting Singapore equities"

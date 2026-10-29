@@ -1,0 +1,80 @@
+{
+  "ticker": "D05.SI",
+  "code": "D05",
+  "company": "DBS Group Holdings Ltd",
+  "sectors": [
+    "banks"
+  ],
+  "window_sgt": [
+    "2026-01-01",
+    "2026-10-20"
+  ],
+  "cap": 50,
+  "generated_at": "2026-10-22T10:17:30+08:00",
+  "prompt_file": "sweep_D05_20260101_20261020.txt",
+  "prompt_sha256": "1bba3829c6dcc278",
+  "config_sha256": {
+    "base": "3e9eca8542b95866",
+    "universe": "4bf64c04bfa6e14a",
+    "sector:banks": "2eff55d759f76335",
+    "company": "c77cc89ef559a9dc",
+    "template": "cbdf23651539b42f"
+  },
+  "company_as_of": "2026-10-22",
+  "verified": false,
+  "people_in_window": [
+    "Tan Su Shan (CEO)",
+    "Chng Sok Hui (CFO)",
+    "Peter Seah Lim Huat (chairman)"
+  ],
+  "former_names_in_window": [],
+  "match": {
+    "strong": [
+      "DBS Group Holdings",
+      "DBS Group",
+      "DBS Bank",
+      "SGX:D05",
+      "SGX: D05",
+      "D05.SI",
+      "digibank",
+      "POSB",
+      "DBS Bank (Hong Kong)",
+      "DBS Bank (China)",
+      "DBS Bank (Taiwan)",
+      "DBS Bank India",
+      "PT Bank DBS Indonesia",
+      "DBS Vickers",
+      "DBS Private Bank"
+    ],
+    "context": [
+      "DBS",
+      "Tan Su Shan",
+      "Chng Sok Hui",
+      "Peter Seah Lim Huat"
+    ],
+    "context_terms": [
+      "Singapore",
+      "bank",
+      "banking",
+      "SGX",
+      "MAS",
+      "Straits Times Index",
+      "STI",
+      "net interest margin",
+      "wealth"
+    ],
+    "exclude": [
+      "Disclosure and Barring Service",
+      "DBS check",
+      "deep brain stimulation",
+      "Dragon Ball Super"
+    ],
+    "competitors_not_aliases": [
+      "OCBC",
+      "UOB"
+    ],
+    "case_sensitive": [
+      "DBS"
+    ]
+  }
+}

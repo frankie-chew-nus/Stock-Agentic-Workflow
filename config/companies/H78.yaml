@@ -1,0 +1,48 @@
+# H78 - Hongkong Land Holdings. Drafted by Claude 2026-10-22; verified: false.
+ticker: H78.SI
+code: H78
+company: Hongkong Land Holdings Limited
+short_name: Hongkong Land
+description: >
+  Hongkong Land owns prime offices and luxury retail in Central, Hong Kong, plus commercial property
+  in Singapore (stakes in Marina Bay Financial Centre and One Raffles Quay), Shanghai, Beijing and
+  other Asian cities. Since 2024 it has pivoted to commercial property and fund management (e.g.
+  the Singapore Central Private Real Estate Fund) and exited build-to-sell residential, selling MCL
+  Land to Sunway in 2025. It is majority-owned by Jardine Matheson; shares are USD-quoted on SGX.
+company_domains: [hkland.com]
+search_aliases:
+  - Hongkong Land
+  - Hongkong Land Holdings
+  - H78
+  - Singapore Central Private Real Estate Fund
+aliases:
+  strong:
+    - Hongkong Land
+    - Hongkong Land Holdings
+    - "SGX:H78"
+    - "SGX: H78"
+    - H78.SI
+    - Singapore Central Private Real Estate Fund
+    - SCPREF
+  context: [HKL]
+  case_sensitive: [HKL, Hongkong Land]
+  search_context_words: [Jardine, Central, property]
+  context_terms: [Jardine, Central, Hong Kong, property, office, landlord, SGX, Singapore]
+  exclude: []
+people:
+  - {name: Michael Smith, role: CEO}
+  - {name: Michelle Ling, role: chief investment officer}
+former_names: []
+collisions:
+  - "the phrase \"Hong Kong land\" (land sales, land supply or land prices in Hong Kong); only the company spelled \"Hongkong Land\" counts"
+related_not_aliases:
+  Jardine Matheson: "majority shareholder; separately listed (SGX: J36)"
+  MCL Land: "former residential arm, sold to Sunway in 2025"
+competitors_not_aliases: [Swire Properties, Sun Hung Kai Properties]
+not_relevant_patterns: []
+relevant_examples:
+  - "fund launches and capital recycling"
+as_of: 2026-10-22
+verified: false
+sources:
+  - https://www.fortune.com/2026/02/05/hongkong-land-ceo-michael-smith-singapore-fund-qatar

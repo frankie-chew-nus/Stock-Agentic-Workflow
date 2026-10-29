@@ -1,0 +1,66 @@
+# Fundamentals profile: O39 - OCBC. Layer 3 of 3 (base -> KPI set -> company).
+# Drafted by Claude 2026-10-23 from OCBC's investor page. URL templates were checked against the links
+# for the periods in `verified_for`; other periods are the same pattern, unchecked.
+# Updated 2026-10-23 after the 1Q24-4Q25 backfill: FY naming confirmed; irregular file names listed in
+# known_documents at the end (OCBC sometimes adds a double space or a space before .pdf).
+code: O39
+reporting:
+  cadence: quarterly
+  fiscal_year_end_month: 12
+  currency: SGD
+  report_lag_days: 40
+
+source_domains: [ocbc.com]
+
+ir_pages:
+  - url: https://www.ocbc.com/group/investors/financials
+    note: results documents per period (1H26 and 1Q26 at the top when checked on 2026-10-23)
+
+# {h} = 1H for the 2nd quarter, FY for the 4th. OCBC files 2Q inside its 1H release and 4Q inside FY.
+doc_url_templates:
+  - doc: results press release (1Q / 3Q)
+    quarters: [1, 3]
+    url: "https://www.ocbc.com/iwov-resources/sg/ocbc/gbc/pdf/investors/quarterly-results/{yyyy}/OCBC%20{q}Q{yy}%20Results%20Press%20Release.pdf"
+    attach: true
+    verified_for: [1Q24, 3Q24, 3Q25, 1Q26]     # 1Q25 differs: see known_documents
+  - doc: results highlights (1Q / 3Q)
+    quarters: [1, 3]
+    url: "https://www.ocbc.com/iwov-resources/sg/ocbc/gbc/pdf/investors/quarterly-results/{yyyy}/OCBC%20{q}Q{yy}%20Results%20Highlights.pdf"
+    attach: true
+    verified_for: [3Q24, 1Q25, 3Q25, 1Q26]     # 1Q24 differs: see known_documents
+  - doc: media release and financial highlights (1H / FY, has the 2Q / 4Q figures)
+    quarters: [2, 4]
+    url: "https://www.ocbc.com/iwov-resources/sg/ocbc/gbc/pdf/investors/quarterly-results/{yyyy}/OCBC%20{h}{yy}%20Media%20Release%20Financial%20Highlights.pdf"
+    attach: true
+    verified_for: [1H24, FY24, 1H25, FY25, 1H26]
+  - doc: results presentation (1H / FY)
+    quarters: [2, 4]
+    url: "https://www.ocbc.com/iwov-resources/sg/ocbc/gbc/pdf/investors/quarterly-results/{yyyy}/OCBC%20{h}{yy}%20Results%20Presentation.pdf"
+    attach: true
+    verified_for: [1H24, FY24, 1H25, FY25, 1H26]
+
+preferred_documents:
+  - "2Q and 4Q: the 1H / FY 'Media Release and Financial Highlights' PDF, which shows the quarter next to the half-year or full-year figures."
+  - "1Q and 3Q: the results press release and the results highlights."
+  - "Guidance: the media release first, then the CEO / results presentation."
+
+company_notes:
+  - "OCBC pays an interim dividend with 1H results and a final dividend with FY results: put them on the 2Q and 4Q rows. 1Q and 3Q rows get 0."
+  - "OCBC reports 'wealth management income' including insurance (Great Eastern) and treasury products, which is broader than fees. Never use it for wm_fees_sgd_m: if no fee-only figure is printed, leave the cell blank (this keeps the series comparable across quarters)."
+  - "Great Eastern is a subsidiary: use group figures, not banking-only figures."
+  - "OCBC file names are not always regular: some have a double space (\"OCBC 1Q25 Results  Press Release.pdf\") or a space before .pdf (\"OCBC 1Q24 Results Highlights .pdf\"). If a candidate URL fails, open the investor page and use the link exactly as it is listed there."
+  - "For fee-only wealth management fees, use the 'Wealth Management' line of the net fees and commissions breakdown in the results highlights / presentation, not the broader wealth management income (which includes insurance)."
+
+extra_columns: []
+# Reference only (not put into prompts): results documents whose names do not follow the templates,
+# confirmed on 2026-10-23. Use these for re-runs of these periods (e.g. docs mode by hand).
+known_documents:
+  1Q24:
+    - "https://www.ocbc.com/iwov-resources/sg/ocbc/gbc/pdf/investors/quarterly-results/2024/OCBC%201Q24%20Results%20Highlights%20.pdf"
+  1Q25:
+    - "https://www.ocbc.com/iwov-resources/sg/ocbc/gbc/pdf/investors/quarterly-results/2025/OCBC%201Q25%20Results%20%20Press%20Release.pdf"
+
+as_of: 2026-10-23
+verified: false
+sources:
+  - https://www.ocbc.com/group/investors/financials

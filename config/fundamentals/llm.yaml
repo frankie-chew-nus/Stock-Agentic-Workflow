@@ -1,0 +1,45 @@
+# fundamentals/llm.yaml - model and limits for run_fundamentals_extraction.py (PAID OpenRouter tier).
+# Separate from config/llm.yaml, which drives the free-model news tagger.
+# API key: OPENROUTER_API_KEY from the environment or the project .env (same as llm_article_tagger.py).
+
+model: anthropic/claude-opus-5.5
+# Optional cheaper model for test runs:  python run_fundamentals_extraction.py --model <id>
+
+# Pin the provider so Anthropic's own (native) web search / web fetch and PDF handling are used.
+# Other hosts of the same model may not offer native server tools; OpenRouter would then silently
+# switch to its Exa engine, which changes what the model sees. allow_fallbacks: false makes that an
+# error instead.
+provider:
+  order: [anthropic]
+  allow_fallbacks: false
+  require_parameters: true
+
+max_tokens: 32000            # reply ceiling, reasoning included (see below)
+reasoning:
+  effort: high               # OpenRouter unified reasoning; for Claude the thinking budget is a share of max_tokens
+  exclude: false             # keep the (summarised) reasoning in the saved response for debugging
+temperature:                 # leave empty: extended thinking requires the default temperature
+
+# Web mode: OpenRouter server tools. Domains come from each prompt's meta.json (company + SGX).
+web_search:
+  engine: native             # Anthropic's own search; `exa` is the fallback engine if native misbehaves
+  max_uses: 8                # searches per call
+web_fetch:
+  engine: native             # Anthropic's fetch reads PDFs; `openrouter` (free, plain HTTP) is the alternative
+  max_uses: 12               # fetches per call (the prompt also sets a per-period budget)
+  max_content_tokens: 60000  # only honoured by non-native engines
+max_tool_calls: 30           # OpenRouter's cap on server-tool steps per request
+
+# Docs mode: PDFs attached to the request.
+pdf_engine: native           # native = Claude reads the PDF (text + page images, best on tables);
+                             # cloudflare-ai = free text conversion (cheaper, weaker on tables)
+max_attachment_mb: 25        # per request, all PDFs together (base64 adds a third on the wire)
+
+stream: false                # true = server-sent events; use if long calls die with timeouts
+timeout_s: 1800              # per call; web-mode calls with many fetches can take 10+ minutes
+retries: 1                   # extra attempts on 429 / 5xx / network errors (each attempt is billed if it got far)
+
+# Spend guards. A run stops before the next call once the reported cost reaches this.
+max_cost_usd_per_run: 25
+# Warn (and ask) when the account's remaining credit is below this before starting.
+min_credit_usd: 10

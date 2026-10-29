@@ -1,0 +1,62 @@
+# fundamentals/base.yaml - layer 1 of 3 for the quarterly fundamentals-extraction prompts
+# (base -> KPI set -> company). Read by build_fundamentals_prompt.py.
+#
+# Layers:
+#   config/fundamentals/base.yaml              this file: defaults, sector -> KPI set, shared rules
+#   config/fundamentals/kpi_sets/<set>.yaml    fixed CSV columns, definitions, sanity ranges, checks
+#   config/fundamentals/companies/<code>.yaml  IR pages, candidate document URLs, reporting cadence,
+#                                              company-specific definition notes (optional file)
+# Also read (never written): config/universe.yaml (ticker -> sector) and
+# config/companies/<code>.yaml (company name, short name, company_domains).
+
+defaults:
+  latest: 2                 # periods per run: the newest released period + the one before it
+  chunk_size: 2             # periods per prompt / API call (keeps the model's context small)
+  mode: web                 # web = Claude searches and fetches; docs = runner attaches PDFs
+  fiscal_year_end_month: 12
+  cadence: quarterly        # quarterly | half_yearly
+  currency: SGD
+  report_lag_days: 40       # a period counts as "released" this many days after period end
+  max_fetches_per_period: 3 # fetch budget written into the prompt (web mode). Every fetched document is
+                            # re-read at each later step, so each extra fetch raises the cost of the whole call
+
+# Restatements. The output feeds a point-in-time model, so the default is the figure AS FIRST
+# REPORTED in the period's own results documents - that is what the market knew on release_date.
+# "latest" uses the most recently published figure for a period (restated values replace old ones),
+# which leaks later information into a backtest. The runner follows the same policy when merging.
+restatement_policy: as_first_reported    # as_first_reported | latest
+
+# Consensus columns: company documents almost never carry consensus, and web search is restricted to
+# company + SGX domains below, so these would always be blank. Get consensus from another source.
+include_consensus: false
+
+# Which KPI set each universe sector uses. A company file can override with `kpi_set:`
+# (e.g. Parkway Life REIT sits in the healthcare sector but needs the reits set).
+sector_kpi_sets:
+  banks: banks
+  reits_commercial: reits
+  reits_industrial: reits
+  property: property
+  industrials: industrials
+  conglomerates: industrials
+  telecom_infra: operating
+  consumer: operating
+  healthcare: operating
+  aviation_services: operating
+  financials: operating
+
+# Domains every company may be searched / fetched on, on top of its own company_domains.
+# SGXNet carries each company's own filings.
+shared_source_domains:
+  - links.sgx.com
+  - sgx.com
+
+# Search queries suggested in the prompt when a candidate URL fails. Placeholders: {short_name},
+# {company}, {label} (e.g. 2Q26), {long_label} (e.g. second quarter 2026), {domain}.
+fallback_queries:
+  - "site:{domain} {short_name} {label} results"
+  - "site:links.sgx.com {short_name} {label}"
+  - "{company} {long_label} financial results"
+
+prompt_version: fund-v2     # bump when the template or rules change; recorded in each meta.json
+                            # v2 (2026-10-23): net customer loans, transcripts only when guidance is missing

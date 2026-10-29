@@ -1,0 +1,45 @@
+{
+  "created_at": "2026-10-23T14:25:08+08:00",
+  "builder_run_id": "build_fundamentals_prompt_20261023_142508",
+  "items": [
+    {
+      "code": "D05",
+      "periods": [
+        "1Q26",
+        "2Q26"
+      ],
+      "mode": "web",
+      "prompt": "fund_D05_1Q26-2Q26_web.md",
+      "meta": "fund_D05_1Q26-2Q26_web.meta.json",
+      "chars": 13348,
+      "candidate_urls": 7,
+      "kpi_set": "banks"
+    },
+    {
+      "code": "O39",
+      "periods": [
+        "1Q26",
+        "2Q26"
+      ],
+      "mode": "web",
+      "prompt": "fund_O39_1Q26-2Q26_web.md",
+      "meta": "fund_O39_1Q26-2Q26_web.meta.json",
+      "chars": 13131,
+      "candidate_urls": 4,
+      "kpi_set": "banks"
+    },
+    {
+      "code": "U11",
+      "periods": [
+        "1Q26",
+        "2Q26"
+      ],
+      "mode": "web",
+      "prompt": "fund_U11_1Q26-2Q26_web.md",
+      "meta": "fund_U11_1Q26-2Q26_web.meta.json",
+      "chars": 13489,
+      "candidate_urls": 7,
+      "kpi_set": "banks"
+    }
+  ]
+}

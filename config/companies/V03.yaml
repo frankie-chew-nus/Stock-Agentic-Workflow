@@ -1,0 +1,44 @@
+# V03 - Venture Corporation. Drafted by Claude 2026-10-22; verified: false.
+ticker: V03.SI
+code: V03
+company: Venture Corporation Limited
+short_name: Venture
+mention_name: Venture Corporation (Venture)
+description: >
+  Venture is a Singapore electronics manufacturing services and design company making products
+  for life sciences, medical devices, test and measurement, networking, semiconductor equipment and
+  industrial customers, with plants in Singapore, Malaysia, China and the US.
+company_domains: [venture.com.sg]
+search_aliases:
+  - Venture Corporation
+  - Venture Corp
+  - V03
+aliases:
+  strong:
+    - Venture Corporation
+    - Venture Corp
+    - "SGX:V03"
+    - "SGX: V03"
+    - V03.SI
+  context: [Venture]
+  case_sensitive: [Venture]
+  search_context_words: [Singapore, electronics, manufacturing]
+  context_terms: [electronics, manufacturing, EMS, Singapore, SGX, Wong Ngit Liong]
+  exclude: []   # not "venture capital": a legit article could contain it
+people:
+  - {name: Wong Ngit Liong, role: executive chairman}
+  - {name: Wong Chee Kheong, role: Group CEO}
+  - {name: Lee Ghai Keen, role: CEO, from: 2022-01-01}   # CHECK end date; succeeded by Wong Chee Kheong
+  - {name: Ng Lee Leng, role: CFO}
+former_names: []
+collisions:
+  - "\"venture\" as an ordinary word, venture capital, joint ventures, and companies such as Venture Global"
+related_not_aliases: {}
+competitors_not_aliases: [Jabil, Flex, Celestica]
+not_relevant_patterns: []
+relevant_examples: []
+as_of: 2026-10-22
+verified: false
+sources:
+  - https://simplywall.st/stocks/sg/tech/sgx-v03/venture-shares/management
+  - https://links.sgx.com/1.0.0/corporate-announcements/B9KUCE0YBFAXZIZF/9ba5019e3703e7b03568262dfc8a4629e5259dd60ebdd379a598beff7eeda8a0

@@ -1,0 +1,57 @@
+# C6L - Singapore Airlines. Drafted by Claude 2026-10-22; verified: false.
+ticker: C6L.SI
+code: C6L
+company: Singapore Airlines Limited
+short_name: SIA
+mention_name: Singapore Airlines (SIA)
+subsidiary_note: Scoot or another subsidiary
+description: >
+  Singapore Airlines is Singapore's flag carrier, operating full-service Singapore Airlines and
+  low-cost Scoot, the KrisFlyer loyalty programme and SIA Cargo. It holds a 25.1% stake in Air
+  India following the Air India-Vistara merger. Temasek is the majority shareholder.
+company_domains: [singaporeair.com, flyscoot.com]
+search_aliases:
+  - Singapore Airlines
+  - KrisFlyer
+  - SIA Cargo
+  - C6L
+aliases:
+  strong:
+    - Singapore Airlines
+    - Singapore Airlines Limited
+    - Scoot Pte
+    - KrisFlyer
+    - KrisShop
+    - SIA Cargo
+    - "SGX:C6L"
+    - "SGX: C6L"
+    - C6L.SI
+  context: [SIA, Scoot]
+  case_sensitive: [SIA]
+  search_context_words: [Singapore, airline, Changi, flight]
+  context_terms: [Singapore, airline, airlines, Changi, flight, flights, carrier, aviation, SGX, Straits Times Index]
+  exclude: [Security Industry Authority]
+people:
+  - {name: Goh Choon Phong, role: CEO, from: 2011-01-01}
+  - {name: Jo-Ann Tan, role: CFO, from: 2023-09-10}
+  - {name: Peter Seah, role: chairman, from: 2017-01-01}
+former_names: []
+collisions:
+  - "other \"SIA\" meanings: the UK Security Industry Authority, the singer Sia, industry associations abbreviated SIA"
+  - "\"scoot\" used as an ordinary word, or Scoot-branded scooter and e-bike companies"
+related_not_aliases:
+  SIA Engineering: "separately listed (SGX: S59); majority-owned by SIA"
+  SATS: "separately listed (SGX: S58); ground handler and caterer"
+  Air India: "25.1% associate; Air India stories count only if SIA's stake, losses or role is discussed"
+competitors_not_aliases: [Cathay Pacific, Emirates, Qantas, Malaysia Airlines]
+bucket_overrides:
+  f: "Operations and network: fleet, routes, capacity, KrisFlyer, Scoot, cargo, Air India partnership, sustainable aviation fuel, technology"
+not_relevant_patterns:
+  - "SIA is named only as the airline a person flew on, in a travel or personal story with nothing about SIA's business."
+relevant_examples:
+  - "safety incidents involving SIA or Scoot flights"
+  - "Air India stake and its losses"
+as_of: 2026-10-22
+verified: false
+sources:
+  - https://simplywall.st/stocks/us/transportation/otc-sing.f/singapore-airlines/management

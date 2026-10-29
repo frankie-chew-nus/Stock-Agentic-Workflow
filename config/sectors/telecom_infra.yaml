@@ -1,0 +1,15 @@
+# Sector: telecoms & infrastructure (Z74, CC3, CJLU, A7RU).
+sector: telecom_infra
+label: Singapore telecoms and infrastructure
+trusted_domains: [imda.gov.sg, ema.gov.sg, datacenterdynamics.com]
+buckets:
+  a: "Results and guidance: revenue, EBITDA, subscribers, average revenue per user, distributions or dividends, outlook"
+  b: "Legal and regulatory: IMDA, EMA and other regulators, spectrum and licences, regulated returns and tariffs, network outages, cybersecurity incidents and data breaches, lawsuits"
+  d: "Strategy and deals: acquisitions, divestments, asset recycling, data-centre and infrastructure investments, partnerships, buybacks"
+  f: "Networks and assets: 5G, fibre, data centres, subsea cables, utilities and energy assets, enterprise IT and cybersecurity, AI"
+  g: "Sector stories: Singapore telecom competition and pricing, consolidation, infrastructure investment, interest rates and infrastructure valuations, where {short_name} is discussed in its own right"
+not_relevant_patterns:
+  - "{short_name} is named only as the network or service a person used, in a story about something else."
+relevant_examples:
+  - "outages and regulatory action involving {short_name}"
+  - "asset acquisitions and divestments"

@@ -1,0 +1,19 @@
+# Sector: commercial & retail S-REITs (C38U, N2IU, K71U, J69U, TS0U, T82U, JYEU).
+sector: reits_commercial
+label: Singapore commercial and retail REITs
+trusted_domains: [ura.gov.sg, edgeprop.sg]
+buckets:
+  a: "Results and guidance: distribution per unit (DPU), net property income, occupancy, rental reversions, valuations, NAV per unit, outlook"
+  b: "Legal and regulatory: MAS REIT rules (leverage limits, interest coverage), tax transparency, tenant disputes, lawsuits, property incidents"
+  c: "Leadership and governance: REIT manager CEO and board changes, sponsor changes, management fees, executive comments on {short_name}'s own portfolio"
+  d: "Strategy and deals: property acquisitions and divestments, sponsor injections, mergers, asset enhancement initiatives, redevelopments, unit buybacks"
+  e: "Credit and capital: aggregate leverage, interest coverage, cost of debt, refinancing, green and sustainability-linked loans or bonds, equity fund raising, rating actions"
+  f: "Operations and properties: tenant mix, major tenant entries and exits, footfall and tenant sales, office leasing, news about its malls and office towers"
+  g: "Sector stories: Singapore retail and office markets, office supply, retail sales, interest rates and S-REIT valuations, where {short_name} is discussed in its own right"
+  h: "Primary sources: SGX announcements, the REIT manager's investor relations and newsroom pages, MAS statements, rating agency releases"
+not_relevant_patterns:
+  - "A {short_name} property (a mall or office tower) is named only as the location of an event, store opening, promotion or incident, with nothing about the REIT's business."
+relevant_examples:
+  - "DPU, occupancy and valuation updates"
+  - "property acquisitions and divestments"
+  - "leverage, refinancing and fund raising"

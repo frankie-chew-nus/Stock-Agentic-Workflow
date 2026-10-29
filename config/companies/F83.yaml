@@ -1,0 +1,46 @@
+# F83 - China Aviation Oil (Singapore). Drafted by Claude 2026-10-22; verified: false.
+ticker: F83.SI
+code: F83
+company: China Aviation Oil (Singapore) Corporation Ltd
+short_name: CAO
+mention_name: China Aviation Oil (Singapore) (CAO)
+description: >
+  CAO is the largest buyer of imported jet fuel for China's civil aviation industry, and trades
+  jet fuel and other oil products internationally. It holds stakes in Shanghai Pudong International
+  Airport Aviation Fuel Supply Company and other fuel-supply businesses. Its parent is China
+  National Aviation Fuel Group (CNAF).
+company_domains: [caosco.com]
+search_aliases:
+  - China Aviation Oil (Singapore)
+  - China Aviation Oil
+  - CAO Singapore
+  - F83
+aliases:
+  strong:
+    - China Aviation Oil (Singapore)
+    - China Aviation Oil (Singapore) Corporation
+    - China Aviation Oil
+    - "SGX:F83"
+    - "SGX: F83"
+    - F83.SI
+  context: [CAO]
+  case_sensitive: [CAO]
+  search_context_words: [jet fuel, China Aviation Oil, Singapore]
+  context_terms: [jet fuel, aviation fuel, oil, Singapore, SGX, China, Pudong, trading]
+  exclude: [chief administrative officer]
+people:
+  - {name: Lin Yi, role: CEO, from: 2022-09-15}
+  - {name: Xu Guohong, role: chairman}
+former_names: []
+collisions:
+  - "CAO as an abbreviation (chief administrative officer, Civil Aviation Organisation) or the Chinese surname Cao"
+  - "the 2004 CAO derivatives scandal, unless the article is in the window and about the company today"
+related_not_aliases:
+  China National Aviation Fuel Group: "parent (CNAF)"
+competitors_not_aliases: []
+not_relevant_patterns: []
+relevant_examples: []
+as_of: 2026-10-22
+verified: false
+sources:
+  - https://simplywall.st/stocks/de/energy/fra-vz8/china-aviation-oil-singapore-shares/management

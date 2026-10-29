@@ -1,0 +1,51 @@
+# J36 - Jardine Matheson Holdings. Drafted by Claude 2026-10-22; verified: false.
+ticker: J36.SI
+code: J36
+company: Jardine Matheson Holdings Limited
+short_name: Jardine Matheson
+description: >
+  Jardine Matheson is a Hong Kong-based conglomerate controlled by the Keswick family. Its main
+  holdings are Hongkong Land, DFI Retail Group, Mandarin Oriental, Jardine Cycle & Carriage (and
+  through it Astra International), Jardine Pacific and Jardine Motors. Shares are USD-quoted on
+  SGX. Lincoln Pan became CEO on 1 December 2025.
+company_domains: [jardines.com]
+search_aliases:
+  - Jardine Matheson
+  - Jardine Matheson Holdings
+  - J36
+aliases:
+  strong:
+    - Jardine Matheson
+    - Jardine Matheson Holdings
+    - "SGX:J36"
+    - "SGX: J36"
+    - J36.SI
+    - Jardine Pacific
+    - Jardine Motors
+  context: [Jardines, Jardine]
+  search_context_words: [Keswick, Hong Kong, conglomerate]
+  context_terms: [Keswick, Hong Kong, conglomerate, Hongkong Land, DFI, Mandarin Oriental, Astra, SGX]
+  exclude: []
+people:
+  - {name: Ben Keswick, role: executive chairman}
+  - {name: Lincoln Pan, role: CEO, from: 2025-12-01}
+  - {name: John Witt, role: Group Managing Director, to: 2025-11-30}
+  - {name: Graham Baker, role: CFO}
+former_names:
+  - {name: Jardine Strategic, until: 2021-04-14}
+collisions:
+  - "Jardine Lloyd Thompson (JLT, sold to Marsh McLennan in 2019) and other unrelated companies named Jardine"
+related_not_aliases:
+  Hongkong Land: "subsidiary, separately listed (SGX: H78)"
+  DFI Retail Group: "subsidiary, separately listed (SGX: D01)"
+  Jardine Cycle & Carriage: "subsidiary, separately listed (SGX: C07)"
+  Mandarin Oriental: "subsidiary hotel group"
+  Astra International: "held through Jardine Cycle & Carriage; listed in Indonesia"
+competitors_not_aliases: [Swire Pacific, CK Hutchison]
+not_relevant_patterns: []
+relevant_examples:
+  - "changes to its stakes in group companies"
+as_of: 2026-10-22
+verified: false
+sources:
+  - https://www.jardines.com/en/about-us/our-leadership
