@@ -21,7 +21,7 @@ class DBSOfflineEndToEndTest(unittest.TestCase):
     def test_mock_prediction_is_ingested_gated_and_scored(self):
         with tempfile.TemporaryDirectory(prefix="dbs_full_e2e_") as tmp:
             p = Path(tmp)
-            for script in ("build_briefing.py", "run_logger.py", "build_sweep_prompt.py"):
+            for script in ("build_briefing.py", "run_logger.py", "build_sweep_prompt.py", "trade_scoring.py"):
                 shutil.copy2(ROOT / script, p / script)
             shutil.copytree(ROOT / "config", p / "config")
             shutil.copytree(ROOT / "prompts" / "templates", p / "prompts" / "templates")
