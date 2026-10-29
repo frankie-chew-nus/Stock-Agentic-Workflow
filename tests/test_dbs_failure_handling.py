@@ -20,7 +20,7 @@ class DBSFailureHandlingTest(unittest.TestCase):
     def test_missing_prices_fails_build_and_records_error(self):
         with tempfile.TemporaryDirectory(prefix="dbs_missing_prices_") as tmp:
             project = Path(tmp)
-            for name in ("build_briefing.py", "run_logger.py", "build_sweep_prompt.py"):
+            for name in ("build_briefing.py", "run_logger.py", "build_sweep_prompt.py", "trade_scoring.py"):
                 shutil.copy2(ROOT / name, project / name)
             shutil.copytree(ROOT / "config", project / "config")
             env = dict(os.environ)
