@@ -12,5 +12,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: Offline fixture and contract checks
+      - name: Install briefing dependencies
+        run: python -m pip install pandas numpy openpyxl pyyaml jinja2
+      - name: Offline baseline and integration checks
         run: python -m unittest discover -s tests -v
