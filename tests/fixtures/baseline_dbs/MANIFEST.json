@@ -1,0 +1,22 @@
+{
+  "fundamentals/fundamentals_banks_D05.csv": {
+    "bytes": 11072,
+    "sha256": "047e7b2a4a92b8f4b7e9fe65870c3c5f2f4d67a00f62b23d7b2ca4f0c7a364e1"
+  },
+  "raw_prices/D05.SI.xlsx": {
+    "bytes": 370783,
+    "sha256": "acc2ffcf2333a8a8ca93a76bc5c36f3808626190e246228b06d00eae5a02d5bd"
+  },
+  "raw_prices/INDEX_STI.xlsx": {
+    "bytes": 343457,
+    "sha256": "080e923b9939e087b77718b6d9b783bab69d60a00b7b0b5c3e5425fed2bedb18"
+  },
+  "expected_results/outcomes.csv": {
+    "bytes": 4032,
+    "sha256": "fbae7d104224043a5b88e5166db191f8af3e92c99ca837977c9e3cc655e24d0a"
+  },
+  "analyst/backfill/snapshots/D05.jsonl": {
+    "bytes": 25284,
+    "sha256": "12f5d6ea56ff6584196558dd223edbc1f8af37d1f05533a1bc7b84ab07bdb7bb"
+  }
+}

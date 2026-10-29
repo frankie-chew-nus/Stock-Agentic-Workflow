@@ -1491,8 +1491,10 @@ def cmd_outcomes(a) -> None:
     universe = load_universe()
     cfg, _ = load_config(Path(a.config), None, None, [])
     root = out_dir(cfg)
-    with RunLogger("build_briefing_outcomes", params={"config": a.config}) as run:
-        recs, bench = [], None
+    from trade_scoring import score_buy_signals, summarize_buy_signals
+    cost_pct = 0.6  # documented Gate 2 round-trip assumption; percentage points
+    with RunLogger("build_briefing_outcomes", params={"config": a.config, "round_trip_cost_pct": cost_pct}) as run:
+        recs, bench, buy_scores = [], None, []
         for led in sorted(root.glob("*/decisions.jsonl")):
             code = led.parent.name
             rows = load_ledger(code, cfg)
@@ -1503,6 +1505,11 @@ def cmd_outcomes(a) -> None:
             if bench is None:
                 bench = load_prices(cfg["label"]["benchmark"])
             upto = px.index[-1]
+            # Score BUY signals independently (including repeated runs on a date).
+            scored_buys = score_buy_signals(rows, px, bench,
+                horizon=int(cfg["label"]["horizon_trading_days"]),
+                round_trip_cost_pct=cost_pct)
+            buy_iter = iter(scored_buys)
             for r in rows:
                 H = int((r.get("horizon") or cfg["label"]["horizon_trading_days"]))
                 band = float(cfg["label"]["band_pct"])
@@ -1516,6 +1523,14 @@ def cmd_outcomes(a) -> None:
                                brier=round(brier(r, o["bucket"]), 4),
                                brier_base=round(brier(r["base_rates"], o["bucket"]), 4)
                                if (r.get("base_rates") or {}).get("p_buy") is not None else None)
+                if r.get("action_final") == "BUY":
+                    trade = next(buy_iter)
+                    rec.update(trade_complete=trade.get("complete"),
+                               stock_gross_pct=trade.get("stock_gross_pct"),
+                               stock_net_pct=trade.get("stock_net_pct"),
+                               sti_pct=trade.get("sti_pct"),
+                               excess_net_pct=trade.get("excess_net_pct"))
+                    buy_scores.append(trade)
                 recs.append(rec)
         if not recs:
             run.log.info(f"No ledger entries under {root}")
@@ -1531,7 +1546,10 @@ def cmd_outcomes(a) -> None:
                           "brier_base": round(float(g["brier_base"].mean()), 4) if g["brier_base"].notna().any() else None}
             run.log.info(f"{prof}: {summ[prof]}")
         run.log.info(f"Wrote {path}: {len(df)} rows, {len(done)} complete")
-        run.summary = {"rows": len(df), "complete": len(done), "by_profile": summ, "file": str(path)}
+        buy_summary = summarize_buy_signals(buy_scores)
+        run.log.info(f"BUY simulation (0.6% round trip): {buy_summary}")
+        run.summary = {"rows": len(df), "complete": len(done), "by_profile": summ,
+                       "buy_simulation": buy_summary, "file": str(path)}
 
 
 def main(argv: list[str] | None = None) -> None:
