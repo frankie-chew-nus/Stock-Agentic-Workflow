@@ -83,6 +83,39 @@ class DBSOfflineEndToEndTest(unittest.TestCase):
             self.assertEqual(rows[0]["hit_final"].lower(), "true")
             self.assertAlmostEqual(float(rows[0]["brier"]), 0.545, places=3)
 
+            # Second mock response: a confident BUY, scored by the actual
+            # production outcomes command against the historical price files.
+            buy_reply = p / "mock_buy_reply.txt"
+            buy_reply.write_text(json.dumps({
+                "ticker": meta["ticker"], "as_of": meta["as_of"],
+                "p_buy": 0.70, "p_hold": 0.20, "p_sell": 0.10,
+                "action": "BUY",
+                "thesis_summary": "Synthetic BUY for integration testing only.",
+            }), encoding="utf-8")
+            run("ingest", "--meta", str(meta_files[0]),
+                "--reply", str(buy_reply), "--run", "2")
+            run("outcomes")
+            with outcome_path.open(newline="", encoding="utf-8-sig") as handle:
+                scored = list(csv.DictReader(handle))
+            self.assertEqual(len(scored), 2)
+            buy = next(r for r in scored if r["action_final"] == "BUY")
+            self.assertEqual(buy["trade_complete"].lower(), "true")
+            self.assertEqual(buy["complete"].lower(), "true")
+            self.assertTrue(buy["stock_gross_pct"])
+            self.assertTrue(buy["stock_net_pct"])
+            self.assertTrue(buy["sti_pct"])
+            self.assertTrue(buy["excess_net_pct"])
+            self.assertAlmostEqual(
+                float(buy["stock_net_pct"]),
+                float(buy["stock_gross_pct"]) - 0.6, places=5)
+            self.assertAlmostEqual(
+                float(buy["excess_net_pct"]),
+                float(buy["stock_net_pct"]) - float(buy["sti_pct"]),
+                places=5)
+            # Non-BUY records must not be counted as simulated trades.
+            hold = next(r for r in scored if r["action_final"] == "HOLD")
+            self.assertFalse(hold["stock_net_pct"])
+
 
 if __name__ == "__main__":
     unittest.main()
