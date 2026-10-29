@@ -24,6 +24,8 @@ def score_buy_signals(ledger: list[dict], stock: pd.DataFrame,
         as_of = pd.Timestamp(record["as_of"])
         eligible = s.index[s.index <= as_of]
         if eligible.empty:
+            results.append({"as_of": str(as_of.date()), "complete": False,
+                            "reason": "missing_entry_close"})
             continue
         start = eligible[-1]
         start_pos = s.index.get_loc(start)
