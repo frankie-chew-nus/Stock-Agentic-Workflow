@@ -19,7 +19,7 @@ class DBSBriefingIntegrationTest(unittest.TestCase):
     def test_build_historical_briefing_offline(self):
         with tempfile.TemporaryDirectory(prefix="dbs_e2e_") as d:
             p = Path(d)
-            for name in ("build_briefing.py", "run_logger.py", "build_sweep_prompt.py"):
+            for name in ("build_briefing.py", "run_logger.py", "build_sweep_prompt.py", "trade_scoring.py"):
                 shutil.copy2(ROOT / name, p / name)
             shutil.copytree(ROOT / "config", p / "config")
             shutil.copytree(ROOT / "prompts" / "templates", p / "prompts" / "templates")
