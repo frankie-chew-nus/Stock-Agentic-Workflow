@@ -3,12 +3,13 @@
 Status: planning only. No collector code or downstream pipeline changes in this branch yet.
 
 ## Objective
-Build an independent, isolated news collection module under `news_collector_v2/`. Develop and validate it alongside the existing `rss_news_collector.py`; replace the old collector only after compatibility and coverage tests pass. Collection requirements, source discovery strategy, and article interpretation are deliberately deferred.
+Build an independent, isolated news collection module under `news_collector_v2/`. Develop and validate it alongside the existing `rss_news_collector.py`; replace the old collector only after compatibility and coverage tests pass. Scraping methods and detailed collection requirements remain deferred. The collection-versus-analysis responsibility and YAML source-of-truth decision are now confirmed.
 
 ## Confirmed repository findings
 
 - `config/news_sources.yaml` is the operational source registry read by `rss_news_collector.py`. It contains source identity, trust A/B/C, feed URLs/status, sector mapping, access constraints, and sitemap discovery settings.
 - `config/news_sources.csv` is a tabular, flattened source directory. No direct dependency from the existing collector on this CSV was confirmed, and no automatic CSV↔YAML synchronisation was confirmed.
+- **Owner-confirmed decision:** `config/news_sources.yaml` is the single source of truth for news sources, trust tiers and collection configuration. The CSV is reference/export only; edits to CSV must not override YAML. If needed, generate CSV from YAML, never maintain two independent authoritative lists.
 - The existing collector stores data in `data/news/rss/`. The downstream `llm_article_tagger.py` imports `Collector` and helpers from `rss_news_collector.py`, then loads its item/article store. This is a **file-and-code interface**, not a single handoff file.
 - `news_matcher.py` provides company matching; `manual_article_import.py` writes into the same store. `build_briefing.py` consumes downstream tagged news, not raw scraper output.
 
@@ -24,6 +25,19 @@ Build an independent, isolated news collection module under `news_collector_v2/`
 | `data/news/rss/state.json` | JSON | Collector polling state; operational rather than a downstream tagger input |
 
 JSONL means one JSON object per line. These are existing formats, **not yet a formally versioned external schema**. Exact required keys, ID derivation, record update precedence, and tagger compatibility must be established by fixture tests before integration. In particular, the current collector canonicalises URLs and derives article IDs from them; items, articles, and matches must refer to consistent IDs.
+
+## Confirmed responsibility boundary
+
+**News Collector v2: collect, preprocess, and hand off; do not interpret investment sentiment.**
+
+- Discover/fetch permitted news, preserve original URL and publisher attribution, canonicalise URLs, record publication and first-seen timestamps, extract and clean article text (or mark summary-only/paywalled), and maintain consistent article IDs.
+- Apply deterministic checks: duplicates, sponsored/advertorial flags, collection/access status, and company alias matching using the existing matcher or a compatible adapter.
+- Produce compatible feed-item, article and match records in JSONL/CSV/HTML as documented above. Store isolated test output until integration.
+- **Do not calculate** sentiment, investment materiality, prominence, confidence or event type in the new collector.
+
+**Existing `llm_article_tagger.py`: financial interpretation.** It assesses per-stock relevance, materiality (high/medium/low/none), prominence (main subject/substantial/passing/none), sentiment score (-1 to +1), confidence (0 to 1), event type, evidence quote, and reasons. The tagger may use a summary if full text is unavailable; collection records must accurately indicate access/completeness. **Existing `build_briefing.py`** consumes the tagged output.
+
+This separation is a confirmed scope decision; detailed scraping requirements and interpretation changes are out of scope for now.
 
 ## Proposed isolated layout
 
@@ -51,8 +65,8 @@ Directory names below the module root are proposed, not implemented. Runtime out
 
 ## Deferred decisions
 - Which websites, APIs, RSS feeds, or permitted discovery methods to use.
-- Source ranking changes and the roles of YAML versus CSV in v2.
-- Scraping policy, extraction methods, and article interpretation.
+- Any future proposed changes to source trust rankings (YAML remains authoritative; CSV remains a derived/reference view).
+- Scraping policy, extraction methods, and any future changes to the existing tagger's interpretation rules.
 - Final output schema version, migration strategy, and production cutover.
 
 ## Relevant existing code
