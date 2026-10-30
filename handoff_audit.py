@@ -130,7 +130,8 @@ def send_email(meta: dict) -> str:
     request = urllib.request.Request(
         RESEND_ENDPOINT,
         data=json.dumps(payload).encode("utf-8"),
-        headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"},
+        headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json",
+                 "User-Agent": "Stock-Agentic-Workflow-Audit/0.1", "Accept": "application/json"},
         method="POST",
     )
     for attempt in range(3):
