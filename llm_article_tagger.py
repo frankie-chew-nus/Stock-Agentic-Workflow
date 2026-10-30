@@ -52,6 +52,9 @@ Run (PowerShell, from the project folder):
 from __future__ import annotations
 
 import argparse
+import atexit
+import tempfile
+import zipfile
 import csv
 import json
 import os
@@ -70,6 +73,7 @@ import yaml
 from news_matcher import DEFAULT_WATCHLIST, build_matchers, load_watchlist
 from rss_news_collector import OUT_DIR as RSS_DIR, SGT, Collector, _append_jsonl, _atomic_write, is_sponsored
 from run_logger import RunLogger
+from handoff_audit import verify as verify_handoff_package
 
 VERSION = "0.1"
 PROMPT_VERSION = "tag-v6-research"     # bump when the prompt or schema changes -> articles are re-tagged
@@ -745,6 +749,8 @@ def main(argv: list[str] | None = None) -> None:
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--handoff-package", type=Path, help="Verified ZIP snapshot (required with --handoff-manifest)")
+    ap.add_argument("--handoff-manifest", type=Path, help="Local SHA-256 manifest for the snapshot")
     ap.add_argument("--config", default=str(CONFIG_PATH), help="model settings (YAML)")
     ap.add_argument("--watchlist", default=str(DEFAULT_WATCHLIST))
     ap.add_argument("--model", default=None, help="use this OpenRouter model id instead of the config (no fallbacks)")
@@ -759,10 +765,42 @@ def main(argv: list[str] | None = None) -> None:
     ap.add_argument("--rebuild", action="store_true", help="only rebuild ticker_tags.csv from tags.jsonl")
     a = ap.parse_args(argv)
 
+    # Audit mode: verify before any API calls, then read ONLY the extracted snapshot.
+    # The normal mode remains unchanged. Temporary files persist for this process only.
+    if bool(a.handoff_package) != bool(a.handoff_manifest):
+        ap.error("--handoff-package and --handoff-manifest must be provided together")
+    handoff = None
+    if a.handoff_package:
+        if not verify_handoff_package(a.handoff_package, a.handoff_manifest):
+            ap.error("HANDOFF_INTEGRITY_FAILED: package does not match manifest")
+        manifest_data = json.loads(a.handoff_manifest.read_text(encoding="utf-8"))
+        temp = tempfile.TemporaryDirectory(prefix="stock_handoff_")
+        atexit.register(temp.cleanup)
+        snapshot = Path(temp.name)
+        with zipfile.ZipFile(a.handoff_package) as archive:
+            members = archive.infolist()
+            if not members:
+                ap.error("Empty handoff package")
+            for member in members:
+                name = member.filename
+                dest = (snapshot / name).resolve()
+                if name.startswith("/") or "\\\\" in name or not dest.is_relative_to(snapshot.resolve()):
+                    ap.error("Unsafe ZIP member path")
+            archive.extractall(snapshot)
+        if not (snapshot / "feed_items").is_dir() or not (snapshot / "articles").is_dir():
+            ap.error("Handoff missing feed_items or articles")
+        import rss_news_collector as rss_module
+        rss_module.OUT_DIR = snapshot
+        handoff = {"package": manifest_data["package"], "sha256": manifest_data["sha256"],
+                   "verification": "PASS"}
+        # Prevent mixing tags for distinct snapshots in a shared output store.
+        global OUT_DIR
+        OUT_DIR = BASE_DIR / "data" / "news" / "handoff_tag_tests" / manifest_data["sha256"][:16]
+
     cfg = yaml.safe_load(Path(a.config).read_text(encoding="utf-8")) or {}
     models = [a.model] if a.model else [cfg["model"]] + list(cfg.get("fallback_models") or [])
     tickers, include_index = load_watchlist(a.watchlist)
-    params = {"version": VERSION, "prompt_version": PROMPT_VERSION, "models": models, "limit": a.limit,
+    params = {"handoff": handoff, "version": VERSION, "prompt_version": PROMPT_VERSION, "models": models, "limit": a.limit,
               "ticker": a.ticker, "retag": a.retag, "dry_run": a.dry_run,
               "config": {k: v for k, v in cfg.items() if k not in ("model", "fallback_models")}}
 
