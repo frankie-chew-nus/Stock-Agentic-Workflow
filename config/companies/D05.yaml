@@ -1,77 +1,24 @@
-# D05 - DBS Group Holdings. Migrated from the D05 sweep prompt (2026-10-21), plus POSB and
-# overseas subsidiaries added by Claude (unverified).
-
 ticker: D05.SI
 code: D05
 company: DBS Group Holdings Ltd
 short_name: DBS
-description: >
-  DBS is Singapore's largest bank by assets, with consumer banking (including POSB and the
-  digibank app), wealth management, and institutional banking across Singapore, Hong Kong, China,
-  Taiwan, India and Indonesia.
-company_domains: [dbs.com, posb.com.sg]
-
-search_aliases:
-  - DBS Group
-  - DBS Group Holdings
-  - DBS Bank
-  - digibank
-  - D05
-  - POSB
-
+description: 'Public ticker identity used solely for offline testing.'
+company_domains: [dbs.com]
+search_aliases: [DBS Group Holdings, DBS Bank]
 aliases:
-  strong:
-    - DBS Group Holdings
-    - DBS Group
-    - DBS Bank
-    - "SGX:D05"
-    - "SGX: D05"
-    - D05.SI
-    - digibank
-    - POSB
-    - DBS Bank (Hong Kong)
-    - DBS Bank (China)
-    - DBS Bank (Taiwan)
-    - DBS Bank India
-    - PT Bank DBS Indonesia
-    - DBS Vickers
-    - DBS Private Bank
-    - DBS PayLah
-    - PayLah
+  strong: [DBS Group Holdings, DBS Bank, 'SGX:D05', D05.SI]
   context: [DBS]
   case_sensitive: [DBS]
-  search_context_words: [Singapore, bank, SGX, MAS]
-  context_terms: [Singapore, bank, banking, SGX, MAS, Straits Times Index, STI, net interest margin, wealth]
-  exclude:
-    - Disclosure and Barring Service
-    - DBS check
-    - deep brain stimulation
-    - Dragon Ball Super
-
-people:
-  - {name: Tan Su Shan, role: CEO, from: 2025-03-28}
-  - {name: Piyush Gupta, role: CEO, to: 2025-03-27}
-  - {name: Chng Sok Hui, role: CFO}
-  - {name: Peter Seah Lim Huat, role: chairman}
-
+  search_context_words: [Singapore, bank]
+  context_terms: [Singapore, bank]
+  exclude: []
+people: []
 former_names: []
-
-collisions:
-  - "the UK Disclosure and Barring Service (\"DBS check\")"
-  - "deep brain stimulation (DBS) in medical stories"
-  - "Dragon Ball Super"
-
+collisions: []
 related_not_aliases: {}
-competitors_not_aliases: [OCBC, UOB]
-
-bucket_overrides:
-  f: "Products and technology: digibank, POSB, digital banking, AI, wealth management"
-
+competitors_not_aliases: []
+bucket_overrides: {}
 not_relevant_patterns: []
 relevant_examples: []
-
-as_of: 2026-10-22
 verified: false
-sources:
-  - https://en.wikipedia.org/wiki/Peter_Seah
-  - https://finews.asia/people/41820-dbs-tan-su-shan-piyush-gupta-singapore
+sources: []

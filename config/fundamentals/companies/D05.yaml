@@ -1,65 +1,10 @@
-# Fundamentals profile: D05 - DBS Group Holdings. Layer 3 of 3 (base -> KPI set -> company).
-# Company name, short name and domains come from config/companies/D05.yaml.
-# Drafted by Claude 2026-10-23 from DBS's investor pages. URL templates were checked against the
-# links on those pages for the periods in `verified_for`; other periods are the same pattern, unchecked.
 code: D05
-reporting:
-  cadence: quarterly
-  fiscal_year_end_month: 12
-  currency: SGD
-  report_lag_days: 40          # 2Q26 results came out in early August; 3Q in early November
-
-# Search and fetch are limited to these domains (plus links.sgx.com / sgx.com from base.yaml).
-source_domains: [dbs.com]
-
-ir_pages:
-  - url: https://www.dbs.com/investor/financial-performance/default.page
-    note: latest results only (2Q26 when checked on 2026-10-23)
-  - url: https://www.dbs.com/investors/financials/quarterly-financials
-    note: all past quarters, newest first
-
-# Candidate document URLs, rendered per period into the prompt (Claude's native fetch can only open URLs
-# that appear in the conversation, so literal URLs matter). Placeholders: {yyyy} {yy} {q} {h} {label}.
-# attach: true -> downloaded and attached in --mode docs.
-doc_url_templates:
-  - doc: performance summary (almost every KPI in one PDF)
-    quarters: [2, 4]
-    url: "https://www.dbs.com/iwov-resources/images/investors/quarterly-financials/{yyyy}/{q}Q{yy}_performance_summary.pdf"
-    attach: true
-    verified_for: [2Q24, 4Q24, 2Q25, 4Q25, 2Q26]
-  - doc: trading update (1Q / 3Q - most KPIs, net loans, dividends)
-    quarters: [1, 3]
-    url: "https://www.dbs.com/iwov-resources/images/investors/quarterly-financials/{yyyy}/{q}Q{yy}_trading_update.pdf"
-    attach: true
-    verified_for: [1Q26]
-  - doc: press statement (2Q / 4Q)
-    quarters: [2, 4]
-    url: "https://www.dbs.com/iwov-resources/images/investors/quarterly-financials/{yyyy}/{q}Q{yy}_press_statement.pdf"
-    attach: true
-    verified_for: [2Q26]
-  - doc: CFO presentation
-    url: "https://www.dbs.com/iwov-resources/images/investors/quarterly-financials/{yyyy}/{q}Q{yy}_CFO_presentation.pdf"
-    attach: true
-    verified_for: [1Q26, 2Q26]
-  - doc: analyst call transcript (guidance - only if the other documents have none)
-    url: "https://www.dbs.com/iwov-resources/images/investors/quarterly-financials/{yyyy}/{q}Q{yy}_analyst_transcript.pdf"
-    attach: false
-    verified_for: [1Q26, 2Q26]
-
-preferred_documents:
-  - "2Q and 4Q: the performance summary PDF has nearly every KPI, with the quarter, the prior quarter and the same quarter last year side by side."
-  - "1Q and 3Q: DBS publishes a trading update PDF (no performance summary, no press statement). It has nearly every KPI; add the CFO presentation only for anything missing (e.g. wealth management fees)."
-  - "Guidance: the press statement (2Q/4Q) or trading update (1Q/3Q) first, then the CFO presentation. The analyst call transcript only if neither has any outlook statement."
-
-company_notes:
-  - "DBS pays dividends quarterly. Since 2025 it has also declared a separate capital-return dividend; put that in div_capital_return_sgd, not in the ordinary dividend."
-  - "Use group NIM, not the 'commercial book' NIM DBS also shows."
-  - "The financial data supplement is an .xls file; you may not be able to read it - the PDFs are enough."
-
-extra_columns: []      # e.g. {name: hk_nim_pct, unit: pct, kind: ratio, range: [0, 4], def: "..."}
-
-as_of: 2026-10-23
+reporting: {cadence: quarterly, fiscal_year_end_month: 12, currency: SGD, report_lag_days: 40}
+source_domains: []
+ir_pages: []
+doc_url_templates: []
+preferred_documents: []
+company_notes: []
+extra_columns: []
 verified: false
-sources:
-  - https://www.dbs.com/investor/financial-performance/default.page
-  - https://www.dbs.com/investors/financials/quarterly-financials
+sources: []

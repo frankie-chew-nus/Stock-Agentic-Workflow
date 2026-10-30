@@ -1,16 +1,3 @@
-# watchlist.yaml - which stocks the news collectors track (rss_news_collector.py).
-#
-# List Yahoo tickers (or SGX codes). Each must be in config/universe.yaml and have a company file
-# config/companies/<code>.yaml - that file supplies the aliases used to match news items.
-# To track more stocks, add lines here; nothing else needs changing. On the next run, items already
-# collected are re-matched against the new list, and the new stock's articles are fetched.
-#
-# Use a different file with:  python rss_news_collector.py --watchlist config/watchlist_reits.yaml
-
 tickers:
-  - D05.SI      # DBS Group Holdings
-  - O39.SI      # Oversea-Chinese Banking Corporation (OCBC)
-  - U11.SI      # United Overseas Bank (UOB)
-
-# Also tag market-wide stories (^STI: "Straits Times Index", "Singapore shares ...").
+  - D05.SI
 include_index: false
