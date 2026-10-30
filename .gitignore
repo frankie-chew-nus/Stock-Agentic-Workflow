@@ -1,0 +1,11 @@
+.env
+.env.*
+!.env.example
+API Keys/
+__pycache__/
+*.pyc
+.venv/
+logs/
+data/
+prompts/generated/*
+!prompts/generated/.gitkeep
