@@ -1,53 +1,23 @@
-# STI - Straits Times Index (market-wide sweep). Drafted by Claude 2026-10-22, unverified.
-ticker: "^STI"
+ticker: '^STI'
 code: STI
-company: the Straits Times Index
-short_name: the STI
-mention_name: the Straits Times Index (STI)
-is_index: true
-ticker_label: "Yahoo Finance ticker: ^STI"
-description: >
-  The Straits Times Index is Singapore's benchmark stock index: a capitalisation-weighted index of
-  the 30 largest and most liquid companies on the SGX Mainboard, calculated by FTSE Russell with SPH
-  Media and SGX, and reviewed quarterly. This sweep covers the market as a whole, not single stocks.
+company: Straits Times Index
+short_name: STI
 company_domains: []
-search_aliases:
-  - Straits Times Index
-  - STI index
-  - Singapore stocks
-  - Singapore shares
-  - Singapore equities
-  - SGX stocks
-  - STI constituents
-  - STI quarterly review
+search_aliases: [Straits Times Index]
 aliases:
-  strong: [Straits Times Index, "^STI", FTSE Straits Times Index, FTSE ST Index]
+  strong: [Straits Times Index]
   context: [STI]
   case_sensitive: [STI]
-  search_context_words: [Singapore, stocks, index, SGX]
-  context_terms: [Singapore, SGX, stocks, shares, equities, index, blue-chip, benchmark]
-  exclude: [sexually transmitted infection, sexually transmitted infections, STI testing, STI clinic]
+  search_context_words: [Singapore, index]
+  context_terms: [Singapore, index]
+  exclude: []
 people: []
 former_names: []
-collisions:
-  - "STI meaning sexually transmitted infection(s) in health stories"
-  - "other indices or funds with STI in the name that are not the Straits Times Index"
+collisions: []
 related_not_aliases: {}
 competitors_not_aliases: []
-replace_not_relevant_patterns: true   # company-style base rules don't fit an index
-not_relevant_patterns:
-  - "A single company's news mentions the STI only as the index it belongs to, or says a stock rose or fell \"on the STI\", with nothing about the market as a whole."
-  - "The STI level is quoted only in a routine closing-prices table or ticker strip."
-  - "The name appears only in a photo caption, video title or \"related stories\" text."
-  - "The name matches an unrelated entity (see the collisions above)."
-replace_relevant_examples: true
-relevant_examples:
-  - "market-wide moves and their drivers"
-  - "fund flows into or out of Singapore equities"
-  - "STI quarterly reviews and constituent changes"
-  - "MAS, SGX and government measures affecting the stock market"
-  - "rate and macro decisions discussed for their effect on Singapore stocks"
-  - "outlooks and targets for the STI from named research houses"
-as_of: 2026-10-22
+bucket_overrides: {}
+not_relevant_patterns: []
+relevant_examples: []
 verified: false
 sources: []
