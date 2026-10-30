@@ -52,6 +52,30 @@ def write_json_new(path: Path, data: dict) -> None:
         f.write("\n")
 
 
+def count_articles(source: Path) -> tuple[int, int]:
+    """Count distinct article IDs and total rows across staged article JSONL files."""
+    folder = source / "articles"
+    ids = set()
+    rows = 0
+    for path in sorted(folder.glob("*.jsonl")):
+        with path.open(encoding="utf-8") as stream:
+            for number, line in enumerate(stream, 1):
+                if not line.strip():
+                    continue
+                try:
+                    record = json.loads(line)
+                except json.JSONDecodeError as exc:
+                    raise ValueError(f"Invalid article JSONL: {path.name}:{number}") from exc
+                article_id = record.get("id")
+                if not article_id:
+                    raise ValueError(f"Missing article ID: {path.name}:{number}")
+                ids.add(str(article_id))
+                rows += 1
+    if not rows:
+        raise ValueError("No article records found in staged input")
+    return len(ids), rows
+
+
 def create_package(source: Path, output: Path, run_id: str, article_count: int | None) -> tuple[Path, Path, dict]:
     """Snapshot explicit input directory, avoiding hidden files and symlinks."""
     source = source.resolve(strict=True)
@@ -69,6 +93,9 @@ def create_package(source: Path, output: Path, run_id: str, article_count: int |
             raise ValueError(f"Refusing symlink or hidden path: {rel}")
         if p.suffix.lower() in (".env", ".key", ".pem"):
             raise ValueError(f"Refusing credential-like file: {rel}")
+    unique_articles, article_rows = count_articles(source)
+    if article_count is not None and article_count != unique_articles:
+        raise ValueError(f"Declared article count {article_count} differs from {unique_articles} unique article IDs")
     timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     name = f"news_handoff_{timestamp}_{run_id}"
     package = output / f"{name}.zip"
@@ -88,7 +115,8 @@ def create_package(source: Path, output: Path, run_id: str, article_count: int |
             "sha256": sha256_file(package),
             "bytes": package.stat().st_size,
             "files": len(files),
-            "article_count": article_count,
+            "article_count": unique_articles,
+            "article_rows": article_rows,
             "email_status": "not_sent",
         }
         write_json_new(manifest, meta)
@@ -159,7 +187,7 @@ def main() -> int:
     pack.add_argument("--input", type=Path, required=True, help="Explicit staged input directory")
     pack.add_argument("--out", type=Path, default=DEFAULT_OUT)
     pack.add_argument("--run-id", required=True)
-    pack.add_argument("--article-count", type=int)
+    pack.add_argument("--article-count", type=int, help="Optional assertion of unique article IDs (auto-counted)")
     check = sub.add_parser("verify", help="Check ZIP against the local manifest")
     check.add_argument("--package", type=Path, required=True)
     check.add_argument("--manifest", type=Path, required=True)
