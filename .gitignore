@@ -8,3 +8,4 @@ venv/
 data/
 logs/
 news_collector_v2/output/
+tests/logs/
