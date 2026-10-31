@@ -14,21 +14,34 @@ from pathlib import Path
 
 from handoff_audit import DEFAULT_OUT, create_package, send_email, verify, write_json_new
 from stage_news_handoff import SOURCE, STAGING, stage
+from run_logger import RunLogger
 from datetime import datetime, timezone
 
 
-def run(source: Path, run_id: str, no_email: bool) -> int:
+def run(source: Path, run_id: str, no_email: bool, log_dir: Path) -> int:
+    with RunLogger("handoff_e2e_test", params={
+        "test_run_id": run_id, "source": str(source), "no_email": no_email,
+        "stop_before_llm": True,
+    }, log_dir=log_dir, packages=()) as audit:
+        return _execute(source, run_id, no_email, audit)
+
+
+def _execute(source: Path, run_id: str, no_email: bool, audit: RunLogger) -> int:
     staging_dir = STAGING / run_id
     print("[1/4] Stage scraper output")
     staged = stage(source, staging_dir)
     print(json.dumps(staged))
+    audit.add_item({"stage": "staging", "status": "PASS", **staged})
     print("[2/4] Create ZIP and SHA-256")
     package, manifest, meta = create_package(staging_dir, DEFAULT_OUT, run_id, None)
     print(json.dumps({"package": str(package), "manifest": str(manifest),
                       "sha256": meta["sha256"], "articles": meta["article_count"]}))
+    audit.add_item({"stage": "packaging", "status": "PASS", "package": str(package),
+                    "sha256": meta["sha256"], "article_count": meta["article_count"]})
     print("[3/4] Resend audit email")
     if no_email:
         print("SKIPPED (--no-email)")
+        audit.add_item({"stage": "email", "status": "SKIPPED"})
     else:
         # Record provider acceptance in a separate event; do not mutate the baseline manifest.
         message_id = send_email(meta)
@@ -40,11 +53,19 @@ def run(source: Path, run_id: str, no_email: bool) -> int:
             "status": "accepted_by_provider",
         })
         print(f"ACCEPTED: {message_id}")
+        audit.add_item({"stage": "email", "status": "ACCEPTED_BY_PROVIDER",
+                        "resend_message_id": message_id})
     print("[4/4] Verify package (final checkpoint before LLM)")
     if not verify(package, manifest):
-        print("FAIL: HANDOFF_INTEGRITY_FAILED", file=sys.stderr)
-        return 1
+        audit.issue("ERROR", meta["package"], "HANDOFF_INTEGRITY_FAILED",
+                    "Package SHA-256 does not match the local manifest")
+        raise RuntimeError("HANDOFF_INTEGRITY_FAILED")
     print("PASS: HANDOFF_VERIFIED; stopped before LLM. OpenRouter calls: 0")
+    audit.add_item({"stage": "verification", "status": "PASS", "sha256": meta["sha256"]})
+    audit.summary = {"result": "HANDOFF_VERIFIED", "package": meta["package"],
+                     "sha256": meta["sha256"], "article_count": meta["article_count"],
+                     "email": "skipped" if no_email else "accepted_by_provider",
+                     "openrouter_calls": 0}
     return 0
 
 
@@ -54,13 +75,15 @@ def main() -> int:
     parser.add_argument("--run-id", default=None)
     parser.add_argument("--no-email", action="store_true",
                         help="Skip Resend while testing staging and packaging")
+    parser.add_argument("--log-dir", type=Path, default=Path(__file__).resolve().parent / "tests" / "logs",
+                        help="Separate E2E run logs from production logs")
     args = parser.parse_args()
     run_id = args.run_id or ("E2E_" + datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
                              + "_" + uuid.uuid4().hex[:6])
     if not all(c.isalnum() or c in "_-" for c in run_id):
         parser.error("run-id must contain only letters, numbers, underscores or hyphens")
     try:
-        return run(args.source, run_id, args.no_email)
+        return run(args.source, run_id, args.no_email, args.log_dir)
     except (OSError, ValueError, RuntimeError) as exc:
         print(f"FAIL: {exc}", file=sys.stderr)
         return 1
