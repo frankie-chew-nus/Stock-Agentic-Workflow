@@ -53,3 +53,29 @@ Keep the MVP scope narrow. First add structured `RunLogger` records to the E2E r
 - `docs/handoff-audit-mvp-test-results.md`
 - `docs/verified-handoff-integration-test.md`
 - `docs/handoff-audit-mvp.md`
+
+## E2E002 — isolated RunLogger validation (2026-10-31)
+
+The operator ran `python test_handoff_e2e.py --run-id E2E002 --no-email` on Windows CMD.
+
+| Check | Observed result |
+| --- | --- |
+| Staging | 66 files; 3,705 feed item rows; 59 article rows |
+| Packaging | 59 articles; SHA-256 `55516ef1154b5a3df00095e20fcdf9985d803a9416422cf02cd7b98c5e7b716a` |
+| Resend | Intentionally skipped (`--no-email`) |
+| Verification | `PASS: HANDOFF_VERIFIED` |
+| OpenRouter calls | 0 |
+| RunLogger status | `SUCCESS`, 0 errors, 0 warnings |
+| Duration | 13 seconds |
+| Run ID | `handoff_e2e_test_20261031_212623` |
+| Log location | `tests/logs/runs/` (not production `logs/runs/`) |
+
+The operator also confirmed that the test log directory contained the JSON and text logs for this run and a later run `handoff_e2e_test_20261031_214603`. The later run's status was **not supplied** and must not be inferred from file presence.
+
+**Decision:** Reuse the original `RunLogger` with a separate `log_dir` for E2E tests. Do not modify `run_logger.py`. The test runner stops after package verification; a future deterministic production orchestrator may invoke the LLM only after successful verification, but that automatic transition is **not implemented in this PR**.
+
+## Pull request review boundary
+
+This PR introduces an **opt-in** audited handoff. The ordinary LLM tagger invocation can still read the live RSS store without verification. The PR must not be described as mandatory production enforcement or as a fully automated scraper-to-LLM pipeline.
+
+Remaining review considerations: package consistency during staging, failure-path logging for exceptions before the runner returns, email provider acceptance versus delivery, and the fact that a local manifest plus ZIP can both be altered (the independent email supports retrospective audit).
