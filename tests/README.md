@@ -1,6 +1,6 @@
 # DBS baseline — test suite and coverage
 
-This folder contains **16 automated offline tests** for the DBS (D05) stock-signal workflow. They verify selected code paths and recorded reference data without making live market-data or LLM API calls. The branch is `baseline-dbs-e2e`; production data and brokerage accounts are not used.
+This folder contains **23 automated offline tests** for the stock-signal workflow: the existing 16 DBS baseline tests plus 7 Stage 2 deterministic source/evidence tests. They verify selected code paths and recorded reference data without making live market-data or LLM API calls. The branch is `baseline-dbs-e2e`; production data and brokerage accounts are not used.
 
 ## Run locally
 
@@ -26,7 +26,8 @@ The same command runs in GitHub Actions via `.github/workflows/dbs-baseline.yml`
 | `test_dbs_future_data_leakage.py` | 1 | Plants a fundamental with a 1 Dec 2026 release date and unique sentinel; confirms it is absent from the 7 Sep 2026 briefing while remaining in input. |
 | `test_dbs_failure_handling.py` | 3 | Missing price data causes a nonzero build exit and logged `BUILD_FAILED`; incomplete LLM probabilities are rejected without a ledger; confidence/margin gate falls back to HOLD and permits a sufficiently confident BUY. |
 | `test_trade_scoring.py` | 4 | Synthetic +10% stock / +4% STI yields +9.4% net and +5.4% net excess after 0.6% costs; incomplete trades remain unscored; HOLD is excluded; historical DBS baseline has zero BUY signals. |
-| **Total** | **16** | **Offline regression and integration tests** |
+| `test_stage2_deterministic_evidence.py` | 7 | Exact source-ID A/B/C lookup, unknown trust handling, normalized quote matching, quote checks against the text actually supplied (including truncation), title evidence and RSS-summary fallback. |
+| **Total** | **23** | **Offline regression and integration tests; latest 7 Stage 2 tests are newly added and awaiting CI/local execution.** |
 
 ## Workflow covered
 
