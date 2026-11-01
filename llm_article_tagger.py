@@ -724,7 +724,7 @@ CSV_FIELDS = ["published", "ticker", "code", "relevant", "materiality", "materia
               "sentiment_reason", "reason",
               "relevant_model_raw", "overridden_by", "added_by_model", "missing_from_reply", "matcher_strength", "sponsored",
               "title", "source", "source_name", "source_domain", "source_trust", "url", "article_summary",
-              "evidence_verification_method", "evidence_input_sha256",
+              "evidence_verification_method", "evidence_input_sha256", "evidence_input_chars", "evidence_input_text_source",
               "model_used", "output_mode", "prompt_version",
               "latency_s", "total_tokens", "tagged_at", "article_id"]
 
@@ -760,7 +760,7 @@ def rebuild_outputs(run: RunLogger, source_registry: dict[str, dict] | None = No
             rows.append({**{k: r.get(k) for k in ("published", "title", "source", "url", "article_summary",
                                                    "model_used", "output_mode", "prompt_version", "latency_s",
                                                    "total_tokens", "tagged_at", "article_id", "sponsored",
-                                                   "evidence_input_sha256")},
+                                                   "evidence_input_sha256", "evidence_input_chars", "evidence_input_text_source")},
                          "source_name": source_info.get("name") or r.get("source"),
                          "source_domain": source_info.get("domain"),
                          "source_trust": source_info.get("trust") or "UNKNOWN", **c})
