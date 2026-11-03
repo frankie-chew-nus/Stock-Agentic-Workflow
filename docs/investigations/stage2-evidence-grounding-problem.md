@@ -2,9 +2,7 @@
 
 ## Scope
 
-This document records the governance problems identified in **Stage 2 (news tagging)**, implemented primarily in `llm_article_tagger.py` and configured through `config/news_sources.yaml`.
-
-It is an investigation/problem statement only. It does not prescribe or approve an implementation.
+This document records the four governance concerns identified in **Stage 2 (news tagging)**, implemented primarily in `llm_article_tagger.py`, `build_briefing.py` and the relevant YAML configuration. The original problem descriptions are retained below; their current disposition is recorded in the status section at the end.
 
 Stage 2 must be kept distinct from Stage 4 (the prediction LLM). Stage 2 receives an article and classifies its relevance, prominence, materiality, event type and sentiment for matched companies. Stage 4 later consumes the filtered briefing assembled by Python.
 
@@ -37,7 +35,7 @@ The code normalises some fields, bounds sentiment and confidence values, applies
 
 These tiers are configuration metadata. The Stage 2 tagging request includes the source identifier, but the current structured LLM output does not include a source-credibility assessment. The tagger's `confidence` field represents confidence in its classification; it is not publisher credibility.
 
-This leaves an identified governance question: how should configured source reliability be represented and considered in the Stage 2 evidence record, and how should unknown or differently rated sources be treated? No policy decision is made in this document.
+This led to a policy decision: A and B are eligible evidence sources; C is discovery-only and not eligible as evidence; unknown/invalid tiers are unrated and not eligible. Python applies this rule in Stage 2 and again at the briefing handover.
 
 ## Problem 2 — Evidence quotation verification has limitations
 
@@ -50,7 +48,7 @@ This is useful provenance checking, but it does not establish that:
 - the quote was checked against the exact payload actually sent to the model in every runtime path;
 - a quote that fails the current matching check is fabricated rather than paraphrased, truncated or affected by formatting differences.
 
-The downstream briefing configuration currently has `news.require_evidence_verified: false`, so evidence verification is not a mandatory inclusion condition for the main news list.
+The implementation now sets `news.require_evidence_verified: true`. The briefing handover requires an explicit `EXACT_MATCH_*` or `TOKEN_MATCH_*` status as well as `evidence_verified=true`; partial, missing, not-found and legacy rows without a recognised status fail closed.
 
 The exact text supplied to Stage 2 is important. Article text may be truncated, or a summary may be used when full text is unavailable. A later comparison against a different or fuller copy of an article would not, by itself, prove what the model actually saw.
 
@@ -85,9 +83,43 @@ The governance question is how to establish and audit that the factual basis for
 5. How can external knowledge, unsupported assumptions and instructions embedded in source articles be detected and measured?
 6. How should failed, incomplete or ambiguous evidence checks be represented in the audit record, without conflating them with a correct/incorrect financial interpretation?
 
+## Decisions and completion status
+
+### Problem 1 — Source reliability: implemented
+
+- Source A/B/C is resolved deterministically from the configured source ID; the LLM does not generate a credibility score.
+- A = eligible primary/major reporting; B = eligible reputable secondary reporting.
+- C = discovery-only and not eligible as evidence.
+- Unknown/invalid = unrated and not eligible.
+- C/unknown classifications cannot retain `relevant=true` or a non-zero materiality weight in Stage 2. The Python briefing handover excludes C/unknown items from both main and context news.
+
+### Problem 2 — Evidence quotation integrity: implemented
+
+- Quotes are checked against the exact title and article body/RSS summary supplied to Stage 2 after truncation and sanitisation.
+- Results distinguish exact literal matches, punctuation-insensitive contiguous token matches, explicit ellipsis partial matches, missing quotes and not-found quotes.
+- Signed numeric values, decimals and percentage signs are preserved during token matching.
+- Partial, missing and not-found evidence is not accepted into the prediction briefing.
+- New tagging runs archive the exact title/body input with its source type, truncation flag, SHA-256, character count and path.
+- Older records without the new explicit match status fail closed until reprocessed.
+
+### Problem 3 — Claim grounding: human audit
+
+No additional automated claim-grounding layer is being designed. Human reviewers remain responsible for checking whether `article_summary`, `relevance_reason`, `sentiment_reason`, materiality, prominence and event classification are supported by the supplied article. The deterministic quote check proves text presence only; it does not prove that the quote supports the LLM's reasoning.
+
+### Problem 4 — External-knowledge boundary: human audit
+
+No automated mechanism is being added to prove that the model did not draw on pretrained knowledge. The prompt's existing instructions remain in place. Human reviewers are responsible for checking whether the factual statements in sampled or reviewed outputs are supported by the supplied article and identifying unsupported additions.
+
+### Validation recorded
+
+- Local test run reported by the operator: **34 tests passed** (`python -m unittest discover -s tests -v`).
+- GitHub Actions: **34 tests passed** on 3 November 2026, run [41567021558](https://github.com/frankie-chew-nus/Stock-Agentic-Workflow/actions/runs/41567021558).
+- Uploaded sample: 47 articles and 83 article–stock classifications; source tiers were 82 A, 1 B, 0 C and 0 unknown.
+- Quote recheck: 66 exact literal matches, 5 punctuation-insensitive contiguous token matches, 4 ellipsis partial matches and 8 not found. Thus 71/83 pass the deterministic evidence gate; 12 remain unverified and require human review. A partial/not-found result is not proof of fabrication.
+
 ## Boundaries
 
-- This investigation is limited to Stage 2 news tagging.
-- Stage 4 prediction-LLM governance is outside this document's scope.
-- No code changes, prompt changes, configuration changes, new scoring rules or acceptance policies are proposed here.
-- The purpose is to establish the current behaviour, identify the gaps, and gather evidence before deciding on any solution.
+- Automated governance in this milestone is limited to Problems 1 and 2.
+- Problems 3 and 4 are explicitly assigned to human audit; no further automated checks, prompts or scoring rules are being introduced for them.
+- Stage 4 prediction-LLM reasoning is otherwise unchanged.
+- Historical records without the new explicit evidence status require reprocessing before they can pass the briefing evidence gate.
