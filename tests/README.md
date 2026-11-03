@@ -1,6 +1,6 @@
 # DBS baseline — test suite and coverage
 
-This folder contains **32 automated offline tests** for the stock-signal workflow: the existing 16 DBS baseline tests plus 16 Stage 2 deterministic source/evidence tests. They verify selected code paths and recorded reference data without making live market-data or LLM API calls. The branch is `baseline-dbs-e2e`; production data and brokerage accounts are not used.
+This folder contains **34 automated offline tests** for the stock-signal workflow: the existing 16 DBS baseline tests plus 16 Stage 2 tagger tests and 2 deterministic briefing-handover tests. They verify selected code paths and recorded reference data without making live market-data or LLM API calls. The branch is `baseline-dbs-e2e`; production data and brokerage accounts are not used.
 
 ## Run locally
 
@@ -27,7 +27,8 @@ The same command runs in GitHub Actions via `.github/workflows/dbs-baseline.yml`
 | `test_dbs_failure_handling.py` | 3 | Missing price data causes a nonzero build exit and logged `BUILD_FAILED`; incomplete LLM probabilities are rejected without a ledger; confidence/margin gate falls back to HOLD and permits a sufficiently confident BUY. |
 | `test_trade_scoring.py` | 4 | Synthetic +10% stock / +4% STI yields +9.4% net and +5.4% net excess after 0.6% costs; incomplete trades remain unscored; HOLD is excluded; historical DBS baseline has zero BUY signals. |
 | `test_stage2_deterministic_evidence.py` | 16 | A/B/C evidence-use policy and C/unknown relevance override, unknown trust, exact title/body and punctuation-insensitive token matching, signed numeric safeguards, ellipsis partial matches, missing/not-found quotes, truncation boundaries, RSS-summary fallback and exact evidence-input archival/hash. |
-| **Total** | **32** | **Offline regression and integration tests; the 16 Stage 2 tests are on the investigation branch and require local/CI execution.** |
+| `test_stage2_briefing_handover.py` | 2 | A/B-only evidence source eligibility and mandatory evidence-verification handover gate. |
+| **Total** | **34** | **Offline regression and integration tests; the 18 new governance tests are on the investigation branch and require local/CI execution.** |
 
 ## Workflow covered
 
