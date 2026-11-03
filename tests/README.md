@@ -1,6 +1,6 @@
 # DBS baseline — test suite and coverage
 
-This folder contains **27 automated offline tests** for the stock-signal workflow: the existing 16 DBS baseline tests plus 7 Stage 2 deterministic source/evidence tests. They verify selected code paths and recorded reference data without making live market-data or LLM API calls. The branch is `baseline-dbs-e2e`; production data and brokerage accounts are not used.
+This folder contains **27 automated offline tests** for the stock-signal workflow: the existing 16 DBS baseline tests plus 11 Stage 2 deterministic source/evidence tests. They verify selected code paths and recorded reference data without making live market-data or LLM API calls. The branch is `baseline-dbs-e2e`; production data and brokerage accounts are not used.
 
 ## Run locally
 
