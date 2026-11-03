@@ -82,9 +82,9 @@ A detailed row-level report is saved separately as `STAGE2_EVIDENCE_RECHECK.md` 
 
 ## 4. Validation status
 
-- 16 deterministic Stage 2 tagger tests and 2 Python briefing-handover tests have been added, bringing the documented offline suite to 34 tests (16 existing + 18 new).
+- 15 deterministic Stage 2 tagger tests and 2 Python briefing-handover tests have been added, bringing the documented offline suite to 33 tests (16 existing + 17 new).
 - The tests cover A/B/C policy mapping, unknown trust, exact title/body matching, ellipsis partial matches, missing/not-found quotes, truncation boundaries, RSS-summary fallback and evidence-input archival.
-- The user previously ran the earlier 23-test version successfully. **The current 34-test version has not yet been run locally or confirmed by GitHub Actions.**
+- The user previously ran the earlier 23-test version successfully. **The current 33-test version has not yet passed; the first CI attempt exposed a test-fixture hash assertion error, which has been corrected and is being rerun.**
 
 ## 5. What this does not solve
 
@@ -97,4 +97,4 @@ A detailed row-level report is saved separately as `STAGE2_EVIDENCE_RECHECK.md` 
 ## 6. Current completion assessment
 
 - **Problem #1 — Source reliability:** deterministic A/B/C/unknown roles are recorded; C/unknown cannot retain `relevant=true`, receive non-zero materiality weight, or enter the prediction briefing as main/context evidence.
-- **Problem #2 — Evidence integrity:** literal and punctuation-insensitive contiguous matches, partial ellipsis matches, missing and not-found states are separated; exact Stage 2 title/body input is retained for new runs. The briefing gate now excludes partial, missing and not-found quotes. The 8 not-found historical records and 4 partial records still need manual review; the current 34-test suite still needs local validation.
+- **Problem #2 — Evidence integrity:** literal and punctuation-insensitive contiguous matches, partial ellipsis matches, missing and not-found states are separated; exact Stage 2 title/body input is retained for new runs. The briefing gate now excludes partial, missing and not-found quotes. The 8 not-found historical records and 4 partial records still need manual review; the current 33-test suite still needs local validation.
