@@ -1,5 +1,6 @@
 """Deterministic Stage 2 source policy, evidence matching and audit-archive tests."""
 import json
+import hashlib
 import tempfile
 import unittest
 from pathlib import Path
@@ -126,6 +127,8 @@ class Stage2DeterministicEvidenceTest(unittest.TestCase):
             self.assertEqual(payload["title"], "DBS title")
             self.assertEqual(payload["text"], "Supplied article body")
             self.assertEqual(payload["sha256"], result["sha256"])
+            expected = hashlib.sha256("DBS title\\nSupplied article body".encode("utf-8")).hexdigest()
+            self.assertEqual(payload["sha256"], expected)
             self.assertEqual(payload["text_source"], "article_text")
 
 
