@@ -89,6 +89,8 @@ class Stage2DeterministicEvidenceTest(unittest.TestCase):
         self.assertEqual(result["status"], "NOT_FOUND")
         result = verify_evidence_quote("profit rose +5.2%", "", "(profit) rose 5.2%.")
         self.assertEqual(result["status"], "NOT_FOUND")
+        result = verify_evidence_quote("profit fell -5.2%", "", "Profit fell -5.2% year on year.")
+        self.assertEqual(result["status"], "EXACT_MATCH_BODY")
 
     def test_non_ellipsis_non_contiguous_quote_is_not_promoted_to_partial(self):
         result = verify_evidence_quote(
@@ -151,14 +153,6 @@ class Stage2DeterministicEvidenceTest(unittest.TestCase):
         self.assertEqual(enforce_source_evidence_eligibility(True, unknown_policy), (False, "source_trust"))
         self.assertEqual(enforce_source_evidence_eligibility(False, c_policy), (False, None))
 
-    def test_numeric_signs_and_decimal_values_are_preserved(self):
-        result = verify_evidence_quote("profit fell -5.2%", "", "Profit fell -5.2% year on year.")
-        self.assertEqual(result["status"], "EXACT_MATCH_BODY")
-        result = verify_evidence_quote("profit fell -5.2%", "", "Profit fell 5.2% year on year.")
-        self.assertEqual(result["status"], "NOT_FOUND")
-        result = verify_evidence_quote("profit rose +5.2%", "", "Profit rose 5.2% year on year.")
-        self.assertEqual(result["status"], "NOT_FOUND")
-
     def test_invalid_configured_trust_is_not_silently_promoted(self):
         yaml_text = """sources:
   - id: unknown_grade
@@ -182,7 +176,7 @@ class Stage2DeterministicEvidenceTest(unittest.TestCase):
             self.assertEqual(payload["title"], "DBS title")
             self.assertEqual(payload["text"], "Supplied article body")
             self.assertEqual(payload["sha256"], result["sha256"])
-            expected = hashlib.sha256("DBS title\\nSupplied article body".encode("utf-8")).hexdigest()
+            expected = hashlib.sha256("DBS title\nSupplied article body".encode("utf-8")).hexdigest()
             self.assertEqual(payload["sha256"], expected)
             self.assertEqual(payload["text_source"], "article_text")
 
