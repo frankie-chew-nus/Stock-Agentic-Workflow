@@ -230,6 +230,13 @@ def source_evidence_policy(trust: str | None) -> dict:
     return {"source_trust": tier, "source_evidence_role": role, "source_evidence_eligible": eligible}
 
 
+def enforce_source_evidence_eligibility(relevant: bool, source_policy: dict) -> tuple[bool, str | None]:
+    """C/unknown sources can be retained for discovery but cannot create a relevant evidence tag."""
+    if relevant and not source_policy.get("source_evidence_eligible", False):
+        return False, "source_trust"
+    return relevant, None
+
+
 def persist_evidence_input(article_id: str, title: str, supplied_text: str, text_source: str,
                            truncated: bool, output_dir: Path) -> dict:
     """Persist exact title/body text supplied to Stage 2 for later audit."""
@@ -759,6 +766,9 @@ def normalise(out: dict, item: dict, art: dict, hits: list[dict], matchers, spon
         if relevant and sponsored:
             relevant = False
             overridden_by.append("sponsored")
+        relevant, source_override = enforce_source_evidence_eligibility(relevant, source_policy)
+        if source_override:
+            overridden_by.append(source_override)
         score = num(c.get("sentiment_score"), -1.0, 1.0)
         evidence = str(c.get("evidence") or "").strip()[:300]
         quote_check = verify_evidence_quote(evidence, item.get("title") or "", supplied_article_text)
@@ -768,7 +778,8 @@ def normalise(out: dict, item: dict, art: dict, hits: list[dict], matchers, spon
         rows.append({"ticker": t, "code": m.code, "relevant": relevant, "relevant_model_raw": raw_rel,
                      "overridden_by": ",".join(overridden_by) or None,
                      "prominence": prominence, "mention_role": role, "materiality": materiality,
-                     "materiality_weight": (0.0 if sponsored or prominence in ("passing", "none")
+                     "materiality_weight": (0.0 if sponsored or not source_policy["source_evidence_eligible"]
+                                            or prominence in ("passing", "none")
                                             else MATERIALITY_WEIGHT.get(materiality)), "event_type": event,
                      "sentiment_score": score, "sentiment_label": sentiment_label(score),
                      "confidence": num(c.get("confidence"), 0.0, 1.0), "evidence": evidence,
