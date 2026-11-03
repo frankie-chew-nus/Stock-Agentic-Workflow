@@ -84,9 +84,18 @@ A detailed row-level report is saved separately as `STAGE2_EVIDENCE_RECHECK.md` 
 
 - 15 deterministic Stage 2 tagger tests and 3 Python briefing-handover tests have been added, bringing the documented offline suite to 34 tests (16 existing + 18 new).
 - The tests cover A/B/C policy mapping, unknown trust, exact title/body matching, ellipsis partial matches, missing/not-found quotes, truncation boundaries, RSS-summary fallback and evidence-input archival.
-- The user previously ran the earlier 23-test version successfully. **GitHub Actions passed all 34 tests** on 3 Nov 2026: run [41567021558](https://github.com/frankie-chew-nus/Stock-Agentic-Workflow/actions/runs/41567021558), completing in 10.485 seconds. This includes the fail-closed legacy evidence-status test.
+- **Local validation:** the operator ran `python -m unittest discover -s tests -v`; all 34 tests passed in 31.492 seconds.
 
-## 5. What this does not solve
+**GitHub Actions:** all 34 tests passed on 3 Nov 2026: run [41567021558](https://github.com/frankie-chew-nus/Stock-Agentic-Workflow/actions/runs/41567021558), completing in 10.485 seconds. This includes the fail-closed legacy evidence-status test.
+
+## 5. Human audit responsibilities (Problems 3 and 4)
+
+No further automated governance is planned for these two areas in this milestone.
+
+- **Problem 3 — Claim grounding:** a human reviewer checks whether `article_summary`, `relevance_reason`, `sentiment_reason`, materiality, prominence and event type are supported by the supplied article. The deterministic quote check proves text presence, not that the reasoning is justified.
+- **Problem 4 — External-knowledge boundary:** a human reviewer checks factual statements in selected tagging outputs against the supplied article and flags unsupported additions. The existing prompt instruction to use supplied content remains; the workflow does not claim to prove that pretrained knowledge was never used.
+
+## 6. What this does not solve
 
 1. A/B/C is publisher-level classification, not independent proof that a specific article is true.
 2. This does not check whether the quotation supports the particular stock's classification.
@@ -94,7 +103,7 @@ A detailed row-level report is saved separately as `STAGE2_EVIDENCE_RECHECK.md` 
 4. This does not demonstrate that the model used no pretrained knowledge; it only makes supplied-text quotation checks auditable.
 5. Historical records tagged before this change do not automatically gain the new sidecar archive. The 47/83 recheck reconstructs their input from the uploaded archived article/feed records; the exact Stage 2 input sidecar is persisted for future runs.
 
-## 6. Current completion assessment
+## 7. Current completion assessment
 
 - **Problem #1 — Source reliability:** deterministic A/B/C/unknown roles are recorded; C/unknown cannot retain `relevant=true`, receive non-zero materiality weight, or enter the prediction briefing as main/context evidence.
-- **Problem #2 — Evidence integrity:** literal and punctuation-insensitive contiguous matches, partial ellipsis matches, missing and not-found states are separated; exact Stage 2 title/body input is retained for new runs. The briefing gate now excludes partial, missing and not-found quotes. The 8 not-found historical records and 4 partial records still need manual review; the current 34-test suite still needs local validation.
+- **Problem #2 — Evidence integrity:** literal and punctuation-insensitive contiguous matches, partial ellipsis matches, missing and not-found states are separated; exact Stage 2 title/body input is retained for new runs. The briefing gate now excludes partial, missing and not-found quotes. The 8 not-found historical records and 4 partial records still need manual review; the 34-test suite has passed locally and in GitHub Actions.
