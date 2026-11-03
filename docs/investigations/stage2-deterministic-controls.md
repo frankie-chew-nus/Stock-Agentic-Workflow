@@ -84,7 +84,7 @@ A detailed row-level report is saved separately as `STAGE2_EVIDENCE_RECHECK.md` 
 
 - 15 deterministic Stage 2 tagger tests and 2 Python briefing-handover tests have been added, bringing the documented offline suite to 33 tests (16 existing + 17 new).
 - The tests cover A/B/C policy mapping, unknown trust, exact title/body matching, ellipsis partial matches, missing/not-found quotes, truncation boundaries, RSS-summary fallback and evidence-input archival.
-- The user previously ran the earlier 23-test version successfully. **The current 33-test version has not yet passed; the first CI attempt exposed a test-fixture hash assertion error, which has been corrected and is being rerun.**
+- The user previously ran the earlier 23-test version successfully. **GitHub Actions passed all 33 tests** on 3 Nov 2026: run [41566841393](https://github.com/frankie-chew-nus/Stock-Agentic-Workflow/actions/runs/41566841393). The prior failed run exposed and helped correct the expected-hash test fixture.
 
 ## 5. What this does not solve
 
