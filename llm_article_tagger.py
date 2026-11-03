@@ -199,10 +199,12 @@ def verify_evidence_quote(evidence: str | None, title: str, supplied_article_tex
         if quote in hay:
             return {"status": f"EXACT_MATCH_{location}", "verified": True, "location": location}
 
-    quote_tokens = _quote_tokens(quote)
-    for location, hay in locations.items():
-        if _contains_token_sequence(quote_tokens, _quote_tokens(hay)) >= 0:
-            return {"status": f"TOKEN_MATCH_{location}", "verified": True, "location": location}
+    # An explicit ellipsis represents omitted text and must not be collapsed into a contiguous token match.
+    if not re.search(r"(?:\.{3,}|…)", quote):
+        quote_tokens = _quote_tokens(quote)
+        for location, hay in locations.items():
+            if _contains_token_sequence(quote_tokens, _quote_tokens(hay)) >= 0:
+                return {"status": f"TOKEN_MATCH_{location}", "verified": True, "location": location}
 
     fragments = [x.strip() for x in re.split(r"(?:\.{3,}|…)", quote) if x.strip()]
     if len(fragments) >= 2 and all(len(_quote_tokens(x)) >= 2 for x in fragments):
