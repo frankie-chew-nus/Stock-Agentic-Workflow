@@ -7,6 +7,7 @@ from pathlib import Path
 
 from llm_article_tagger import (
     article_text_for_tagging,
+    enforce_source_evidence_eligibility,
     load_source_registry,
     persist_evidence_input,
     source_evidence_policy,
@@ -120,6 +121,25 @@ class Stage2DeterministicEvidenceTest(unittest.TestCase):
         self.assertFalse(source_evidence_policy("C")["source_evidence_eligible"])
         self.assertEqual(source_evidence_policy("C")["source_evidence_role"], "discovery_only")
         self.assertFalse(source_evidence_policy("UNKNOWN")["source_evidence_eligible"])
+
+    def test_source_evidence_eligibility_overrides_c_and_unknown_relevance(self):
+        a_policy = source_evidence_policy("A")
+        b_policy = source_evidence_policy("B")
+        c_policy = source_evidence_policy("C")
+        unknown_policy = source_evidence_policy("UNKNOWN")
+        self.assertEqual(enforce_source_evidence_eligibility(True, a_policy), (True, None))
+        self.assertEqual(enforce_source_evidence_eligibility(True, b_policy), (True, None))
+        self.assertEqual(enforce_source_evidence_eligibility(True, c_policy), (False, "source_trust"))
+        self.assertEqual(enforce_source_evidence_eligibility(True, unknown_policy), (False, "source_trust"))
+        self.assertEqual(enforce_source_evidence_eligibility(False, c_policy), (False, None))
+
+    def test_numeric_signs_and_decimal_values_are_preserved(self):
+        result = verify_evidence_quote("profit fell -5.2%", "", "Profit fell -5.2% year on year.")
+        self.assertEqual(result["status"], "EXACT_MATCH_BODY")
+        result = verify_evidence_quote("profit fell -5.2%", "", "Profit fell 5.2% year on year.")
+        self.assertEqual(result["status"], "NOT_FOUND")
+        result = verify_evidence_quote("profit rose +5.2%", "", "Profit rose 5.2% year on year.")
+        self.assertEqual(result["status"], "NOT_FOUND")
 
     def test_invalid_configured_trust_is_not_silently_promoted(self):
         yaml_text = """sources:
