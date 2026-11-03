@@ -171,7 +171,7 @@ def _norm(s: str | None) -> str:
 
 def _quote_tokens(s: str | None) -> list[str]:
     """Words/numbers in order; punctuation and quote-style differences are ignored."""
-    return re.findall(r"[\w]+(?:[.'’][\w]+)*", _norm(s), flags=re.UNICODE)
+    return re.findall(r"(?<![\w])[-+]?\d+(?:[.,]\d+)?%?|[\w]+(?:[.'’][\w]+)*", _norm(s), flags=re.UNICODE)
 
 
 def _contains_token_sequence(needle: list[str], haystack: list[str], start: int = 0) -> int:
