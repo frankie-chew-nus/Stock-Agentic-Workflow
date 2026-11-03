@@ -65,6 +65,8 @@ from collections import Counter, defaultdict
 from datetime import datetime
 from pathlib import Path
 import hashlib
+import unicodedata
+import hashlib
 
 import yaml
 
@@ -162,17 +164,63 @@ def sentiment_label(score: float | None) -> str | None:
 
 
 def _norm(s: str | None) -> str:
-    s = (s or "").replace("‘", "'").replace("’", "'").replace("“", '"').replace("”", '"')
+    s = unicodedata.normalize("NFKC", s or "")
+    s = (s.replace("‘", "'").replace("’", "'").replace("“", '"').replace("”", '"')
+           .replace("\u00a0", " ").replace("–", "-").replace("—", "-"))
     return re.sub(r"\s+", " ", s).strip().lower()
 
 
-def verify_evidence_quote(evidence: str | None, title: str, supplied_article_text: str) -> tuple[bool | None, str]:
-    """Deterministically verify a quote against the title/body text supplied to Stage 2."""
+def verify_evidence_quote(evidence: str | None, title: str, supplied_article_text: str) -> dict:
+    """Classify a quote by deterministic matching against the exact Stage 2 title/body input."""
     quote = _norm(evidence)
     if not quote:
-        return None, "missing_quote"
-    hay = _norm(f"{title or ''} {supplied_article_text or ''}")
-    return (True, "normalised_substring") if quote in hay else (False, "not_found_in_supplied_text")
+        return {"status": "MISSING", "verified": None, "location": None}
+    locations = {"TITLE": _norm(title), "BODY": _norm(supplied_article_text)}
+    for location, hay in locations.items():
+        if quote in hay:
+            return {"status": f"EXACT_MATCH_{location}", "verified": True, "location": location}
+    fragments = [x.strip() for x in re.split(r"(?:\\.{3,}|…)", quote) if x.strip()]
+    if len(fragments) >= 2 and all(len(x) >= 12 for x in fragments):
+        for location, hay in locations.items():
+            cursor = 0
+            for fragment in fragments:
+                found = hay.find(fragment, cursor)
+                if found < 0:
+                    break
+                cursor = found + len(fragment)
+            else:
+                return {"status": f"PARTIAL_MATCH_{location}", "verified": False, "location": location}
+    return {"status": "NOT_FOUND", "verified": False, "location": None}
+
+
+def source_evidence_policy(trust: str | None) -> dict:
+    """Apply configured source tiers deterministically; never infer trust from model output."""
+    tier = trust if trust in ("A", "B", "C") else "UNKNOWN"
+    policy = {"A": ("primary_or_major_reporting", True),
+              "B": ("reputable_secondary_reporting", True),
+              "C": ("discovery_only", False),
+              "UNKNOWN": ("unrated", False)}
+    role, eligible = policy[tier]
+    return {"source_trust": tier, "source_evidence_role": role, "source_evidence_eligible": eligible}
+
+
+def persist_evidence_input(article_id: str, title: str, supplied_text: str, text_source: str,
+                           truncated: bool, output_dir: Path) -> dict:
+    """Persist exact title/body text supplied to Stage 2 for later audit."""
+    content = f"{title or ''}\\n{supplied_text or ''}"
+    digest = hashlib.sha256(content.encode("utf-8")).hexdigest()
+    payload = {"article_id": article_id, "title": title or "", "text": supplied_text or "",
+               "text_source": text_source, "truncated": bool(truncated),
+               "sha256": digest, "chars": len(content)}
+    safe_id = hashlib.sha256(str(article_id).encode("utf-8")).hexdigest()[:16]
+    target_dir = output_dir / "evidence_inputs"
+    target_dir.mkdir(parents=True, exist_ok=True)
+    target = target_dir / f"{safe_id}_{digest[:12]}.json"
+    if not target.exists():
+        temp = target.with_suffix(".json.tmp")
+        temp.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+        temp.replace(target)
+    return {"sha256": digest, "chars": len(content), "path": str(target)}
 
 
 def article_text_for_tagging(item: dict, art: dict, max_chars: int) -> tuple[str, bool, str]:
@@ -647,7 +695,7 @@ def normalise(out: dict, item: dict, art: dict, hits: list[dict], matchers, spon
     if supplied_article_text is None:
         supplied_article_text, _, _ = article_text_for_tagging(item, art, 12_000)
     source_info = source_info or {}
-    source_trust = source_info.get("trust") or "UNKNOWN"
+    source_policy = source_evidence_policy(source_info.get("trust"))
     def short(v) -> tuple[str, int]:
         """Keep the reason under 25 words (cut at 24 if the model ran over) -> (text, original word count)."""
         words = str(v or "").split()
@@ -687,9 +735,8 @@ def normalise(out: dict, item: dict, art: dict, hits: list[dict], matchers, spon
             overridden_by.append("sponsored")
         score = num(c.get("sentiment_score"), -1.0, 1.0)
         evidence = str(c.get("evidence") or "").strip()[:300]
-        evidence_verified, evidence_verification_method = verify_evidence_quote(
-            evidence, item.get("title") or "", supplied_article_text
-        )
+        quote_check = verify_evidence_quote(evidence, item.get("title") or "", supplied_article_text)
+        evidence_verified = quote_check["verified"]
         rel_reason, rel_words = short(c.get("relevance_reason") or c.get("reason"))
         sent_reason, _ = short(c.get("sentiment_reason"))
         rows.append({"ticker": t, "code": m.code, "relevant": relevant, "relevant_model_raw": raw_rel,
@@ -700,8 +747,9 @@ def normalise(out: dict, item: dict, art: dict, hits: list[dict], matchers, spon
                      "sentiment_score": score, "sentiment_label": sentiment_label(score),
                      "confidence": num(c.get("confidence"), 0.0, 1.0), "evidence": evidence,
                      "evidence_verified": evidence_verified,
-                     "evidence_verification_method": evidence_verification_method,
-                     "source_trust": source_trust,
+                     "evidence_match_status": quote_check["status"],
+                     "evidence_match_location": quote_check["location"],
+                     **source_policy,
                      "source_name": source_info.get("name") or item.get("source"),
                      "source_domain": source_info.get("domain"),
                      "evidence_input_sha256": evidence_input_sha256,
@@ -724,7 +772,8 @@ CSV_FIELDS = ["published", "ticker", "code", "relevant", "materiality", "materia
               "sentiment_reason", "reason",
               "relevant_model_raw", "overridden_by", "added_by_model", "missing_from_reply", "matcher_strength", "sponsored",
               "title", "source", "source_name", "source_domain", "source_trust", "url", "article_summary",
-              "evidence_verification_method", "evidence_input_sha256", "evidence_input_chars", "evidence_input_text_source",
+              "evidence_match_status", "evidence_match_location", "source_evidence_role", "source_evidence_eligible",
+              "evidence_input_sha256", "evidence_input_chars", "evidence_input_text_source", "evidence_input_path",
               "model_used", "output_mode", "prompt_version",
               "latency_s", "total_tokens", "tagged_at", "article_id"]
 
@@ -760,10 +809,10 @@ def rebuild_outputs(run: RunLogger, source_registry: dict[str, dict] | None = No
             rows.append({**{k: r.get(k) for k in ("published", "title", "source", "url", "article_summary",
                                                    "model_used", "output_mode", "prompt_version", "latency_s",
                                                    "total_tokens", "tagged_at", "article_id", "sponsored",
-                                                   "evidence_input_sha256", "evidence_input_chars", "evidence_input_text_source")},
+                                                   "evidence_input_sha256", "evidence_input_chars", "evidence_input_text_source", "evidence_input_path")},
                          "source_name": source_info.get("name") or r.get("source"),
                          "source_domain": source_info.get("domain"),
-                         "source_trust": source_info.get("trust") or "UNKNOWN", **c})
+                         **source_evidence_policy(source_info.get("trust")), **c})
     rows.sort(key=lambda x: (x.get("published") or "", x["ticker"]))
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     tmp = OUT_DIR / "ticker_tags.csv.tmp"
@@ -909,8 +958,10 @@ def main(argv: list[str] | None = None) -> None:
                 if trunc != trunc_from_message:
                     raise RuntimeError("Article-text truncation metadata disagrees with request builder")
                 source_info = source_registry.get(it.get("source"), {})
-                evidence_input = f"{it.get('title') or ''}\n{supplied_text}"
-                evidence_input_sha256 = hashlib.sha256(evidence_input.encode("utf-8")).hexdigest()
+                evidence_archive = persist_evidence_input(
+                    iid, it.get("title") or "", supplied_text, text_source, trunc, OUT_DIR
+                )
+                evidence_input_sha256 = evidence_archive["sha256"]
                 out, model_used, mode, calls = tag_article(client, models, system_prompt, msg,
                                                            [m.ticker for m in matchers], iid, cfg, dead_models)
                 fail_row = 0 if out else fail_row + 1
@@ -928,8 +979,9 @@ def main(argv: list[str] | None = None) -> None:
                         "source_domain": source_info.get("domain"),
                         "source_trust": source_info.get("trust") or "UNKNOWN",
                         "evidence_input_sha256": evidence_input_sha256,
-                        "evidence_input_chars": len(evidence_input),
+                        "evidence_input_chars": evidence_archive["chars"],
                         "evidence_input_text_source": text_source,
+                        "evidence_input_path": evidence_archive["path"],
                        "text_may_be_truncated": trunc, "sponsored": is_sponsored(it, art),
                        "call_ids": [c["call_id"] for c in calls], "n_calls": len(calls),
                        "latency_s": round(sum(c["latency_s"] for c in calls), 2),
