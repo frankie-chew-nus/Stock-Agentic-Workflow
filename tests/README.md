@@ -13,7 +13,7 @@ python -m unittest discover -s tests -v
 
 The same command runs in GitHub Actions via `.github/workflows/dbs-baseline.yml` on pushes to this branch and pull requests targeting `main`.
 
-**Most recent reported verification (29 Oct 2026):** 16 tests passed locally in 41.964 seconds, and GitHub Actions run [40886623345](https://github.com/frankie-chew-nus/Stock-Agentic-Workflow/actions/runs/40886623345) completed successfully for commit `1f72ba3`. Local run records are under `tests/results/`.
+**Most recent verification (3 Nov 2026):** GitHub Actions run [41566841393](https://github.com/frankie-chew-nus/Stock-Agentic-Workflow/actions/runs/41566841393) passed all 33 tests in 7.004 seconds. The earlier 16-test local result from 29 Oct is historical. Local run records are under `tests/results/`.
 
 ## Test coverage
 
