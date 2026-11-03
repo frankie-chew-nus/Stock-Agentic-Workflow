@@ -179,7 +179,7 @@ def verify_evidence_quote(evidence: str | None, title: str, supplied_article_tex
     for location, hay in locations.items():
         if quote in hay:
             return {"status": f"EXACT_MATCH_{location}", "verified": True, "location": location}
-    fragments = [x.strip() for x in re.split(r"(?:\\.{3,}|…)", quote) if x.strip()]
+    fragments = [x.strip() for x in re.split(r"(?:\.{3,}|…)", quote) if x.strip()]
     if len(fragments) >= 2 and all(len(x) >= 12 for x in fragments):
         for location, hay in locations.items():
             cursor = 0
@@ -207,7 +207,7 @@ def source_evidence_policy(trust: str | None) -> dict:
 def persist_evidence_input(article_id: str, title: str, supplied_text: str, text_source: str,
                            truncated: bool, output_dir: Path) -> dict:
     """Persist exact title/body text supplied to Stage 2 for later audit."""
-    content = f"{title or ''}\\n{supplied_text or ''}"
+    content = f"{title or ''}\n{supplied_text or ''}"
     digest = hashlib.sha256(content.encode("utf-8")).hexdigest()
     payload = {"article_id": article_id, "title": title or "", "text": supplied_text or "",
                "text_source": text_source, "truncated": bool(truncated),
