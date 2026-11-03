@@ -19,7 +19,7 @@ The output retains `source_trust`, `source_evidence_role` and `source_evidence_e
 
 The Stage 2 normalisation now enforces the policy: if the model marks a C/unknown-source article relevant, Python overrides `relevant` to false, records `source_trust` in `overridden_by`, and sets its `materiality_weight` to zero. The article remains in the tagging audit output.
 
-The deterministic Python briefing handover also excludes C/unknown sources from the prediction briefing entirely, including its context list. This is necessary because the prior briefing builder could include a non-relevant row as context. The handover uses the configured source registry as the authoritative trust source, with the row tier as fallback.
+The deterministic Python briefing handover also excludes C/unknown sources from the prediction briefing entirely, including its context list. This is necessary because the prior briefing builder could include a non-relevant row as context. The handover uses the configured source registry as the authoritative trust source, with the row tier as fallback. Legacy rows without a recognised configured A/B source are excluded.
 
 **Boundary:** This adds a deterministic Python filter before Stage 4. The Stage 4 LLM prompt and reasoning logic are unchanged.
 
@@ -53,7 +53,7 @@ For new tagging runs, the tagger writes a sidecar JSON under `data/news/llm_tags
 - truncation flag;
 - SHA-256 hash and character count.
 
-The article-level and per-ticker outputs retain the hash, sidecar path, source tier, evidence status and match location. `config/briefing.yaml` now sets `news.require_evidence_verified: true`, so only exact literal or punctuation-insensitive contiguous token matches pass the Python handover gate into either the main news list or context list. Ellipsis partials, `NOT_FOUND` and `MISSING` remain excluded.
+The article-level and per-ticker outputs retain the hash, sidecar path, source tier, evidence status and match location. `config/briefing.yaml` now sets `news.require_evidence_verified: true`, and `passes()` requires both `evidence_verified=true` and one of the explicit `EXACT_MATCH_*` / `TOKEN_MATCH_*` statuses. Only exact literal or punctuation-insensitive contiguous token matches pass the Python handover gate into either the main news list or context list. Ellipsis partials, `NOT_FOUND` and `MISSING` remain excluded. Legacy rows that have only the old `evidence_verified` boolean but no explicit match status fail closed until reprocessed.
 
 The hash covers the title plus a newline plus the supplied body/summary text. It is not a hash of the entire system prompt or complete API request.
 
@@ -82,9 +82,9 @@ A detailed row-level report is saved separately as `STAGE2_EVIDENCE_RECHECK.md` 
 
 ## 4. Validation status
 
-- 15 deterministic Stage 2 tagger tests and 2 Python briefing-handover tests have been added, bringing the documented offline suite to 33 tests (16 existing + 17 new).
+- 15 deterministic Stage 2 tagger tests and 3 Python briefing-handover tests have been added, bringing the documented offline suite to 34 tests (16 existing + 18 new).
 - The tests cover A/B/C policy mapping, unknown trust, exact title/body matching, ellipsis partial matches, missing/not-found quotes, truncation boundaries, RSS-summary fallback and evidence-input archival.
-- The user previously ran the earlier 23-test version successfully. **GitHub Actions passed all 33 tests** on 3 Nov 2026: run [41566841393](https://github.com/frankie-chew-nus/Stock-Agentic-Workflow/actions/runs/41566841393). The prior failed run exposed and helped correct the expected-hash test fixture.
+- The user previously ran the earlier 23-test version successfully. **GitHub Actions passed all 33 tests** on 3 Nov 2026: run [41566841393](https://github.com/frankie-chew-nus/Stock-Agentic-Workflow/actions/runs/41566841393). A further handover test was added afterwards to ensure legacy evidence booleans without explicit quote statuses fail closed; the updated 34-test suite is pending a fresh CI run.
 
 ## 5. What this does not solve
 
@@ -97,4 +97,4 @@ A detailed row-level report is saved separately as `STAGE2_EVIDENCE_RECHECK.md` 
 ## 6. Current completion assessment
 
 - **Problem #1 — Source reliability:** deterministic A/B/C/unknown roles are recorded; C/unknown cannot retain `relevant=true`, receive non-zero materiality weight, or enter the prediction briefing as main/context evidence.
-- **Problem #2 — Evidence integrity:** literal and punctuation-insensitive contiguous matches, partial ellipsis matches, missing and not-found states are separated; exact Stage 2 title/body input is retained for new runs. The briefing gate now excludes partial, missing and not-found quotes. The 8 not-found historical records and 4 partial records still need manual review; the current 33-test suite still needs local validation.
+- **Problem #2 — Evidence integrity:** literal and punctuation-insensitive contiguous matches, partial ellipsis matches, missing and not-found states are separated; exact Stage 2 title/body input is retained for new runs. The briefing gate now excludes partial, missing and not-found quotes. The 8 not-found historical records and 4 partial records still need manual review; the current 34-test suite still needs local validation.
