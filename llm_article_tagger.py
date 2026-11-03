@@ -759,6 +759,8 @@ def normalise(out: dict, item: dict, art: dict, hits: list[dict], matchers, spon
     for t in sorted(assessed - seen):              # the model skipped a ticker it was asked about
         m = by_ticker[t]
         rows.append({"ticker": t, "code": m.code, "relevant": None, "missing_from_reply": True,
+                     "evidence_verified": None, "evidence_match_status": "MISSING_FROM_MODEL_REPLY",
+                     "evidence_match_location": None, **source_policy,
                      "matcher_strength": (hit_by_code.get(m.code) or {}).get("strength")})
     return rows
 
