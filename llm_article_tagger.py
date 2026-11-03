@@ -169,8 +169,28 @@ def _norm(s: str | None) -> str:
     return re.sub(r"\s+", " ", s).strip().lower()
 
 
+def _quote_tokens(s: str | None) -> list[str]:
+    """Words/numbers in order; punctuation and quote-style differences are ignored."""
+    return re.findall(r"[\w]+(?:[.'’][\w]+)*", _norm(s), flags=re.UNICODE)
+
+
+def _contains_token_sequence(needle: list[str], haystack: list[str], start: int = 0) -> int:
+    if not needle or len(needle) > len(haystack):
+        return -1
+    end = len(haystack) - len(needle) + 1
+    for i in range(start, end):
+        if haystack[i:i + len(needle)] == needle:
+            return i
+    return -1
+
+
 def verify_evidence_quote(evidence: str | None, title: str, supplied_article_text: str) -> dict:
-    """Classify a quote by deterministic matching against the exact Stage 2 title/body input."""
+    """Classify evidence against exact Stage 2 title/body text using deterministic word matching.
+
+    EXACT_MATCH is a normalised contiguous substring. TOKEN_MATCH is the same contiguous word
+    sequence with punctuation/quote-style differences ignored. PARTIAL_MATCH is reserved for
+    explicit ellipsis-joined fragments, all found in order but not as one continuous quotation.
+    """
     quote = _norm(evidence)
     if not quote:
         return {"status": "MISSING", "verified": None, "location": None}
@@ -178,19 +198,26 @@ def verify_evidence_quote(evidence: str | None, title: str, supplied_article_tex
     for location, hay in locations.items():
         if quote in hay:
             return {"status": f"EXACT_MATCH_{location}", "verified": True, "location": location}
+
+    quote_tokens = _quote_tokens(quote)
+    for location, hay in locations.items():
+        if _contains_token_sequence(quote_tokens, _quote_tokens(hay)) >= 0:
+            return {"status": f"TOKEN_MATCH_{location}", "verified": True, "location": location}
+
     fragments = [x.strip() for x in re.split(r"(?:\.{3,}|…)", quote) if x.strip()]
-    if len(fragments) >= 2 and all(len(x) >= 12 for x in fragments):
+    if len(fragments) >= 2 and all(len(_quote_tokens(x)) >= 2 for x in fragments):
         for location, hay in locations.items():
+            hay_tokens = _quote_tokens(hay)
             cursor = 0
             for fragment in fragments:
-                found = hay.find(fragment, cursor)
+                fragment_tokens = _quote_tokens(fragment)
+                found = _contains_token_sequence(fragment_tokens, hay_tokens, cursor)
                 if found < 0:
                     break
-                cursor = found + len(fragment)
+                cursor = found + len(fragment_tokens)
             else:
                 return {"status": f"PARTIAL_MATCH_{location}", "verified": False, "location": location}
     return {"status": "NOT_FOUND", "verified": False, "location": None}
-
 
 def source_evidence_policy(trust: str | None) -> dict:
     """Apply configured source tiers deterministically; never infer trust from model output."""
