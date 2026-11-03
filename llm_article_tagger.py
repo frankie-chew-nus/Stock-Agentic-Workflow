@@ -977,7 +977,7 @@ def main(argv: list[str] | None = None) -> None:
                        "title": it.get("title"), "source": it.get("source"), "url": it.get("url"),
                         "source_name": source_info.get("name") or it.get("source"),
                         "source_domain": source_info.get("domain"),
-                        "source_trust": source_info.get("trust") or "UNKNOWN",
+                        **source_evidence_policy(source_info.get("trust")),
                         "evidence_input_sha256": evidence_input_sha256,
                         "evidence_input_chars": evidence_archive["chars"],
                         "evidence_input_text_source": text_source,
