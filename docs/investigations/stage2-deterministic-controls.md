@@ -17,7 +17,9 @@ Publisher trust remains a deterministic lookup from `config/news_sources.yaml`, 
 
 The output retains `source_trust`, `source_evidence_role` and `source_evidence_eligible`, alongside publisher name/domain. This is a metadata classification, not a numerical credibility score and not the tagger's `confidence`.
 
-**Boundary:** This work is scoped to Stage 2. The downstream briefing builder has not yet been changed to consume `source_evidence_eligible`. Until that handover is separately implemented and tested, the new field records the evidence eligibility decision but does not by itself guarantee that a C/unknown item is excluded from every downstream briefing path.
+The Stage 2 normalisation now enforces the policy: if the model marks a C/unknown-source article relevant, Python overrides `relevant` to false, records `source_trust` in `overridden_by`, and sets its `materiality_weight` to zero. The article remains in the audit output for discovery/traceability. A/B classifications are not changed by this source rule.
+
+**Boundary:** This is a Stage 2 classification gate. No separate change has been made to Stage 4's reasoning prompt or general news selection logic.
 
 ## 2. Evidence quotation integrity
 
@@ -29,14 +31,15 @@ The quotation is checked against the article title and the exact article body or
 |---|---|---|
 | `EXACT_MATCH_TITLE` | Normalised contiguous quotation occurs in the supplied title | true |
 | `EXACT_MATCH_BODY` | Normalised contiguous quotation occurs in the supplied body/summary | true |
+| `TOKEN_MATCH_TITLE` / `TOKEN_MATCH_BODY` | Same contiguous word/number sequence occurs, but punctuation/quote style differs | true |
 | `PARTIAL_MATCH_TITLE` / `PARTIAL_MATCH_BODY` | All explicit ellipsis-separated fragments occur in order, but not as one contiguous quote | false |
 | `NOT_FOUND` | No exact or recognised ellipsis-fragment match | false |
 | `MISSING` | The model supplied no quotation | null |
 | `MISSING_FROM_MODEL_REPLY` | The model omitted a ticker it was asked to assess | null |
 
-Normalisation includes Unicode compatibility normalisation, curly-quote normalisation, dash normalisation, non-breaking-space replacement, case folding and whitespace collapse. The check is deterministic substring matching; it does not use semantic similarity.
+Normalisation includes Unicode compatibility normalisation, curly-quote normalisation, dash normalisation, non-breaking-space replacement, case folding and whitespace collapse. After literal matching, a second deterministic check compares the contiguous word/number token sequence while ignoring punctuation differences. Signed numbers, decimals and percentage signs are retained, so `-5.2%` does not match `5.2%`. Explicit ellipses are never collapsed into a contiguous token match.
 
-Partial matches are deliberately **not** promoted to verified. The current partial logic only recognises explicit ellipses and requires each fragment to be at least 12 characters long and to occur in order in the same title/body field. Other quote variations remain `NOT_FOUND` for manual review.
+Partial matches are deliberately **not** promoted to verified. The current partial logic recognises explicit ellipses and requires at least two tokens per fragment, with fragments appearing in order in the same title/body field. Other quote variations remain `NOT_FOUND` for manual review.
 
 ### Exact input audit trail
 
@@ -64,20 +67,22 @@ The offline recheck used the uploaded `data/news/llm_tags/ticker_tags.csv`, feed
 | B-tier classifications | 1 |
 | C-tier classifications | 0 |
 | Unknown-tier classifications | 0 |
-| Exact quote matches | 66 (63 body, 3 title) |
+| Exact literal matches | 66 (63 body, 3 title) |
+| Punctuation-insensitive contiguous token matches | 5 |
+| Total verified matches | 71 |
 | Ellipsis partial matches | 4 |
-| Not found | 13 |
+| Not found | 8 |
 | Missing quotes | 0 |
 
-The 17 records previously marked unverified divide into **4 partial matches** and **13 not found**. A partial/not-found status is not proof of hallucination. It means the supplied text did not contain one contiguous verbatim quote (or a recognised ordered ellipsis excerpt, as applicable). The records still need manual review for paraphrasing, wrong article/stock attribution, extraction mismatch or unsupported quotation.
+The 17 records previously marked unverified now divide into **5 punctuation-only/token matches**, **4 partial matches** and **8 not found**. A partial/not-found status is not proof of hallucination. It means the supplied text did not contain one contiguous verbatim quote (or a recognised ordered ellipsis excerpt, as applicable). The records still need manual review for paraphrasing, wrong article/stock attribution, extraction mismatch or unsupported quotation.
 
 A detailed row-level report is saved separately as `STAGE2_EVIDENCE_RECHECK.md` and `stage2_evidence_recheck_83.csv` in the investigation workspace.
 
 ## 4. Validation status
 
-- 11 deterministic Stage 2 tests have been added, bringing the documented offline suite to 27 tests (16 existing + 11 new).
+- 16 deterministic Stage 2 tests have been added, bringing the documented offline suite to 32 tests (16 existing + 16 new).
 - The tests cover A/B/C policy mapping, unknown trust, exact title/body matching, ellipsis partial matches, missing/not-found quotes, truncation boundaries, RSS-summary fallback and evidence-input archival.
-- The user previously ran the older 23-test version successfully. **The current 27-test version has not yet been run locally or confirmed by GitHub Actions.**
+- The user previously ran the earlier 23-test version successfully. **The current 32-test version has not yet been run locally or confirmed by GitHub Actions.**
 
 ## 5. What this does not solve
 
@@ -89,5 +94,5 @@ A detailed row-level report is saved separately as `STAGE2_EVIDENCE_RECHECK.md` 
 
 ## 6. Current completion assessment
 
-- **Problem #1 — Source reliability:** deterministic A/B/C/unknown roles are now recorded in Stage 2 outputs. End-to-end enforcement by the downstream briefing handover remains outstanding.
-- **Problem #2 — Evidence integrity:** exact, partial, missing and not-found quotation states are separated; exact Stage 2 title/body input is retained for new runs. Manual review of 17 historical failures and current 27-test local validation remain outstanding.
+- **Problem #1 — Source reliability:** deterministic A/B/C/unknown roles are recorded, and C/unknown cannot retain `relevant=true` or a non-zero materiality weight in Stage 2 outputs.
+- **Problem #2 — Evidence integrity:** literal and punctuation-insensitive contiguous matches, partial ellipsis matches, missing and not-found states are separated; exact Stage 2 title/body input is retained for new runs. The 8 not-found historical records still need manual review, and the current 32-test suite still needs local validation.
