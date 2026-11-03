@@ -46,7 +46,7 @@ news:
   min_prominence: substantial
   min_tag_confidence: 0.5       # the tagger's own confidence in its call
   require_relevant_flag: true   # also require the tagger's final relevant=true (after its code-side rules)
-  require_evidence_verified: false   # true = drop items whose evidence quote was not found in the text
+  require_evidence_verified: true    # exact/token-contiguous quote match required for main and context news
   exclude_sponsored: true
   accepted_prompt_versions: []  # e.g. [tag-v6-research]; empty = accept tags from any prompt version
 
