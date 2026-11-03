@@ -538,8 +538,12 @@ def passes(it: dict, cfg: dict, min_mat: str) -> bool:
         return False
     if it["conf"] < float(n["min_tag_confidence"]):
         return False
-    if n["require_evidence_verified"] and not _truthy(it.get("evidence_verified")):
-        return False
+    if n["require_evidence_verified"]:
+        verified_statuses = {
+            "EXACT_MATCH_TITLE", "EXACT_MATCH_BODY", "TOKEN_MATCH_TITLE", "TOKEN_MATCH_BODY"
+        }
+        if not _truthy(it.get("evidence_verified")) or it.get("evidence_match_status") not in verified_statuses:
+            return False
     return True
 
 
