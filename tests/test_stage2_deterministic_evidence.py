@@ -54,6 +54,23 @@ class Stage2DeterministicEvidenceTest(unittest.TestCase):
         self.assertEqual(result["status"], "PARTIAL_MATCH_BODY")
         self.assertFalse(result["verified"])
 
+    def test_punctuation_and_quote_style_differences_match_same_word_sequence(self):
+        result = verify_evidence_quote(
+            "Citi downgraded OCBC from 'neutral' to 'sell' on Oct 6",
+            "",
+            "Citi downgraded OCBC from “neutral” to “sell” on Oct 6.",
+        )
+        self.assertEqual(result["status"], "TOKEN_MATCH_BODY")
+        self.assertTrue(result["verified"])
+
+        result = verify_evidence_quote(
+            "OCBC yesterday announced the addition of Malaysian ringgit",
+            "",
+            "(OCBC) yesterday announced the addition of Malaysian ringgit.",
+        )
+        self.assertEqual(result["status"], "TOKEN_MATCH_BODY")
+        self.assertTrue(result["verified"])
+
     def test_non_ellipsis_non_contiguous_quote_is_not_promoted_to_partial(self):
         result = verify_evidence_quote(
             "Quarterly profit increased by 15% and the bank raised its dividend",
