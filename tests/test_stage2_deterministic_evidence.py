@@ -72,6 +72,24 @@ class Stage2DeterministicEvidenceTest(unittest.TestCase):
         self.assertEqual(result["status"], "TOKEN_MATCH_BODY")
         self.assertTrue(result["verified"])
 
+    def test_ellipsis_is_not_collapsed_into_a_contiguous_token_match(self):
+        result = verify_evidence_quote(
+            "Quarterly profit increased ... the bank raised its dividend",
+            "",
+            "Quarterly profit increased the bank raised its dividend.",
+        )
+        self.assertEqual(result["status"], "PARTIAL_MATCH_BODY")
+        self.assertFalse(result["verified"])
+
+    def test_numeric_signs_and_decimal_values_are_preserved(self):
+        result = verify_evidence_quote("profit fell -5.2%", "", "(profit) fell -5.2%.")
+        self.assertEqual(result["status"], "TOKEN_MATCH_BODY")
+        self.assertTrue(result["verified"])
+        result = verify_evidence_quote("profit fell -5.2%", "", "(profit) fell 5.2%.")
+        self.assertEqual(result["status"], "NOT_FOUND")
+        result = verify_evidence_quote("profit rose +5.2%", "", "(profit) rose 5.2%.")
+        self.assertEqual(result["status"], "NOT_FOUND")
+
     def test_non_ellipsis_non_contiguous_quote_is_not_promoted_to_partial(self):
         result = verify_evidence_quote(
             "Quarterly profit increased by 15% and the bank raised its dividend",
