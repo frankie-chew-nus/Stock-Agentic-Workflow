@@ -84,7 +84,7 @@ A detailed row-level report is saved separately as `STAGE2_EVIDENCE_RECHECK.md` 
 
 - 15 deterministic Stage 2 tagger tests and 3 Python briefing-handover tests have been added, bringing the documented offline suite to 34 tests (16 existing + 18 new).
 - The tests cover A/B/C policy mapping, unknown trust, exact title/body matching, ellipsis partial matches, missing/not-found quotes, truncation boundaries, RSS-summary fallback and evidence-input archival.
-- The user previously ran the earlier 23-test version successfully. **GitHub Actions passed all 33 tests** on 3 Nov 2026: run [41566841393](https://github.com/frankie-chew-nus/Stock-Agentic-Workflow/actions/runs/41566841393). A further handover test was added afterwards to ensure legacy evidence booleans without explicit quote statuses fail closed; the updated 34-test suite is pending a fresh CI run.
+- The user previously ran the earlier 23-test version successfully. **GitHub Actions passed all 34 tests** on 3 Nov 2026: run [41567021558](https://github.com/frankie-chew-nus/Stock-Agentic-Workflow/actions/runs/41567021558), completing in 10.485 seconds. This includes the fail-closed legacy evidence-status test.
 
 ## 5. What this does not solve
 
