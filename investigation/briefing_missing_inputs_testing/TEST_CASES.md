@@ -90,7 +90,7 @@ python .\build_briefing.py build --ticker D05 --as-of 2026-11-09 --config config
 | X8 | Date cell blank | Blank the 5 Nov Date cell | SUCCESS, 0 warnings. Row dropped; 20d window shifts a day: -5.6% \| STI -4.3% | none | Medium |
 | X9 | Rows out of order (control) | Move the 6 Nov row to the top | SUCCESS, baseline figures (rows are sorted) | none | OK |
 | X10 | Date column formatted as General | Set the Date column's number format to General | Warnings SHORT_HISTORY (1 row) and STALE_PRICES (1970-01-01), but a briefing is still written with broken technicals | WARNING | Medium |
-| Loop | Date missing from price file (loop dry-run) | T4a file; test_briefing_loop.py --dry-run | '0 dates (- to -)'; nothing built or sent | none | OK |
+| Loop | Date missing from price file (loop dry-run) | T4a file; test_briefing_loop.py --dry-run | '0 dates (- to -)'; nothing built or sent. The repository's older loop prints '0 dates; ...' and has no --skip-preflight option | none | OK |
 
 ## News tags
 

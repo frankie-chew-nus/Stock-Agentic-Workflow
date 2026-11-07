@@ -195,8 +195,8 @@ This shows that the forward loop skips a date that is missing from the price fil
    python .\test_briefing_loop.py --ticker D05 --start 2026-11-06 --end 2026-11-06 --model dummy/model --config config\briefing_forward.yaml --dry-run
    ```
 
-   **Expect:** `0 dates (- to -)` and `status=SUCCESS`. Nothing is built or sent.
-3. Add `--calendar weekdays --skip-preflight` and run again.
+   **Expect:** `0 dates (- to -)` and `status=SUCCESS`. Nothing is built or sent. The repository's older `test_briefing_loop.py` prints `0 dates; ...` and `Finished: 0 scheduled dates, 0 failed dates.` instead.
+3. Add `--calendar weekdays --skip-preflight` and run again. The repository's older loop has no `--skip-preflight` option and stops with `unrecognized arguments`, so add only `--calendar weekdays` when using it.
 
    **Expect:** `1 dates (2026-11-06 to 2026-11-06)` and `2026-11-06: build -> 1 API call(s) -> ingest`. This is the dry-run plan only; nothing is sent.
 

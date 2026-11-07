@@ -1,7 +1,12 @@
 # Missing and broken inputs: how `build_briefing.py` behaves
 
 **Date:** 7 Nov 2026  
-**Code tested:** `build_briefing.py` 2.0 (this repository, commit `28e37e1`) and 2.2 (a newer local working copy). Both versions gave the same result in all 150 cases.  
+**Code tested:** `build_briefing.py` 2.0 (this repository, commit `28e37e1`) and 2.2 (the author's local working copy). The two versions have diverged:
+
+- 2.2 adds prompt profiles and consensus-backfill handling.
+- The repository version adds BUY-trade scoring to the `outcomes` command.
+
+The `build` command, which every case exercises, behaves the same in both: all 150 cases gave the same result. The two loop cases used the local `test_briefing_loop.py` 0.3, which is newer than the repository's version; see 'How the tests were run'.  
 **Status:** findings only. No code has been changed; the fixes below are proposals.
 
 ## Summary
@@ -135,6 +140,7 @@ These are listed by priority. Each needs a code change to `build_briefing.py` (a
 - **How edits were made:** spreadsheet, CSV and JSON-lines edits were made programmatically, to match what a hand edit in Excel or a text editor would save.
 - **Fixed clock:** two cases (T6b, T6c) fixed the clock at 17:30 and 16:59 SGT using a small wrapper. The script itself was not changed.
 - **No model calls:** no LLM calls were made. `test_briefing_loop.py` was only run with `--dry-run`.
+- **Loop script version:** the loop cases used the local `test_briefing_loop.py` 0.3. The repository's older loop also skips a date that is missing from the price file ('0 dates'), but its messages are worded differently and it has no `--skip-preflight` option.
 - **Not committed:** the test data and per-case logs are not in this repository. They include news-tag content, research data and model outputs, which the data policy in `tests/README.md` keeps out of git.
 
 **Limitations**

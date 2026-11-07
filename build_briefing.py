@@ -30,6 +30,21 @@ Successor to STIStockML/llm_briefing/build_briefing.py. What changed:
   - Analyst consensus (v3): <analyst_consensus> from the daily Yahoo snapshots - targets only from a snapshot
     dated on or before the as-of date (Yahoo keeps no target history), monthly recommendation counts, and
     dated rating changes. Settings under `analyst:` in config/briefing.yaml.
+  - Prompt variants (2.1): `prompt.technicals` picks the wording of the technicals rule (rule 5) and step C.
+    "trend_context" (the default, unchanged text) or "mean_reversion" (a pullback rule: RSI below
+    prompt.mean_reversion.rsi_below with the close above its 200-day average is read as an entry point).
+    With no `prompt:` section the config, its hash and the prompt are exactly as in 2.0.
+  - Prompt style (2.2): `prompt.style` = "full" (default: the analyst rules and steps) or "chat" (a short request
+    in the words a person might type into a chatbot: what the data is, no web search, the BUY/HOLD/SELL
+    definition and the JSON output, with no guidance on reading technicals, fundamentals, news or analysts).
+    With "chat" the data sections also drop their sentences on how to weigh them (news tags "hints to check",
+    news signal "not extra evidence", analyst "ratings lean bullish" and "check <news>", prior views "hypotheses
+    to re-test"); the data itself is the same.
+  - BUY-trade scoring (2.3, merged from the repository's main branch): `outcomes` also scores every BUY
+    (action_final) as a simulated trade with trade_scoring.py - entry at the as-of close, exit 20 stock trading
+    days later, 0.6% round-trip cost - and adds the stock gross / net, STI and net-excess returns to
+    outcomes.csv, with a summary (signals, completed, mean returns, win rate) in the run log. The briefing and
+    `build` are unchanged.
   - Every command is logged with run_logger.py.
 
 Commands (PowerShell, from the project folder):
@@ -69,7 +84,7 @@ import yaml
 
 from run_logger import RunLogger
 
-VERSION = "2.0"
+VERSION = "2.3"
 BRIEFING_VERSION = "brief-v3"     # bump when the prompt text, layout or output schema changes
 BASE_DIR = Path(__file__).resolve().parent
 CONFIG_DIR = BASE_DIR / "config"
@@ -121,6 +136,11 @@ DEFAULTS: dict = {
 # =============================================================================================
 # Config
 # =============================================================================================
+def plain_data(cfg: dict) -> bool:
+    """prompt.style 'chat': the data sections drop their sentences on how to weigh them (provenance stays)."""
+    return (cfg.get("prompt") or {}).get("style", "full") == "chat"
+
+
 def load_yaml(path: Path) -> dict:
     if not path.exists():
         return {}
@@ -169,6 +189,12 @@ def load_config(path: Path, code: str | None, profile: str | None, sets: list[st
                         ("signal_min_materiality", MAT_RANK)):
         if cfg["news"][key] not in levels:
             raise SystemExit(f"news.{key} must be one of {list(levels)}, got {cfg['news'][key]!r}")
+    style = (cfg.get("prompt") or {}).get("style", "full")
+    if style not in ("full", "chat"):
+        raise SystemExit(f"prompt.style must be full or chat, got {style!r}")
+    tech = (cfg.get("prompt") or {}).get("technicals", "trend_context")
+    if tech not in TECH_RULES:
+        raise SystemExit(f"prompt.technicals must be one of {list(TECH_RULES)}, got {tech!r}")
     if cfg["memory"]["mode"] is False:          # YAML reads a bare `off` as false
         cfg["memory"]["mode"] = "off"
     if cfg["memory"]["mode"] not in ("off", "last", "ledger"):
@@ -576,7 +602,8 @@ def news_signal(items: list[dict], as_of: pd.Timestamp, cfg: dict) -> tuple[str,
                      f"weighted sentiment {fnum(mean, 2) if mean is not None else 'n/a (no items)'}; "
                      f"evidence weight {den:.2f}"
                      + (f"; main event types: {', '.join(f'{k} {v}' for k, v in ev.most_common(4))}" if ev else ""))
-    head = (f"Mechanical aggregate of the tagger's labels, not extra evidence. weight = materiality "
+    head = (("Aggregate of the tagger's labels. " if plain_data(cfg) else
+             "Mechanical aggregate of the tagger's labels, not extra evidence. ") + f"weight = materiality "
             f"(high {n['materiality_weight']['high']}, medium {n['materiality_weight']['medium']}, low "
             f"{n['materiality_weight']['low']}) x tag confidence x half-life decay of {hl:g} days; sentiment is "
             f"the weighted mean of sentiment_score (-1 to +1). Counted: materiality >= {n['signal_min_materiality']}, "
@@ -674,7 +701,7 @@ def news_block(code: str, as_of: pd.Timestamp, cfg: dict, sources: dict,
             + (", no sponsored content" if n["exclude_sponsored"] else ""))
     out = [f"Items available before the as-of close, last {n['lookback_days']} days, {order_txt}. "
            f"Selection rule: {rule}. Tags (materiality, event type, sentiment, confidence) come from an automated "
-           f"tagger and are hints to check, not facts."]
+           + ("tagger." if plain_data(cfg) else "tagger and are hints to check, not facts.")]
     cov = []
     if oldest_any is not None and oldest_any > window_start:
         cov.append(f"The news collection only reaches back to {oldest_any.date()}; the window before that is not covered.")
@@ -909,6 +936,16 @@ def _months_back(ts: pd.Timestamp, k: int) -> str:
     return f"{m // 12}-{m % 12 + 1:02d}"
 
 
+def _snapshot_kind(r: dict | None) -> str | None:
+    """Where an analyst snapshot came from: "yahoo" (collector), or a backfill kind - "panel" (web-research broker
+    panel, the default for backfill rows) or "consensus" (full consensus read off published charts)."""
+    if not r:
+        return None
+    if not r.get("backfill"):
+        return "yahoo"
+    return "consensus" if r.get("backfill_kind") == "consensus" else "panel"
+
+
 def analyst_block(code: str, as_of: pd.Timestamp, cfg: dict, close: float) -> tuple[str | None, dict, list[dict]]:
     """-> (text or None when switched off, stats, issues). Point-in-time rules:
        - targets: only the newest snapshot dated on or before the as-of date, and no older than
@@ -924,7 +961,10 @@ def analyst_block(code: str, as_of: pd.Timestamp, cfg: dict, close: float) -> tu
     for r in read_jsonl(root / "snapshots" / f"{code}.jsonl"):
         if r.get("snapshot_date"):
             by_date[r["snapshot_date"]] = r              # several runs on one day: the last one wins
-    # Web-research backfill (broker panel, not the full consensus): used only on dates with no Yahoo snapshot.
+    # Backfill snapshots, used only on dates with no Yahoo snapshot. Two kinds, set by each row's backfill_kind:
+    #   "panel" (default) - web-research broker panel, not the full consensus (data/analyst/backfill/);
+    #   "consensus"       - the full consensus read off published consensus charts after the fact: mean target and
+    #                       monthly counts only (e.g. data/analyst/backfill_feb_apr_2026/).
     bf = ac.get("backfill") or {}
     bf_root = None
     n_bf = 0
@@ -941,8 +981,10 @@ def analyst_block(code: str, as_of: pd.Timestamp, cfg: dict, close: float) -> tu
     after = [d for d in dates if pd.Timestamp(d) > as_of]
     issues: list[dict] = []
     stats: dict = {"snapshots": len(dates), "first_snapshot": dates[0] if dates else None, "backfill_snapshots": n_bf}
-    lines = ["Source: Yahoo Finance sell-side consensus, saved daily by analyst_snapshot_collector.py. Consensus "
-             "lags news and results, sell-side ratings lean bullish, and individual targets can be months old."]
+    plain = plain_data(cfg)
+    caveat = "" if plain else " Sell-side ratings lean bullish and targets can be months old."
+    lines = ["Source: Yahoo Finance sell-side consensus, saved daily by analyst_snapshot_collector.py." + ("" if plain else
+             " Consensus lags news and results, sell-side ratings lean bullish, and individual targets can be months old.")]
 
     cur, cur_date, age = None, None, None
     if before:
@@ -951,10 +993,16 @@ def analyst_block(code: str, as_of: pd.Timestamp, cfg: dict, close: float) -> tu
         if age <= int(ac["max_snapshot_age_days"]):
             cur = by_date[cur_date]
     cur_bf = bool(cur and cur.get("backfill"))
-    if cur_bf:
+    kind = _snapshot_kind(cur) if cur else None          # "yahoo" | "panel" | "consensus"
+    if kind == "panel":
         lines[0] = ("Source: RECONSTRUCTED from dated broker reports found by web research (a panel of "
                     "the brokers found, NOT the full Yahoo consensus; it tends to run 1-3% above it because the "
-                    "lowest targets are often missing). Sell-side ratings lean bullish and targets can be months old.")
+                    "lowest targets are often missing)." + caveat)
+    elif kind == "consensus":
+        lines[0] = ("Source: RECONSTRUCTED full sell-side consensus"
+                    + (f" ({cur['source']})" if cur.get("source") else "")
+                    + ", read off published charts after the fact: mean target and monthly recommendation "
+                    "counts only (no median, high or low), values approximate." + caveat)
 
     # --- price targets ---
     tg = (cur or {}).get("targets") or {}
@@ -965,7 +1013,8 @@ def analyst_block(code: str, as_of: pd.Timestamp, cfg: dict, close: float) -> tu
         ccy = info.get("currency") or ""
         n_an = info.get("numberOfAnalystOpinions")
         lines += ["", f"Price targets ({ccy + ', ' if ccy else ''}"
-                      + (f"broker panel as of {cur_date}" if cur_bf else f"snapshot {cur_date}")
+                      + ({"panel": f"broker panel as of {cur_date}",
+                          "consensus": f"reconstructed consensus as of {cur_date}"}.get(kind, f"snapshot {cur_date}"))
                       + f", {age} day(s) before as-of; close {close:.2f}):",
                   f"- mean {tg['mean']:.2f} ({vs(tg['mean'])}), median "
                   + (f"{tg['median']:.2f} ({vs(tg['median'])})" if tg.get("median") else "n/a")
@@ -973,7 +1022,7 @@ def analyst_block(code: str, as_of: pd.Timestamp, cfg: dict, close: float) -> tu
                   if tg.get("high") and tg.get("low") else f"- mean {tg['mean']:.2f} ({vs(tg['mean'])})"]
         extra = []
         if n_an:
-            extra.append(f"{n_an} broker(s) in panel" if cur_bf else f"{n_an} analyst(s)")
+            extra.append(f"{n_an} broker(s) in panel" if kind == "panel" else f"{n_an} analyst(s)")
         if info.get("recommendationMean") is not None:
             extra.append(f"Yahoo recommendation mean {float(info['recommendationMean']):.2f} (1 = strong buy, 5 = sell)"
                          + (f", '{info['recommendationKey']}'" if info.get("recommendationKey") else ""))
@@ -981,8 +1030,9 @@ def analyst_block(code: str, as_of: pd.Timestamp, cfg: dict, close: float) -> tu
             lines.append("- " + "; ".join(extra))
         for k in ac["target_history_days"]:
             ref = pd.Timestamp(cur_date) - pd.Timedelta(days=int(k))
-            # like with like: a panel is only compared with earlier panels, Yahoo only with Yahoo
-            earlier = [d for d in before if pd.Timestamp(d) <= ref and bool(by_date[d].get("backfill")) == cur_bf]
+            # like with like: a panel only with earlier panels, a reconstructed consensus only with the same kind,
+            # Yahoo only with Yahoo
+            earlier = [d for d in before if pd.Timestamp(d) <= ref and _snapshot_kind(by_date[d]) == kind]
             em = ((by_date[earlier[-1]].get("targets") or {}).get("mean")) if earlier else None
             if em:
                 lines.append(f"- mean target {k}+ days earlier ({earlier[-1]}): {em:.2f} -> "
@@ -991,11 +1041,13 @@ def analyst_block(code: str, as_of: pd.Timestamp, cfg: dict, close: float) -> tu
                 lines.append(f"- mean target {k} days earlier: no snapshot that old yet"
                              + (f" (snapshots start {dates[0]})" if dates else ""))
         stats.update(target_mean=tg["mean"], target_upside_pct=round((tg["mean"] / close - 1) * 100, 2) if close else None,
-                     n_analysts=n_an, snapshot_used=cur_date, targets_source="backfill_panel" if cur_bf else "yahoo")
+                     n_analysts=n_an, snapshot_used=cur_date,
+                     targets_source={"panel": "backfill_panel", "consensus": "backfill_consensus"}.get(kind, "yahoo"))
     else:
         if cur is not None:
-            why = (f"the {cur_date} broker panel has fewer than 4 dated targets" if cur_bf
-                   else f"the {cur_date} snapshot has no price targets for this stock")
+            why = {"panel": f"the {cur_date} broker panel has fewer than 4 dated targets",
+                   "consensus": f"the {cur_date} reconstructed consensus has no mean target"}.get(
+                kind, f"the {cur_date} snapshot has no price targets for this stock")
         elif before:
             why = f"the newest snapshot on or before the as-of date ({cur_date}) is {age} days old"
         elif dates:
@@ -1035,6 +1087,9 @@ def analyst_block(code: str, as_of: pd.Timestamp, cfg: dict, close: float) -> tu
             if recon:
                 lines.append(f"(Reconstructed from the {s_date.date()} snapshot: only months that ended before the "
                              f"as-of month are shown; month-level and approximate.)")
+            elif _snapshot_kind(src) == "consensus":
+                lines.append("(Monthly counts read off a consensus-revision chart, kept only for months that had ended "
+                             "by this date; approximate. The current month is not shown.)")
             elif src.get("backfill"):
                 lines.append("(Monthly counts from Yahoo's later rows, kept only for months that had ended by this "
                              "date; approximate. The current month is not shown.)")
@@ -1064,7 +1119,8 @@ def analyst_block(code: str, as_of: pd.Timestamp, cfg: dict, close: float) -> tu
         lb = int(ac["rating_change_lookback_days"])
         rc = rc[(rc["d"] <= as_of) & (rc["d"] >= as_of - pd.Timedelta(days=lb))].sort_values("d", ascending=False)
         lines += ["", f"Dated rating changes, last {lb} days (Yahoo plus, marked [web], broker reports found by "
-                      "web research; coverage of SGX stocks is patchy, so check <news> too):"]
+                      + ("web research; coverage of SGX stocks is patchy):" if plain else
+                         "web research; coverage of SGX stocks is patchy, so check <news> too):")]
         if rc.empty:
             lines.append("- none listed")
         for r in rc.head(int(ac["max_rating_changes"])).itertuples():
@@ -1082,6 +1138,10 @@ def analyst_block(code: str, as_of: pd.Timestamp, cfg: dict, close: float) -> tu
             lines.append(f"- ({len(rc) - int(ac['max_rating_changes'])} older change(s) omitted)")
         stats["rating_changes"] = int(len(rc))
         stats["rating_changes_from_backfill"] = int((rc["from_backfill"].notna()).sum())
+    elif kind == "consensus":
+        lines += ["", "Dated rating changes: not available for this date (the reconstructed consensus has no dated "
+                      + ("broker calls; changes may have happened without being listed)." if plain else
+                         "broker calls; changes may have happened without being listed, so check <news>).")]
     return "\n".join(lines), stats, issues
 
 
@@ -1141,7 +1201,8 @@ def memory_block(code: str, as_of: pd.Timestamp, cfg: dict, profile: str, px: pd
                 "Set view_change to \"new\"."), stats, None
 
     lines = [f"These are YOUR OWN earlier views on this stock (profile {profile}), each made from the briefing "
-             f"for its date. They are hypotheses to re-test against today's briefing, not evidence. Outcomes use "
+             f"for its date. " + ("" if plain_data(cfg) else "They are hypotheses to re-test against today's briefing, not evidence. ")
+             + f"Outcomes use "
              f"only prices up to {as_of.date()}."]
     if m["mode"] == "ledger":
         lines += ["", "| as-of | runs | p_buy | p_hold | p_sell | action (after gate) | stock minus STI (window so far) | horizon |",
@@ -1210,14 +1271,14 @@ INSTRUCTIONS = """You are acting as a disciplined equity analyst. Produce a {H}-
    - HOLD = anything in between
 3. News evidence: each item was labelled by an automated tagger (a smaller model) with materiality (could it change an analyst's estimates, risk view or valuation: high / medium / low), event type, sentiment (-1 to +1, likely effect on the share price) and the tagger's confidence. Treat these labels as a first pass: check them against the title, summary and evidence quote, and overrule them where they look wrong (say so in evidence_conflicts). High-materiality items outweigh medium ones; context-only headlines are not evidence. Primary sources (company, SGX, regulators) > news and wire reports > commentary, and commentary is not independent confirmation. One event reported by several outlets is one piece of evidence. Recent items matter more than old ones. The <news_signal> numbers summarise the tags; they are not extra evidence.
 4. Fundamentals: results, guidance, capital returns, margins and credit quality matter more than awards, partnerships and appointments. Use the change versus the previous period and a year earlier, and note when new results arrived since your last view.
-5. Technicals: read them as evidence about timing and momentum over the {H}-day horizon, in the context of the prevailing trend (an overbought oscillator means something different in a strong uptrend than in a range). Use ATR / volatility to judge whether a {band}% excess move is large or small for this stock.
+{tech_rule}
 6. Start from the historical base rates, and move away from them only as far as the evidence justifies. Large departures need strong, specific reasons.
 7. If evidence conflicts or is thin, say so and let it show in the probabilities. Do not force a directional call. If a section says data is missing, treat it as missing (not neutral), name it in data_gaps, and stay closer to the base rates.{analyst_rule}{memory_rule}
 
 ## Work through these steps in order (keep each concise)
 A. Fundamentals: trend across recent quarters, the latest period versus a year earlier, and what guidance implies.
 B. News and catalysts: the few items that actually matter, with dates{analyst_step}. Note known or estimated catalysts inside the horizon.
-C. Technical read: trend regime, momentum, overbought/oversold state, volatility.{memory_step}
+{tech_step}{memory_step}
 {s_bull}. Bull case (strongest version).
 {s_bear}. Bear case (strongest version).
 {s_verdict}. Verdict: probabilities for the three buckets, then the action.
@@ -1248,6 +1309,67 @@ End your answer with exactly one fenced ```json block in this schema (probabilit
 ```
 """
 
+CHAT_INSTRUCTIONS = """I'm looking at {name} ({ticker}) on the SGX. Below is what I've put together as of the market close on {as_of}: {contents}.
+
+Based only on this, should I buy, hold or sell it for the next {H} trading days?
+
+Please don't search the web, and don't use anything you might know about what happened after {as_of}. Just work from what's below.
+
+By BUY I mean you expect it to beat the Straits Times Index by more than {band}% over those {H} trading days, SELL means you expect it to trail the STI by more than {band}%, and HOLD is anything in between.
+
+Explain your thinking briefly, then end with your answer in exactly this JSON format (the three probabilities add up to 1; action is the one with the highest probability and confidence is that probability):
+```json
+{{
+  "ticker": "{ticker}",
+  "as_of": "{as_of}",
+  "horizon_trading_days": {H},
+  "band_pct": {band},
+  "p_buy": 0.00,
+  "p_hold": 0.00,
+  "p_sell": 0.00,
+  "action": "BUY|HOLD|SELL",
+  "confidence": 0.00,
+  "thesis_summary": "your main reason in 60 words or fewer",
+  "watch_items": ["up to 4 things that would change your mind, with dates or price levels where you can"],
+  "view_change": "new|unchanged|strengthened|weakened|reversed",
+  "view_change_reason": "one sentence; 'no earlier view' if this is your first view",
+  "key_drivers": ["..."],
+  "key_risks": ["..."],
+  "technical_regime": "uptrend|downtrend|range",
+  "evidence_conflicts": "...",
+  "data_gaps": "..."
+}}
+```
+"""
+
+# Rule 5 and step C, chosen with prompt.technicals. "trend_context" is the original wording.
+TECH_RULES = {
+    "trend_context": (
+        "5. Technicals: read them as evidence about timing and momentum over the {H}-day horizon, in the context "
+        "of the prevailing trend (an overbought oscillator means something different in a strong uptrend than in "
+        "a range). Use ATR / volatility to judge whether a {band}% excess move is large or small for this stock."),
+    "mean_reversion": (
+        "5. Technicals: read them as evidence about timing over the {H}-day horizon. Over a horizon this short, "
+        "moves in a stock that is in a long-term uptrend more often reverse than continue: a pullback inside an "
+        "uptrend is more often an entry point than the start of a decline, and a stock that has just broken out or "
+        "is overbought has usually already priced in the good news. Apply this pullback rule: when RSI(14) is below "
+        "{rsi} and the close is above its 200-day moving average, treat the pullback as a buying opportunity and "
+        "move substantial probability from HOLD to BUY (around {shift}), unless the briefing shows a specific "
+        "fundamental reason for the fall (for example a profit warning, a guidance cut, a regulatory action or a "
+        "clear deterioration in asset quality); if you hold back for such a reason, name it in evidence_conflicts. "
+        "This rule counts as a strong, specific reason under rule 6. Do not raise p_buy just because the price has "
+        "broken out or RSI is above 70. When the close is below its 200-day moving average, a low RSI is not a buy "
+        "signal on its own. Use ATR / volatility to judge whether a {band}% excess move is large or small for this "
+        "stock."),
+}
+TECH_STEPS = {
+    "trend_context": "C. Technical read: trend regime, momentum, overbought/oversold state, volatility.",
+    "mean_reversion": ("C. Technical read: trend regime, momentum, overbought/oversold state, volatility, and whether "
+                       "the pullback rule in 5 applies today (RSI(14) against {rsi}; close against the 200-day "
+                       "moving average)."),
+}
+MEAN_REVERSION_DEFAULTS = {"rsi_below": 45, "shift": "0.30 to 0.40"}
+
 ANALYST_RULE = """
 8. Analyst consensus: <analyst_consensus> is the sell-side view collected from Yahoo Finance. It lags news and results, ratings lean bullish, and the mean target mixes fresh and stale targets. Changes (in the mean target, the recommendation mix, dated rating changes) tell you more than levels. A rating change that also appears in <news> is one piece of evidence, not two. A gap between the mean target and the price is not on its own a reason for BUY or SELL over a {H}-day horizon."""
 
@@ -1261,8 +1383,20 @@ D. Prior view check: which watch items from your last view have triggered or not
 def build_instructions(name: str, ticker: str, as_of, cfg: dict, with_memory: bool, with_analyst: bool) -> str:
     steps = ("E", "F", "G") if with_memory else ("D", "E", "F")
     H = cfg["label"]["horizon_trading_days"]
+    pcfg = cfg.get("prompt") or {}
+    if pcfg.get("style", "full") == "chat":
+        parts = ["share price and technical indicators", "recent news", "the latest financial results"]
+        parts += ["the analyst consensus"] * with_analyst + ["the views you gave me on earlier days"] * with_memory
+        contents = ", ".join(parts[:-1]) + ", and " + parts[-1]
+        return CHAT_INSTRUCTIONS.format(name=name, ticker=ticker, as_of=as_of, H=H, band=cfg["label"]["band_pct"],
+                                        contents=contents)
+    tech = pcfg.get("technicals", "trend_context")
+    mr = {**MEAN_REVERSION_DEFAULTS, **(pcfg.get("mean_reversion") or {})}
+    fill = {"H": H, "band": cfg["label"]["band_pct"], "rsi": mr["rsi_below"], "shift": mr["shift"]}
     return INSTRUCTIONS.format(name=name, ticker=ticker, as_of=as_of, H=H,
                                band=cfg["label"]["band_pct"],
+                               tech_rule=TECH_RULES[tech].format(**fill),
+                               tech_step=TECH_STEPS[tech].format(**fill),
                                analyst_rule=ANALYST_RULE.format(H=H) if with_analyst else "",
                                analyst_step=", plus any analyst rating or target changes" if with_analyst else "",
                                memory_rule=MEMORY_RULE.format(n=9 if with_analyst else 8) if with_memory else "",
@@ -1345,7 +1479,7 @@ def build_one(spec: str, as_of: pd.Timestamp, a, run: RunLogger, universe: dict,
     md = od / f"{stem}.md"
     md.write_text(text, encoding="utf-8")
     meta = {"ticker": ticker, "code": code, "name": info["name"], "as_of": str(as_of.date()), "profile": profile,
-            "briefing_version": BRIEFING_VERSION, "script_version": VERSION, "built_at": now.isoformat(timespec="seconds"),
+            "briefing_version": BRIEFING_VERSION, "prompt_style": (cfg.get("prompt") or {}).get("style", "full"), "prompt_technicals": (cfg.get("prompt") or {}).get("technicals", "trend_context"), "script_version": VERSION, "built_at": now.isoformat(timespec="seconds"),
             "run_id": run.run_id, "sha256": hashlib.sha256(text.encode()).hexdigest()[:16], "chars": len(text),
             "approx_tokens": len(text) // 4, "price_rows": rows_upto, "last_price_date": str(last_px.date()),
             "close": float(px.loc[last_px, "close"]),
