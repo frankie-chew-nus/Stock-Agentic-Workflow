@@ -64,6 +64,8 @@ import uuid
 from collections import Counter, defaultdict
 from datetime import datetime
 from pathlib import Path
+import hashlib
+import unicodedata
 
 import yaml
 
@@ -161,8 +163,128 @@ def sentiment_label(score: float | None) -> str | None:
 
 
 def _norm(s: str | None) -> str:
-    s = (s or "").replace("‘", "'").replace("’", "'").replace("“", '"').replace("”", '"')
+    s = unicodedata.normalize("NFKC", s or "")
+    s = (s.replace("‘", "'").replace("’", "'").replace("“", '"').replace("”", '"')
+           .replace("\u00a0", " ").replace("–", "-").replace("—", "-"))
     return re.sub(r"\s+", " ", s).strip().lower()
+
+
+def _quote_tokens(s: str | None) -> list[str]:
+    """Words/numbers in order; punctuation and quote-style differences are ignored."""
+    return re.findall(r"(?<![\w])[-+]?\d+(?:[.,]\d+)?%?|[\w]+(?:[.'’][\w]+)*", _norm(s), flags=re.UNICODE)
+
+
+def _contains_token_sequence(needle: list[str], haystack: list[str], start: int = 0) -> int:
+    if not needle or len(needle) > len(haystack):
+        return -1
+    end = len(haystack) - len(needle) + 1
+    for i in range(start, end):
+        if haystack[i:i + len(needle)] == needle:
+            return i
+    return -1
+
+
+def verify_evidence_quote(evidence: str | None, title: str, supplied_article_text: str) -> dict:
+    """Classify evidence against exact Stage 2 title/body text using deterministic word matching.
+
+    EXACT_MATCH is a normalised contiguous substring. TOKEN_MATCH is the same contiguous word
+    sequence with punctuation/quote-style differences ignored. PARTIAL_MATCH is reserved for
+    explicit ellipsis-joined fragments, all found in order but not as one continuous quotation.
+    """
+    quote = _norm(evidence)
+    if not quote:
+        return {"status": "MISSING", "verified": None, "location": None}
+    locations = {"TITLE": _norm(title), "BODY": _norm(supplied_article_text)}
+    for location, hay in locations.items():
+        if quote in hay:
+            return {"status": f"EXACT_MATCH_{location}", "verified": True, "location": location}
+
+    # An explicit ellipsis represents omitted text and must not be collapsed into a contiguous token match.
+    if not re.search(r"(?:\.{3,}|…)", quote):
+        quote_tokens = _quote_tokens(quote)
+        for location, hay in locations.items():
+            if _contains_token_sequence(quote_tokens, _quote_tokens(hay)) >= 0:
+                return {"status": f"TOKEN_MATCH_{location}", "verified": True, "location": location}
+
+    fragments = [x.strip() for x in re.split(r"(?:\.{3,}|…)", quote) if x.strip()]
+    if len(fragments) >= 2 and all(len(_quote_tokens(x)) >= 2 for x in fragments):
+        for location, hay in locations.items():
+            hay_tokens = _quote_tokens(hay)
+            cursor = 0
+            for fragment in fragments:
+                fragment_tokens = _quote_tokens(fragment)
+                found = _contains_token_sequence(fragment_tokens, hay_tokens, cursor)
+                if found < 0:
+                    break
+                cursor = found + len(fragment_tokens)
+            else:
+                return {"status": f"PARTIAL_MATCH_{location}", "verified": False, "location": location}
+    return {"status": "NOT_FOUND", "verified": False, "location": None}
+
+def source_evidence_policy(trust: str | None) -> dict:
+    """Apply configured source tiers deterministically; never infer trust from model output."""
+    tier = trust if trust in ("A", "B", "C") else "UNKNOWN"
+    policy = {"A": ("primary_or_major_reporting", True),
+              "B": ("reputable_secondary_reporting", True),
+              "C": ("discovery_only", False),
+              "UNKNOWN": ("unrated", False)}
+    role, eligible = policy[tier]
+    return {"source_trust": tier, "source_evidence_role": role, "source_evidence_eligible": eligible}
+
+
+def enforce_source_evidence_eligibility(relevant: bool, source_policy: dict) -> tuple[bool, str | None]:
+    """C/unknown sources can be retained for discovery but cannot create a relevant evidence tag."""
+    if relevant and not source_policy.get("source_evidence_eligible", False):
+        return False, "source_trust"
+    return relevant, None
+
+
+def persist_evidence_input(article_id: str, title: str, supplied_text: str, text_source: str,
+                           truncated: bool, output_dir: Path) -> dict:
+    """Persist exact title/body text supplied to Stage 2 for later audit."""
+    content = f"{title or ''}\n{supplied_text or ''}"
+    digest = hashlib.sha256(content.encode("utf-8")).hexdigest()
+    payload = {"article_id": article_id, "title": title or "", "text": supplied_text or "",
+               "text_source": text_source, "truncated": bool(truncated),
+               "sha256": digest, "chars": len(content)}
+    safe_id = hashlib.sha256(str(article_id).encode("utf-8")).hexdigest()[:16]
+    target_dir = output_dir / "evidence_inputs"
+    target_dir.mkdir(parents=True, exist_ok=True)
+    target = target_dir / f"{safe_id}_{digest[:12]}.json"
+    if not target.exists():
+        temp = target.with_suffix(".json.tmp")
+        temp.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+        temp.replace(target)
+    return {"sha256": digest, "chars": len(content), "path": str(target)}
+
+
+def article_text_for_tagging(item: dict, art: dict, max_chars: int) -> tuple[str, bool, str]:
+    """Return the exact article body/summary text inserted into the Stage 2 request."""
+    article_body = art.get("text") or ""
+    text_source = "article_text" if article_body.strip() else "rss_summary"
+    original = article_body or item.get("summary") or ""
+    truncated = len(original) > max_chars or art.get("access") in ("paywalled", "summary_only") \
+        or art.get("status") != "ok"
+    supplied = original[:max_chars].replace("</article>", "")
+    return supplied, truncated, text_source
+
+
+def load_source_registry(path: Path | None = None) -> dict[str, dict]:
+    """Load configured publisher metadata using an exact source-ID lookup."""
+    source_path = path or (BASE_DIR / "config" / "news_sources.yaml")
+    if not source_path.exists():
+        return {}
+    data = yaml.safe_load(source_path.read_text(encoding="utf-8-sig")) or {}
+    return {
+        str(row["id"]): {
+            "name": row.get("name") or str(row["id"]),
+            "domain": row.get("domain"),
+            "trust": row.get("trust") if row.get("trust") in ("A", "B", "C") else "UNKNOWN",
+            "type": row.get("type") or "unknown",
+        }
+        for row in (data.get("sources") or [])
+        if isinstance(row, dict) and row.get("id")
+    }
 
 
 # ---------------------------------------------------------------------------
@@ -323,10 +445,7 @@ def mention_facts(item: dict, art: dict, hits: list[dict], matchers) -> str:
 
 def build_user_msg(item: dict, art: dict, hits, matchers, max_chars: int) -> tuple[str, bool]:
     sponsored = is_sponsored(item, art)
-    text = (art.get("text") or item.get("summary") or "")
-    truncated = len(text) > max_chars or art.get("access") in ("paywalled", "summary_only") \
-        or art.get("status") != "ok"
-    text = text[:max_chars].replace("</article>", "")
+    text, truncated, _text_source = article_text_for_tagging(item, art, max_chars)
     tickers = [m.ticker for m in matchers if m.code in {h["code"] for h in hits}]
     msg = ("<article>\n"
            f"<title>{item.get('title', '')}</title>\n"
@@ -599,14 +718,19 @@ def check_models(models: list[str], run: RunLogger) -> list[str]:
     return keep
 
 
-def normalise(out: dict, item: dict, art: dict, hits: list[dict], matchers, sponsored: bool = False) -> list[dict]:
+def normalise(out: dict, item: dict, art: dict, hits: list[dict], matchers, sponsored: bool = False,
+              supplied_article_text: str | None = None, source_info: dict | None = None,
+              evidence_input_sha256: str | None = None) -> list[dict]:
     """Model reply -> one row per stock, applying the code-side rules:
        relevant needs prominence main_subject/substantial AND materiality high/medium, and is
        always false for sponsored content. overridden_by lists the rules that changed the model's call."""
     by_ticker = {m.ticker: m for m in matchers}
     assessed = {m.ticker for m in matchers if m.code in {h["code"] for h in hits}}
     hit_by_code = {h["code"]: h for h in hits}
-    hay = _norm((item.get("title") or "") + " " + (art.get("text") or item.get("summary") or ""))
+    if supplied_article_text is None:
+        supplied_article_text, _, _ = article_text_for_tagging(item, art, 12_000)
+    source_info = source_info or {}
+    source_policy = source_evidence_policy(source_info.get("trust"))
     def short(v) -> tuple[str, int]:
         """Keep the reason under 25 words (cut at 24 if the model ran over) -> (text, original word count)."""
         words = str(v or "").split()
@@ -644,24 +768,38 @@ def normalise(out: dict, item: dict, art: dict, hits: list[dict], matchers, spon
         if relevant and sponsored:
             relevant = False
             overridden_by.append("sponsored")
+        relevant, source_override = enforce_source_evidence_eligibility(relevant, source_policy)
+        if source_override:
+            overridden_by.append(source_override)
         score = num(c.get("sentiment_score"), -1.0, 1.0)
         evidence = str(c.get("evidence") or "").strip()[:300]
+        quote_check = verify_evidence_quote(evidence, item.get("title") or "", supplied_article_text)
+        evidence_verified = quote_check["verified"]
         rel_reason, rel_words = short(c.get("relevance_reason") or c.get("reason"))
         sent_reason, _ = short(c.get("sentiment_reason"))
         rows.append({"ticker": t, "code": m.code, "relevant": relevant, "relevant_model_raw": raw_rel,
                      "overridden_by": ",".join(overridden_by) or None,
                      "prominence": prominence, "mention_role": role, "materiality": materiality,
-                     "materiality_weight": (0.0 if sponsored or prominence in ("passing", "none")
+                     "materiality_weight": (0.0 if sponsored or not source_policy["source_evidence_eligible"]
+                                            or prominence in ("passing", "none")
                                             else MATERIALITY_WEIGHT.get(materiality)), "event_type": event,
                      "sentiment_score": score, "sentiment_label": sentiment_label(score),
                      "confidence": num(c.get("confidence"), 0.0, 1.0), "evidence": evidence,
-                     "evidence_verified": (_norm(evidence) in hay) if evidence else None,
+                     "evidence_verified": evidence_verified,
+                     "evidence_match_status": quote_check["status"],
+                     "evidence_match_location": quote_check["location"],
+                     **source_policy,
+                     "source_name": source_info.get("name") or item.get("source"),
+                     "source_domain": source_info.get("domain"),
+                     "evidence_input_sha256": evidence_input_sha256,
                      "relevance_reason": rel_reason, "relevance_reason_words": rel_words,
                      "sentiment_reason": sent_reason, "added_by_model": t not in assessed,
                      "matcher_strength": (hit_by_code.get(m.code) or {}).get("strength")})
     for t in sorted(assessed - seen):              # the model skipped a ticker it was asked about
         m = by_ticker[t]
         rows.append({"ticker": t, "code": m.code, "relevant": None, "missing_from_reply": True,
+                     "evidence_verified": None, "evidence_match_status": "MISSING_FROM_MODEL_REPLY",
+                     "evidence_match_location": None, **source_policy,
                      "matcher_strength": (hit_by_code.get(m.code) or {}).get("strength")})
     return rows
 
@@ -674,7 +812,10 @@ CSV_FIELDS = ["published", "ticker", "code", "relevant", "materiality", "materia
               "sentiment_score", "sentiment_label", "confidence", "evidence", "evidence_verified", "relevance_reason",
               "sentiment_reason", "reason",
               "relevant_model_raw", "overridden_by", "added_by_model", "missing_from_reply", "matcher_strength", "sponsored",
-              "title", "source", "url", "article_summary", "model_used", "output_mode", "prompt_version",
+              "title", "source", "source_name", "source_domain", "source_trust", "url", "article_summary",
+              "evidence_match_status", "evidence_match_location", "source_evidence_role", "source_evidence_eligible",
+              "evidence_input_sha256", "evidence_input_chars", "evidence_input_text_source", "evidence_input_path",
+              "model_used", "output_mode", "prompt_version",
               "latency_s", "total_tokens", "tagged_at", "article_id"]
 
 
@@ -692,8 +833,9 @@ def load_latest_tags() -> dict[str, dict]:
     return latest
 
 
-def rebuild_outputs(run: RunLogger) -> dict:
+def rebuild_outputs(run: RunLogger, source_registry: dict[str, dict] | None = None) -> dict:
     latest = load_latest_tags()
+    source_registry = source_registry if source_registry is not None else load_source_registry()
     rows = []
     seen_urls = set()
     for r in sorted(latest.values(), key=lambda x: x.get("tagged_at") or "", reverse=True):
@@ -703,10 +845,15 @@ def rebuild_outputs(run: RunLogger) -> dict:
         if key in seen_urls:                          # same article tagged under an older duplicate id
             continue
         seen_urls.add(key)
+        source_info = source_registry.get(r.get("source"), {})
         for c in r["companies"]:
             rows.append({**{k: r.get(k) for k in ("published", "title", "source", "url", "article_summary",
                                                    "model_used", "output_mode", "prompt_version", "latency_s",
-                                                   "total_tokens", "tagged_at", "article_id", "sponsored")}, **c})
+                                                   "total_tokens", "tagged_at", "article_id", "sponsored",
+                                                   "evidence_input_sha256", "evidence_input_chars", "evidence_input_text_source", "evidence_input_path")},
+                         "source_name": source_info.get("name") or r.get("source"),
+                         "source_domain": source_info.get("domain"),
+                         **source_evidence_policy(source_info.get("trust")), **c})
     rows.sort(key=lambda x: (x.get("published") or "", x["ticker"]))
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     tmp = OUT_DIR / "ticker_tags.csv.tmp"
@@ -760,6 +907,7 @@ def main(argv: list[str] | None = None) -> None:
     a = ap.parse_args(argv)
 
     cfg = yaml.safe_load(Path(a.config).read_text(encoding="utf-8")) or {}
+    source_registry = load_source_registry()
     models = [a.model] if a.model else [cfg["model"]] + list(cfg.get("fallback_models") or [])
     tickers, include_index = load_watchlist(a.watchlist)
     params = {"version": VERSION, "prompt_version": PROMPT_VERSION, "models": models, "limit": a.limit,
@@ -845,7 +993,16 @@ def main(argv: list[str] | None = None) -> None:
                 hits = hits_by_item[iid]
                 ask = [m.ticker for m in matchers if m.code in {h["code"] for h in hits}]
                 run.log.info(f"[{n}/{len(todo)}] {','.join(ask)}  {it.get('title', '')[:90]}")
-                msg, trunc = build_user_msg(it, art, hits, matchers, int(cfg.get("max_article_chars", 12000)))
+                max_article_chars = int(cfg.get("max_article_chars", 12000))
+                supplied_text, trunc, text_source = article_text_for_tagging(it, art, max_article_chars)
+                msg, trunc_from_message = build_user_msg(it, art, hits, matchers, max_article_chars)
+                if trunc != trunc_from_message:
+                    raise RuntimeError("Article-text truncation metadata disagrees with request builder")
+                source_info = source_registry.get(it.get("source"), {})
+                evidence_archive = persist_evidence_input(
+                    iid, it.get("title") or "", supplied_text, text_source, trunc, OUT_DIR
+                )
+                evidence_input_sha256 = evidence_archive["sha256"]
                 out, model_used, mode, calls = tag_article(client, models, system_prompt, msg,
                                                            [m.ticker for m in matchers], iid, cfg, dead_models)
                 fail_row = 0 if out else fail_row + 1
@@ -859,6 +1016,13 @@ def main(argv: list[str] | None = None) -> None:
                        "run_id": run.run_id, "prompt_version": PROMPT_VERSION, "model_used": model_used,
                        "output_mode": mode, "published": it.get("published") or it.get("first_seen"),
                        "title": it.get("title"), "source": it.get("source"), "url": it.get("url"),
+                        "source_name": source_info.get("name") or it.get("source"),
+                        "source_domain": source_info.get("domain"),
+                        **source_evidence_policy(source_info.get("trust")),
+                        "evidence_input_sha256": evidence_input_sha256,
+                        "evidence_input_chars": evidence_archive["chars"],
+                        "evidence_input_text_source": text_source,
+                        "evidence_input_path": evidence_archive["path"],
                        "text_may_be_truncated": trunc, "sponsored": is_sponsored(it, art),
                        "call_ids": [c["call_id"] for c in calls], "n_calls": len(calls),
                        "latency_s": round(sum(c["latency_s"] for c in calls), 2),
@@ -866,7 +1030,11 @@ def main(argv: list[str] | None = None) -> None:
                        "completion_tokens": sum(c["completion_tokens"] or 0 for c in calls),
                        "total_tokens": sum(c["total_tokens"] or 0 for c in calls)}
                 if out:
-                    rec["companies"] = normalise(out, it, art, hits, matchers, rec["sponsored"])
+                    rec["companies"] = normalise(
+                        out, it, art, hits, matchers, rec["sponsored"],
+                        supplied_article_text=supplied_text, source_info=source_info,
+                        evidence_input_sha256=evidence_input_sha256
+                    )
                     rec["article_summary"] = str(out.get("article_summary") or "")[:400]
                     done += 1
                     for c in rec["companies"]:

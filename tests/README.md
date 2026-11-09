@@ -1,6 +1,6 @@
 # DBS baseline — test suite and coverage
 
-This folder contains **16 automated offline tests** for the DBS (D05) stock-signal workflow. They verify selected code paths and recorded reference data without making live market-data or LLM API calls. The branch is `baseline-dbs-e2e`; production data and brokerage accounts are not used.
+This folder contains **34 automated offline tests** for the stock-signal workflow: the existing 16 DBS baseline tests plus 15 Stage 2 tagger tests and 3 deterministic briefing-handover tests. They verify selected code paths and recorded reference data without making live market-data or LLM API calls. The Stage 2 governance additions are on `investigation/stage2-evidence-grounding`; the existing DBS baseline fixtures remain isolated test data. Production data and brokerage accounts are not used.
 
 ## Run locally
 
@@ -13,7 +13,7 @@ python -m unittest discover -s tests -v
 
 The same command runs in GitHub Actions via `.github/workflows/dbs-baseline.yml` on pushes to this branch and pull requests targeting `main`.
 
-**Most recent reported verification (29 Oct 2026):** 16 tests passed locally in 41.964 seconds, and GitHub Actions run [40886623345](https://github.com/frankie-chew-nus/Stock-Agentic-Workflow/actions/runs/40886623345) completed successfully for commit `1f72ba3`. Local run records are under `tests/results/`.
+**Most recent verification (3 Nov 2026):** GitHub Actions run [41567021558](https://github.com/frankie-chew-nus/Stock-Agentic-Workflow/actions/runs/41567021558) passed all 34 tests in 10.485 seconds. The earlier 16-test local result from 29 Oct is historical. Local run records are under `tests/results/`.
 
 ## Test coverage
 
@@ -26,7 +26,9 @@ The same command runs in GitHub Actions via `.github/workflows/dbs-baseline.yml`
 | `test_dbs_future_data_leakage.py` | 1 | Plants a fundamental with a 1 Dec 2026 release date and unique sentinel; confirms it is absent from the 7 Sep 2026 briefing while remaining in input. |
 | `test_dbs_failure_handling.py` | 3 | Missing price data causes a nonzero build exit and logged `BUILD_FAILED`; incomplete LLM probabilities are rejected without a ledger; confidence/margin gate falls back to HOLD and permits a sufficiently confident BUY. |
 | `test_trade_scoring.py` | 4 | Synthetic +10% stock / +4% STI yields +9.4% net and +5.4% net excess after 0.6% costs; incomplete trades remain unscored; HOLD is excluded; historical DBS baseline has zero BUY signals. |
-| **Total** | **16** | **Offline regression and integration tests** |
+| `test_stage2_deterministic_evidence.py` | 15 | A/B/C evidence-use policy and C/unknown relevance override, unknown trust, exact title/body and punctuation-insensitive token matching, signed numeric safeguards, ellipsis partial matches, missing/not-found quotes, truncation boundaries, RSS-summary fallback and exact evidence-input archival/hash. |
+| `test_stage2_briefing_handover.py` | 3 | A/B-only evidence source eligibility, mandatory evidence-verification handover gate, and fail-closed handling of legacy rows without explicit quote status. |
+| **Total** | **34** | **Offline regression and integration tests; all 34 passed locally and in GitHub Actions on 3 Nov 2026.** |
 
 ## Workflow covered
 

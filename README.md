@@ -48,6 +48,19 @@ The briefing builder itself does **not** call an LLM. The operator sends the gen
 - **LLM provider:** OpenRouter; configured models and fallbacks are controlled by YAML settings.
 - **No broker integration:** all signals are logged and evaluated as research outputs; trade decisions remain with the human operator.
 
+## Stage 2 news-tagging governance
+
+The news-tagging stage has deterministic source-reliability and quotation-integrity controls before tagged news is handed to the prediction briefing:
+
+- **Source reliability:** publisher A/B/C tier is looked up from `config/news_sources.yaml`. A and B sources are eligible as evidence; C is discovery-only; unknown/invalid sources are unrated and excluded. The LLM does not assign publisher trust.
+- **Evidence quotation:** the tagger checks the returned quotation against the exact title and article body (or RSS summary fallback) supplied to Stage 2. It records exact literal matches, punctuation-insensitive contiguous token matches, ellipsis partial matches, missing quotations and not-found quotations. Partial, missing and not-found quotations do not pass the briefing evidence gate.
+- **Input traceability:** new tagging runs archive the exact title/body text supplied to Stage 2 under `data/news/llm_tags/evidence_inputs/`, with its source type, truncation flag and SHA-256.
+- **Briefing handover:** the Python briefing builder excludes C/unknown sources and requires an explicit exact/token quote-match status. Legacy records without the new status fail closed until reprocessed.
+
+**Human audit remains responsible for two judgement areas:** reviewers should check whether the tagger's summary, reasons, materiality, prominence and event classification are supported by the supplied article (Problem 3), and whether factual statements introduce unsupported information beyond the supplied article (Problem 4). The project does not add an automated semantic auditor or claim to prove the model never uses pretrained knowledge.
+
+The current deterministic controls are documented in [Stage 2 deterministic controls](docs/investigations/stage2-deterministic-controls.md). The four original concerns and their dispositions are tracked in [the Stage 2 investigation record](docs/investigations/stage2-evidence-grounding-problem.md).
+
 ## Repository map
 
 | Path | Purpose |

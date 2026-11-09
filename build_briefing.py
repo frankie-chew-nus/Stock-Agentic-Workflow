@@ -478,6 +478,12 @@ def _title_words(t: str) -> set:
     return {w for w in _WORD.findall((t or "").lower()) if w not in _STOP}
 
 
+def _source_evidence_allowed(row: dict, source_config: dict) -> bool:
+    """Only configured A/B publishers may enter the prediction briefing as news evidence."""
+    trust = source_config.get("trust") or row.get("source_trust")
+    return trust in ("A", "B")
+
+
 def prepare_items(rows: list[dict], as_of: pd.Timestamp, cfg: dict, sources: dict) -> tuple[list[dict], Counter]:
     """Tag rows -> point-in-time items with effective date, tier and weight. Counts what was dropped."""
     n = cfg["news"]
@@ -486,6 +492,10 @@ def prepare_items(rows: list[dict], as_of: pd.Timestamp, cfg: dict, sources: dic
     accepted = set(n.get("accepted_prompt_versions") or [])
     meta = article_meta()
     for r in rows:
+        src = sources.get(r.get("source") or "", {})
+        if not _source_evidence_allowed(r, src):
+            stats["source_not_evidence_eligible"] += 1
+            continue
         if r.get("missing_from_reply") is True or r.get("relevant") is None and r.get("materiality") is None:
             stats["no_tag"] += 1
             continue
@@ -504,7 +514,6 @@ def prepare_items(rows: list[dict], as_of: pd.Timestamp, cfg: dict, sources: dic
             stats["after_as_of"] += 1
             continue
         age = (as_of - eff).days
-        src = sources.get(r.get("source") or "", {})
         stype = src.get("type") or "news"
         mat = r.get("materiality") if r.get("materiality") in MAT_RANK else "none"
         prom = r.get("prominence") if r.get("prominence") in PROM_RANK else "none"
@@ -529,8 +538,12 @@ def passes(it: dict, cfg: dict, min_mat: str) -> bool:
         return False
     if it["conf"] < float(n["min_tag_confidence"]):
         return False
-    if n["require_evidence_verified"] and not _truthy(it.get("evidence_verified")):
-        return False
+    if n["require_evidence_verified"]:
+        verified_statuses = {
+            "EXACT_MATCH_TITLE", "EXACT_MATCH_BODY", "TOKEN_MATCH_TITLE", "TOKEN_MATCH_BODY"
+        }
+        if not _truthy(it.get("evidence_verified")) or it.get("evidence_match_status") not in verified_statuses:
+            return False
     return True
 
 
